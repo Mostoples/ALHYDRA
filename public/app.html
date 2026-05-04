@@ -181,6 +181,11 @@
         <i class="fa-solid fa-chart-bar"></i>
         <span>Analytics</span>
       </a>
+      <div class="nav-section-label">KNOWLEDGE</div>
+      <a class="nav-item" data-view="encyclopedia" href="#encyclopedia">
+        <i class="fa-solid fa-book-open"></i>
+        <span>Encyclopedia</span>
+      </a>
       <div class="nav-section-label">SYSTEM</div>
       <a class="nav-item" data-view="settings" href="#settings">
         <i class="fa-solid fa-gear"></i>
@@ -921,6 +926,50 @@ Content-Type: application/json
         </div>
       </div><!-- /view-settings -->
 
+      <!-- ─── ENCYCLOPEDIA VIEW ─── -->
+      <div class="view hidden" id="view-encyclopedia">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Encyclopedia</h1>
+            <p class="view-subtitle">Knowledge base — tanaman, mikroalga, sensor, nutrisi & troubleshooting</p>
+          </div>
+          <div class="view-header-actions">
+            <div class="enc-search-wrap">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="enc-search" placeholder="Cari…" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="enc-tabs">
+          <button class="enc-tab-btn active" data-tab="plants"><i class="fa-solid fa-seedling"></i> Tanaman</button>
+          <button class="enc-tab-btn" data-tab="algae"><i class="fa-solid fa-water"></i> Mikroalga</button>
+          <button class="enc-tab-btn" data-tab="sensors"><i class="fa-solid fa-microchip"></i> Sensor</button>
+          <button class="enc-tab-btn" data-tab="nutrients"><i class="fa-solid fa-flask"></i> Nutrisi</button>
+          <button class="enc-tab-btn" data-tab="troubleshooting"><i class="fa-solid fa-wrench"></i> Troubleshooting</button>
+        </div>
+
+        <!-- Content body (rendered by JS) -->
+        <div id="enc-body" class="enc-body"></div>
+
+        <!-- Data attribution -->
+        <div class="enc-attribution">
+          <i class="fa-solid fa-database"></i>
+          Data referensi: Kaggle (Aquaponics IoT 118K rows, Solar Power Gen, Smart Farming 2024) · Cornell CEA · PMC peer-reviewed research
+        </div>
+      </div>
+
+      <!-- Encyclopedia Detail Modal -->
+      <div id="enc-modal" class="enc-modal">
+        <div class="enc-modal-box">
+          <div class="enc-modal-header-bar">
+            <button id="enc-modal-close" title="Tutup"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div id="enc-modal-content" class="enc-modal-content"></div>
+        </div>
+      </div>
+
       <!-- ─── ABOUT VIEW ─── -->
       <div class="view hidden" id="view-about">
         <div class="about-hero">
@@ -1092,6 +1141,8 @@ Content-Type: application/json
 <script src="js/control.js"></script>
 <script src="js/analytics.js"></script>
 <script src="js/settings.js"></script>
+<script src="js/encyclopedia.js"></script>
+<script src="js/calibration.js"></script>
 <script src="js/chat.js"></script>
 
 </body>

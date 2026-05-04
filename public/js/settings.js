@@ -166,6 +166,7 @@ ALHYDRA.settings = (() => {
     loadThresholds();
     loadSystem();
     loadGeminiKeyField();
+    ALHYDRA.calibration?.onSettingsEnter();
   }
 
   function init() {

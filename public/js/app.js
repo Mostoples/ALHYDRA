@@ -9,7 +9,7 @@ window.ALHYDRA = window.ALHYDRA || {};
 
 ALHYDRA.app = (() => {
   // ── State ──────────────────────────────
-  const views = ['dashboard', 'monitoring', 'control', 'analytics', 'settings', 'about'];
+  const views = ['dashboard', 'monitoring', 'control', 'analytics', 'encyclopedia', 'settings', 'about'];
   let currentView = 'dashboard';
   let notifications = [];
   let notifPanelOpen = false;
@@ -54,7 +54,7 @@ ALHYDRA.app = (() => {
     // Update breadcrumb
     const labels = {
       dashboard: 'Dashboard', monitoring: 'Monitoring', control: 'Control Panel',
-      analytics: 'Analytics', settings: 'Settings', about: 'About'
+      analytics: 'Analytics', encyclopedia: 'Encyclopedia', settings: 'Settings', about: 'About'
     };
     const bc = document.getElementById('breadcrumb-current');
     if (bc) bc.textContent = labels[viewId] || viewId;
@@ -73,8 +73,9 @@ ALHYDRA.app = (() => {
 
     if (prev === 'monitoring' && ALHYDRA.monitoring) ALHYDRA.monitoring.pause();
     if (viewId === 'monitoring'  && ALHYDRA.monitoring) ALHYDRA.monitoring.resume();
-    if (viewId === 'analytics'   && ALHYDRA.analytics)  ALHYDRA.analytics.onEnter();
-    if (viewId === 'settings'    && ALHYDRA.settings)   ALHYDRA.settings.onEnter();
+    if (viewId === 'analytics'    && ALHYDRA.analytics)    ALHYDRA.analytics.onEnter();
+    if (viewId === 'settings'     && ALHYDRA.settings)    ALHYDRA.settings.onEnter();
+    if (viewId === 'encyclopedia' && ALHYDRA.encyclopedia) ALHYDRA.encyclopedia.onEnter();
   }
 
   function initRouter() {
@@ -242,6 +243,8 @@ ALHYDRA.app = (() => {
     ALHYDRA.control?.init();
     ALHYDRA.analytics?.init();
     ALHYDRA.settings?.init();
+    ALHYDRA.encyclopedia?.init();
+    ALHYDRA.calibration?.init();
     ALHYDRA.chat?.init();
 
     // Monitor Firestore connectivity via known doc
