@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ALHYDRA — Smart Monitoring System</title>
+  <meta name="description" content="Algae-Hydroponic Dual-Renewable Apparatus — AIoT-Based Smart Monitoring for Sustainable Agriculture" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Chart.js Date adapter -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+  <!-- App CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     LOADING SCREEN
+═══════════════════════════════════════════ -->
+<div id="loading-screen">
+  <div class="loader-content">
+    <div class="loader-logo">
+      <div class="logo-ring ring-1"></div>
+      <div class="logo-ring ring-2"></div>
+      <div class="logo-ring ring-3"></div>
+      <div class="logo-icon"><i class="fa-solid fa-leaf"></i></div>
+    </div>
+    <h1 class="loader-title">ALHYDRA</h1>
+    <p class="loader-sub">Algae-Hydroponic Dual-Renewable Apparatus</p>
+    <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     AUTH SCREEN
+═══════════════════════════════════════════ -->
+<div id="auth-screen" class="hidden">
+  <div class="auth-bg">
+    <div class="auth-bg-circle c1"></div>
+    <div class="auth-bg-circle c2"></div>
+    <div class="auth-bg-circle c3"></div>
+  </div>
+  <div class="auth-card">
+    <!-- Branding -->
+    <div class="auth-brand">
+      <div class="auth-brand-icon"><i class="fa-solid fa-leaf"></i></div>
+      <div>
+        <h2>ALHYDRA</h2>
+        <span>Smart Monitoring System</span>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login">Sign In</button>
+      <button class="auth-tab" data-tab="register">Register</button>
+    </div>
+
+    <!-- Login Form -->
+    <form id="login-form" class="auth-form active">
+      <div class="form-group">
+        <label><i class="fa-solid fa-envelope"></i> Email</label>
+        <input type="email" id="login-email" placeholder="you@example.com" required />
+      </div>
+      <div class="form-group">
+        <label><i class="fa-solid fa-lock"></i> Password</label>
+        <div class="input-pw-wrap">
+          <input type="password" id="login-password" placeholder="••••••••" required />
+          <button type="button" class="pw-toggle" onclick="togglePw('login-password',this)"><i class="fa-solid fa-eye"></i></button>
+        </div>
+      </div>
+      <div class="form-actions-row">
+        <button type="button" class="link-btn" onclick="showForgot()">Forgot password?</button>
+      </div>
+      <button type="submit" class="btn-primary full-width" id="login-btn">
+        <span class="btn-text">Sign In</span>
+        <span class="btn-loader hidden"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
+      </button>
+      <div id="login-error" class="auth-error hidden"></div>
+    </form>
+
+    <!-- Register Form -->
+    <form id="register-form" class="auth-form hidden">
+      <div class="form-group">
+        <label><i class="fa-solid fa-user"></i> Full Name</label>
+        <input type="text" id="reg-name" placeholder="John Doe" required />
+      </div>
+      <div class="form-group">
+        <label><i class="fa-solid fa-envelope"></i> Email</label>
+        <input type="email" id="reg-email" placeholder="you@example.com" required />
+      </div>
+      <div class="form-group">
+        <label><i class="fa-solid fa-lock"></i> Password</label>
+        <div class="input-pw-wrap">
+          <input type="password" id="reg-password" placeholder="Min 6 characters" required minlength="6" />
+          <button type="button" class="pw-toggle" onclick="togglePw('reg-password',this)"><i class="fa-solid fa-eye"></i></button>
+        </div>
+      </div>
+      <button type="submit" class="btn-primary full-width" id="register-btn">
+        <span class="btn-text">Create Account</span>
+        <span class="btn-loader hidden"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
+      </button>
+      <div id="register-error" class="auth-error hidden"></div>
+    </form>
+
+    <!-- Forgot Password -->
+    <div id="forgot-form" class="auth-form hidden">
+      <p class="forgot-desc">Enter your email to receive a password reset link.</p>
+      <div class="form-group">
+        <label><i class="fa-solid fa-envelope"></i> Email</label>
+        <input type="email" id="forgot-email" placeholder="you@example.com" />
+      </div>
+      <div class="form-row-2">
+        <button type="button" class="btn-secondary" onclick="showLoginTab()">
+          <i class="fa-solid fa-arrow-left"></i> Back
+        </button>
+        <button type="button" class="btn-primary" onclick="sendReset()">Send Reset Link</button>
+      </div>
+      <div id="forgot-msg" class="auth-success hidden"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     APP SHELL
+═══════════════════════════════════════════ -->
+<div id="app" class="hidden">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="s-logo-icon"><i class="fa-solid fa-leaf"></i></div>
+        <div class="s-logo-text">
+          <span class="s-title">ALHYDRA</span>
+          <span class="s-sub">v1.0</span>
+        </div>
+      </div>
+      <button id="sidebar-collapse" title="Collapse sidebar">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">MAIN</div>
+      <a class="nav-item active" data-view="dashboard" href="#dashboard">
+        <i class="fa-solid fa-gauge-high"></i>
+        <span>Dashboard</span>
+      </a>
+      <a class="nav-item" data-view="monitoring" href="#monitoring">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Monitoring</span>
+        <span class="nav-badge live">LIVE</span>
+      </a>
+      <a class="nav-item" data-view="control" href="#control">
+        <i class="fa-solid fa-sliders"></i>
+        <span>Control Panel</span>
+      </a>
+      <div class="nav-section-label">ANALYSIS</div>
+      <a class="nav-item" data-view="analytics" href="#analytics">
+        <i class="fa-solid fa-chart-bar"></i>
+        <span>Analytics</span>
+      </a>
+      <div class="nav-section-label">SYSTEM</div>
+      <a class="nav-item" data-view="settings" href="#settings">
+        <i class="fa-solid fa-gear"></i>
+        <span>Settings</span>
+      </a>
+      <a class="nav-item" data-view="about" href="#about">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>About</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="system-status">
+        <div class="status-dot" id="conn-dot"></div>
+        <span id="conn-label">Connecting…</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN WRAPPER -->
+  <div id="main-wrapper">
+
+    <!-- TOP BAR -->
+    <header id="topbar">
+      <div class="topbar-left">
+        <button id="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+        <div class="breadcrumb">
+          <span class="breadcrumb-root"><i class="fa-solid fa-leaf"></i> ALHYDRA</span>
+          <span class="breadcrumb-sep">/</span>
+          <span id="breadcrumb-current">Dashboard</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-time" id="topbar-time"></div>
+        <button class="topbar-btn" id="notif-btn" title="Notifications">
+          <i class="fa-solid fa-bell"></i>
+          <span class="notif-badge hidden" id="notif-count">0</span>
+        </button>
+        <div class="user-menu" id="user-menu">
+          <div class="user-avatar" id="user-avatar">?</div>
+          <div class="user-info">
+            <span id="user-name-display">User</span>
+            <span id="user-email-display"></span>
+          </div>
+          <button class="topbar-btn" onclick="ALHYDRA.auth.signOut()" title="Sign Out">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT AREA -->
+    <main id="content">
+
+      <!-- ─── DASHBOARD VIEW ─── -->
+      <div class="view active" id="view-dashboard">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Dashboard</h1>
+            <p class="view-subtitle">Real-time overview of all system parameters</p>
+          </div>
+          <div class="view-header-actions">
+            <div class="last-update-badge">
+              <i class="fa-solid fa-clock"></i>
+              <span id="dash-last-update">—</span>
+            </div>
+            <button class="btn-secondary sm" id="dash-simulate-btn" onclick="ALHYDRA.dashboard.toggleSimulate()">
+              <i class="fa-solid fa-flask"></i> Demo Mode
+            </button>
+          </div>
+        </div>
+
+        <!-- Sensor Cards Grid -->
+        <div class="sensor-grid" id="sensor-grid">
+
+          <!-- pH -->
+          <div class="sensor-card" id="card-ph" data-key="ph">
+            <div class="sc-header">
+              <div class="sc-icon" style="--c:#10B981"><i class="fa-solid fa-flask-vial"></i></div>
+              <div class="sc-info">
+                <span class="sc-label">pH Level</span>
+                <span class="sc-unit">pH</span>
+              </div>
+              <div class="sc-status-dot" id="status-ph"></div>
+            </div>
+            <div class="sc-value" id="val-ph">—</div>
+            <div class="sc-range" id="range-ph">Optimal: 6.5 – 8.5</div>
+            <div class="sc-bar-wrap">
+              <div class="sc-bar-track"><div class="sc-bar-fill green" id="bar-ph" style="width:0%"></div></div>
+              <span class="sc-bar-label" id="bar-ph-label"></span>
+            </div>
+          </div>
+
+          <!-- Light Intensity -->
+          <div class="sensor-card" id="card-light" data-key="light">
+            <div class="sc-header">
+              <div class="sc-icon" style="--c:#F59E0B"><i class="fa-solid fa-sun"></i></div>
+              <div class="sc-info">
+                <span class="sc-label">Light Intensity</span>
+                <span class="sc-unit">Lux</span>
+              </div>
+              <div class="sc-status-dot" id="status-light"></div>
+            </div>
+            <div class="sc-value" id="val-light">—</div>
+            <div class="sc-range" id="range-light">Optimal: 500 – 5000 lux</div>
+            <div class="sc-bar-wrap">
+              <div class="sc-bar-track"><div class="sc-bar-fill amber" id="bar-light" style="width:0%"></div></div>
+              <span class="sc-bar-label" id="bar-light-label"></span>
+            </div>
+          </div>
+
+          <!-- Turbidity -->
+          <div class="sensor-card" id="card-turbidity" data-key="turbidity">
+            <div class="sc-header">
+              <div class="sc-icon" style="--c:#06B6D4"><i class="fa-solid fa-droplet"></i></div>
+              <div class="sc-info">
+                <span class="sc-label">Turbidity</span>
+                <span class="sc-unit">NTU</span>
+              </div>
+              <div class="sc-status-dot" id="status-turbidity"></div>
+            </div>
+            <div class="sc-value" id="val-turbidity">—</div>
+            <div class="sc-range" id="range-turbidity">Optimal: &lt; 20 NTU</div>
+            <div class="sc-bar-wrap">
+              <div class="sc-bar-track"><div class="sc-bar-fill cyan" id="bar-turbidity" style="width:0%"></div></div>
+              <span class="sc-bar-label" id="bar-turbidity-label"></span>
+            </div>
+          </div>
+
+          <!-- Temp Ambient -->
+          <div class="sensor-card" id="card-temp_ambient" data-key="temp_ambient">
+            <div class="sc-header">
+              <div class="sc-icon" style="--c:#EF4444"><i class="fa-solid fa-temperature-half"></i></div>
+              <div class="sc-info">
+                <span class="sc-label">Temp. Ambient</span>
+                <span class="sc-unit">°C</span>
+              </div>
+              <div class="sc-status-dot" id="status-temp_ambient"></div>
+            </div>
+            <div class="sc-value" id="val-temp_ambient">—</div>
+            <div class="sc-range" id="range-temp_ambient">Optimal: 22 – 32 °C</div>
+            <div class="sc-bar-wrap">
+              <div class="sc-bar-track"><div class="sc-bar-fill red" id="bar-temp_ambient" style="width:0%"></div></div>
+              <span class="sc-bar-label" id="bar-temp_ambient-label"></span>
+            </div>
+          </div>
+
+          <!-- Humidity -->
+          <div class="sensor-card" id="card-humidity" data-key="humidity">
+            <div class="sc-header">
+              <div class="sc-icon" style="--c:#8B5CF6"><i class="fa-solid fa-wind"></i></div>
+              <div class="sc-info">
+                <span class="sc-label">Humidity</span>
+                <span class="sc-unit">%</span>
+              </div>
+              <div class="sc-status-dot" id="status-humidity"></div>
+            </div>
+            <div class="sc-value" id="val-humidity">—</div>
+            <div class="sc-range" id="range-humidity">Optimal: 50 – 80 %</div>
+            <div class="sc-bar-wrap">
+              <div class="sc-bar-track"><div class="sc-bar-fill purple" id="bar-humidity" style="width:0%"></div></div>
+              <span class="sc-bar-label" id="bar-humidity-label"></span>
+            </div>
+          </div>
+
+          <!-- Water Temp -->
+          <div class="sensor-card" id="card-temp_water" data-key="temp_water">
+            <div class="sc-header">
+              <div class="sc-icon" style="--c:#06B6D4"><i class="fa-solid fa-water"></i></div>
+              <div class="sc-info">
+                <span class="sc-label">Water Temp.</span>
+                <span class="sc-unit">°C</span>
+              </div>
+              <div class="sc-status-dot" id="status-temp_water"></div>
+            </div>
+            <div class="sc-value" id="val-temp_water">—</div>
+            <div class="sc-range" id="range-temp_water">Optimal: 18 – 28 °C</div>
+            <div class="sc-bar-wrap">
+              <div class="sc-bar-track"><div class="sc-bar-fill cyan" id="bar-temp_water" style="width:0%"></div></div>
+              <span class="sc-bar-label" id="bar-temp_water-label"></span>
+            </div>
+          </div>
+
+          <!-- Power Generation -->
+          <div class="sensor-card energy-card" id="card-current_gen" data-key="current_gen">
+            <div class="sc-header">
+              <div class="sc-icon" style="--c:#10B981"><i class="fa-solid fa-solar-panel"></i></div>
+              <div class="sc-info">
+                <span class="sc-label">Power Generated</span>
+                <span class="sc-unit">A / W</span>
+              </div>
+              <div class="sc-status-dot good" id="status-current_gen"></div>
+            </div>
+            <div class="sc-value" id="val-current_gen">—</div>
+            <div class="sc-secondary-val" id="val-power_gen">— W</div>
+            <div class="sc-range">Solar + Wind</div>
+          </div>
+
+          <!-- Power Consumption -->
+          <div class="sensor-card energy-card" id="card-current_cons" data-key="current_cons">
+            <div class="sc-header">
+              <div class="sc-icon" style="--c:#F59E0B"><i class="fa-solid fa-bolt"></i></div>
+              <div class="sc-info">
+                <span class="sc-label">Power Consumed</span>
+                <span class="sc-unit">A / W</span>
+              </div>
+              <div class="sc-status-dot" id="status-current_cons"></div>
+            </div>
+            <div class="sc-value" id="val-current_cons">—</div>
+            <div class="sc-secondary-val" id="val-power_cons">— W</div>
+            <div class="sc-range">System load</div>
+          </div>
+
+        </div><!-- /sensor-grid -->
+
+        <!-- Bottom Row: Relay + Energy Chart -->
+        <div class="dash-bottom-row">
+
+          <!-- Relay Quick Controls -->
+          <div class="dash-relay-card">
+            <h3 class="card-section-title"><i class="fa-solid fa-rotate"></i> Pump Control</h3>
+            <div class="relay-row">
+              <div class="relay-item">
+                <div class="relay-label">
+                  <i class="fa-solid fa-pump-soap"></i>
+                  <span>Pump 1</span>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="dash-relay1" onchange="ALHYDRA.control.setRelay(1,this.checked)" />
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="relay-state-text" id="dash-relay1-label">OFF</span>
+              </div>
+              <div class="relay-item">
+                <div class="relay-label">
+                  <i class="fa-solid fa-pump-soap"></i>
+                  <span>Pump 2</span>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="dash-relay2" onchange="ALHYDRA.control.setRelay(2,this.checked)" />
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="relay-state-text" id="dash-relay2-label">OFF</span>
+              </div>
+            </div>
+            <!-- Energy Balance -->
+            <div class="energy-balance" id="energy-balance">
+              <div class="eb-item">
+                <span class="eb-label"><i class="fa-solid fa-arrow-up" style="color:var(--green)"></i> Generated</span>
+                <span class="eb-val" id="eb-gen">— W</span>
+              </div>
+              <div class="eb-item">
+                <span class="eb-label"><i class="fa-solid fa-arrow-down" style="color:var(--amber)"></i> Consumed</span>
+                <span class="eb-val" id="eb-cons">— W</span>
+              </div>
+              <div class="eb-item">
+                <span class="eb-label"><i class="fa-solid fa-equals" style="color:var(--cyan)"></i> Balance</span>
+                <span class="eb-val" id="eb-balance">— W</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Energy Chart -->
+          <div class="dash-chart-card">
+            <h3 class="card-section-title"><i class="fa-solid fa-chart-area"></i> Energy Overview (Last 30 readings)</h3>
+            <div class="chart-container" style="height:200px">
+              <canvas id="dash-energy-chart"></canvas>
+            </div>
+          </div>
+
+        </div><!-- /dash-bottom-row -->
+      </div><!-- /view-dashboard -->
+
+      <!-- ─── MONITORING VIEW ─── -->
+      <div class="view hidden" id="view-monitoring">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Real-Time Monitoring</h1>
+            <p class="view-subtitle">Live sensor data — updates automatically</p>
+          </div>
+          <div class="view-header-actions">
+            <div class="live-badge"><span class="pulse-dot"></span> LIVE</div>
+          </div>
+        </div>
+
+        <!-- Monitor Tabs -->
+        <div class="tab-bar">
+          <button class="tab-btn active" data-tab="water-quality">Water Quality</button>
+          <button class="tab-btn" data-tab="environment">Environment</button>
+          <button class="tab-btn" data-tab="energy">Energy</button>
+        </div>
+
+        <!-- Water Quality Tab -->
+        <div class="tab-panel active" id="tab-water-quality">
+          <div class="chart-grid-2">
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <span><i class="fa-solid fa-flask-vial" style="color:var(--green)"></i> pH Level</span>
+                <span class="chart-live-val" id="live-ph">—</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="chart-ph"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <span><i class="fa-solid fa-droplet" style="color:var(--cyan)"></i> Turbidity</span>
+                <span class="chart-live-val" id="live-turbidity">— NTU</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="chart-turbidity"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Environment Tab -->
+        <div class="tab-panel hidden" id="tab-environment">
+          <div class="chart-grid-2">
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <span><i class="fa-solid fa-sun" style="color:var(--amber)"></i> Light Intensity</span>
+                <span class="chart-live-val" id="live-light">— lux</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="chart-light"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <span><i class="fa-solid fa-temperature-half" style="color:var(--red)"></i> Ambient Temp.</span>
+                <span class="chart-live-val" id="live-temp_ambient">— °C</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="chart-temp_ambient"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <span><i class="fa-solid fa-wind" style="color:var(--purple)"></i> Humidity</span>
+                <span class="chart-live-val" id="live-humidity">— %</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="chart-humidity"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <span><i class="fa-solid fa-water" style="color:var(--cyan)"></i> Water Temp.</span>
+                <span class="chart-live-val" id="live-temp_water">— °C</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="chart-temp_water"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Energy Tab -->
+        <div class="tab-panel hidden" id="tab-energy">
+          <div class="chart-grid-2">
+            <div class="chart-card full-width">
+              <div class="chart-card-header">
+                <span><i class="fa-solid fa-bolt" style="color:var(--amber)"></i> Power Generation vs Consumption</span>
+                <div class="chart-legend-inline">
+                  <span class="legend-dot green"></span>Generated
+                  <span class="legend-dot amber"></span>Consumed
+                </div>
+              </div>
+              <div class="chart-container" style="height:280px">
+                <canvas id="chart-energy"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <span><i class="fa-solid fa-solar-panel" style="color:var(--green)"></i> Generation Current</span>
+                <span class="chart-live-val" id="live-current_gen">— A</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="chart-current_gen"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <span><i class="fa-solid fa-plug" style="color:var(--red)"></i> Consumption Current</span>
+                <span class="chart-live-val" id="live-current_cons">— A</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="chart-current_cons"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /view-monitoring -->
+
+      <!-- ─── CONTROL VIEW ─── -->
+      <div class="view hidden" id="view-control">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Control Panel</h1>
+            <p class="view-subtitle">Manual relay control for irrigation pumps</p>
+          </div>
+        </div>
+
+        <div class="control-grid">
+
+          <!-- Pump 1 -->
+          <div class="control-card" id="ctrl-pump1">
+            <div class="ctrl-card-top">
+              <div class="ctrl-icon" id="ctrl-icon-1"><i class="fa-solid fa-pump-soap"></i></div>
+              <div class="ctrl-info">
+                <h2>Pump 1</h2>
+                <span class="ctrl-subtitle">Primary irrigation pump</span>
+              </div>
+              <div class="ctrl-state-badge" id="ctrl-badge-1">OFF</div>
+            </div>
+            <div class="ctrl-toggle-wrap">
+              <label class="ctrl-toggle-switch">
+                <input type="checkbox" id="ctrl-relay1" onchange="ALHYDRA.control.setRelay(1,this.checked)" />
+                <span class="ctrl-toggle-slider">
+                  <span class="ctrl-toggle-label-off">OFF</span>
+                  <span class="ctrl-toggle-label-on">ON</span>
+                </span>
+              </label>
+            </div>
+            <div class="ctrl-stats">
+              <div class="ctrl-stat">
+                <i class="fa-solid fa-clock"></i>
+                <span>Last changed</span>
+                <strong id="ctrl-relay1-time">—</strong>
+              </div>
+              <div class="ctrl-stat">
+                <i class="fa-solid fa-user"></i>
+                <span>By</span>
+                <strong id="ctrl-relay1-by">—</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pump 2 -->
+          <div class="control-card" id="ctrl-pump2">
+            <div class="ctrl-card-top">
+              <div class="ctrl-icon" id="ctrl-icon-2"><i class="fa-solid fa-pump-soap"></i></div>
+              <div class="ctrl-info">
+                <h2>Pump 2</h2>
+                <span class="ctrl-subtitle">Secondary irrigation pump</span>
+              </div>
+              <div class="ctrl-state-badge" id="ctrl-badge-2">OFF</div>
+            </div>
+            <div class="ctrl-toggle-wrap">
+              <label class="ctrl-toggle-switch">
+                <input type="checkbox" id="ctrl-relay2" onchange="ALHYDRA.control.setRelay(2,this.checked)" />
+                <span class="ctrl-toggle-slider">
+                  <span class="ctrl-toggle-label-off">OFF</span>
+                  <span class="ctrl-toggle-label-on">ON</span>
+                </span>
+              </label>
+            </div>
+            <div class="ctrl-stats">
+              <div class="ctrl-stat">
+                <i class="fa-solid fa-clock"></i>
+                <span>Last changed</span>
+                <strong id="ctrl-relay2-time">—</strong>
+              </div>
+              <div class="ctrl-stat">
+                <i class="fa-solid fa-user"></i>
+                <span>By</span>
+                <strong id="ctrl-relay2-by">—</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Control Log -->
+          <div class="control-log-card">
+            <div class="ctrl-log-header">
+              <h3><i class="fa-solid fa-list-ul"></i> Control Log</h3>
+              <button class="btn-secondary sm" onclick="ALHYDRA.control.clearLog()">Clear</button>
+            </div>
+            <div class="ctrl-log-body" id="ctrl-log"></div>
+          </div>
+
+        </div>
+      </div><!-- /view-control -->
+
+      <!-- ─── ANALYTICS VIEW ─── -->
+      <div class="view hidden" id="view-analytics">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Analytics</h1>
+            <p class="view-subtitle">Historical sensor data and trends</p>
+          </div>
+        </div>
+
+        <!-- Date Range Filter -->
+        <div class="analytics-toolbar">
+          <div class="date-filter">
+            <label><i class="fa-solid fa-calendar-days"></i> From</label>
+            <input type="date" id="an-date-from" />
+            <label>To</label>
+            <input type="date" id="an-date-to" />
+            <button class="btn-primary sm" onclick="ALHYDRA.analytics.load()">
+              <i class="fa-solid fa-magnifying-glass"></i> Load
+            </button>
+          </div>
+          <div class="quick-range-btns">
+            <button class="qr-btn active" onclick="ALHYDRA.analytics.quickRange(1)">1h</button>
+            <button class="qr-btn" onclick="ALHYDRA.analytics.quickRange(6)">6h</button>
+            <button class="qr-btn" onclick="ALHYDRA.analytics.quickRange(24)">24h</button>
+            <button class="qr-btn" onclick="ALHYDRA.analytics.quickRange(168)">7d</button>
+          </div>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="analytics-stats" id="analytics-stats">
+          <div class="stat-pill">
+            <span class="sp-label">Avg pH</span>
+            <span class="sp-val" id="stat-avg-ph">—</span>
+          </div>
+          <div class="stat-pill">
+            <span class="sp-label">Avg Temp Ambient</span>
+            <span class="sp-val" id="stat-avg-temp">—</span>
+          </div>
+          <div class="stat-pill">
+            <span class="sp-label">Avg Water Temp</span>
+            <span class="sp-val" id="stat-avg-wtemp">—</span>
+          </div>
+          <div class="stat-pill">
+            <span class="sp-label">Avg Turbidity</span>
+            <span class="sp-val" id="stat-avg-turb">—</span>
+          </div>
+          <div class="stat-pill">
+            <span class="sp-label">Total Readings</span>
+            <span class="sp-val" id="stat-count">—</span>
+          </div>
+        </div>
+
+        <!-- Analytics Charts -->
+        <div class="chart-grid-2" id="analytics-charts">
+          <div class="chart-card">
+            <div class="chart-card-header">pH History</div>
+            <div class="chart-container">
+              <canvas id="an-chart-ph"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-header">Turbidity History</div>
+            <div class="chart-container">
+              <canvas id="an-chart-turbidity"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-header">Temperature History (Ambient & Water)</div>
+            <div class="chart-container">
+              <canvas id="an-chart-temp"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-header">Energy History (Generation vs Consumption W)</div>
+            <div class="chart-container">
+              <canvas id="an-chart-energy"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div id="analytics-empty" class="empty-state hidden">
+          <i class="fa-solid fa-chart-simple"></i>
+          <p>No data for the selected range.<br>Adjust the date range or use Demo Mode.</p>
+        </div>
+      </div><!-- /view-analytics -->
+
+      <!-- ─── SETTINGS VIEW ─── -->
+      <div class="view hidden" id="view-settings">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Settings</h1>
+            <p class="view-subtitle">Alert thresholds and system configuration</p>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+
+          <!-- Threshold Settings -->
+          <div class="settings-card">
+            <h3 class="settings-card-title"><i class="fa-solid fa-triangle-exclamation"></i> Alert Thresholds</h3>
+            <div class="settings-form">
+
+              <div class="sf-group">
+                <label>pH Min / Max</label>
+                <div class="sf-row-2">
+                  <input type="number" id="thr-ph-min" step="0.1" placeholder="Min (e.g. 6.0)" />
+                  <input type="number" id="thr-ph-max" step="0.1" placeholder="Max (e.g. 9.0)" />
+                </div>
+              </div>
+
+              <div class="sf-group">
+                <label>Light Intensity Min / Max (lux)</label>
+                <div class="sf-row-2">
+                  <input type="number" id="thr-light-min" placeholder="Min (e.g. 200)" />
+                  <input type="number" id="thr-light-max" placeholder="Max (e.g. 10000)" />
+                </div>
+              </div>
+
+              <div class="sf-group">
+                <label>Turbidity Max (NTU)</label>
+                <input type="number" id="thr-turb-max" placeholder="Max (e.g. 50)" />
+              </div>
+
+              <div class="sf-group">
+                <label>Ambient Temp. Min / Max (°C)</label>
+                <div class="sf-row-2">
+                  <input type="number" id="thr-tempamb-min" step="0.5" placeholder="Min (e.g. 18)" />
+                  <input type="number" id="thr-tempamb-max" step="0.5" placeholder="Max (e.g. 35)" />
+                </div>
+              </div>
+
+              <div class="sf-group">
+                <label>Humidity Min / Max (%)</label>
+                <div class="sf-row-2">
+                  <input type="number" id="thr-hum-min" placeholder="Min (e.g. 40)" />
+                  <input type="number" id="thr-hum-max" placeholder="Max (e.g. 90)" />
+                </div>
+              </div>
+
+              <div class="sf-group">
+                <label>Water Temp. Min / Max (°C)</label>
+                <div class="sf-row-2">
+                  <input type="number" id="thr-tempw-min" step="0.5" placeholder="Min (e.g. 18)" />
+                  <input type="number" id="thr-tempw-max" step="0.5" placeholder="Max (e.g. 30)" />
+                </div>
+              </div>
+
+              <button class="btn-primary" onclick="ALHYDRA.settings.saveThresholds()">
+                <i class="fa-solid fa-floppy-disk"></i> Save Thresholds
+              </button>
+            </div>
+          </div>
+
+          <!-- System Settings -->
+          <div class="settings-card">
+            <h3 class="settings-card-title"><i class="fa-solid fa-gear"></i> System Configuration</h3>
+            <div class="settings-form">
+              <div class="sf-group">
+                <label>Site Name</label>
+                <input type="text" id="sys-site-name" placeholder="e.g. ALHYDRA Lab" />
+              </div>
+              <div class="sf-group">
+                <label>Voltage Reference (V)</label>
+                <input type="number" id="sys-voltage" placeholder="e.g. 220" step="1" />
+              </div>
+              <div class="sf-group">
+                <label>Sensor Log Interval (seconds)</label>
+                <input type="number" id="sys-interval" placeholder="e.g. 30" step="5" />
+              </div>
+              <button class="btn-primary" onclick="ALHYDRA.settings.saveSystem()">
+                <i class="fa-solid fa-floppy-disk"></i> Save Config
+              </button>
+            </div>
+          </div>
+
+          <!-- User Profile -->
+          <div class="settings-card">
+            <h3 class="settings-card-title"><i class="fa-solid fa-user-circle"></i> User Profile</h3>
+            <div class="settings-form">
+              <div class="user-profile-avatar" id="settings-avatar">?</div>
+              <div class="sf-group">
+                <label>Display Name</label>
+                <input type="text" id="prof-name" placeholder="Your name" />
+              </div>
+              <div class="sf-group">
+                <label>Email</label>
+                <input type="email" id="prof-email" disabled />
+              </div>
+              <button class="btn-primary" onclick="ALHYDRA.settings.updateProfile()">
+                <i class="fa-solid fa-floppy-disk"></i> Update Profile
+              </button>
+              <hr class="sf-divider" />
+              <h4>Change Password</h4>
+              <div class="sf-group">
+                <label>New Password</label>
+                <input type="password" id="prof-pw" placeholder="Min 6 characters" minlength="6" />
+              </div>
+              <button class="btn-secondary" onclick="ALHYDRA.settings.changePassword()">
+                <i class="fa-solid fa-key"></i> Change Password
+              </button>
+              <hr class="sf-divider" />
+              <button class="btn-danger" onclick="ALHYDRA.auth.signOut()">
+                <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+              </button>
+            </div>
+          </div>
+
+          <!-- Firebase Integration Guide -->
+          <div class="settings-card">
+            <h3 class="settings-card-title"><i class="fa-solid fa-microchip"></i> IoT Integration (ESP32/Arduino)</h3>
+            <div class="iot-guide">
+              <p>Send sensor data to Firestore via REST API. Write to <code>sensors/latest</code>:</p>
+              <pre class="code-block"><code>POST https://firestore.googleapis.com/v1/projects/alhydra-id/databases/(default)/documents/sensors/latest
+Content-Type: application/json
+
+{
+  "fields": {
+    "ph":              { "doubleValue": 7.2 },
+    "light":           { "doubleValue": 820 },
+    "turbidity":       { "doubleValue": 12.5 },
+    "temp_ambient":    { "doubleValue": 28.3 },
+    "humidity":        { "doubleValue": 65.0 },
+    "temp_water":      { "doubleValue": 24.1 },
+    "current_gen":     { "doubleValue": 3.2 },
+    "current_cons":    { "doubleValue": 2.5 },
+    "voltage":         { "doubleValue": 220 },
+    "timestamp":       { "stringValue": "ISO8601" }
+  }
+}</code></pre>
+              <p>Read relay state from <code>relays/pump1</code> field <code>state</code> (boolean).</p>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /view-settings -->
+
+      <!-- ─── ABOUT VIEW ─── -->
+      <div class="view hidden" id="view-about">
+        <div class="about-hero">
+          <div class="about-logo-wrap">
+            <div class="about-logo-ring"></div>
+            <div class="about-logo-icon"><i class="fa-solid fa-leaf"></i></div>
+          </div>
+          <h1>ALHYDRA</h1>
+          <h2>Algae-Hydroponic Dual-Renewable Apparatus</h2>
+          <p class="about-tagline">
+            Hybrid Multi Tower Cultivation — integrating Microalgae, Horticulture, and Hydroponic Towers
+            powered by Solar Panels and Wind Turbines with AIoT-Based Smart Monitoring
+            for Sustainable Agriculture.
+          </p>
+        </div>
+
+        <div class="about-grid">
+          <div class="about-card">
+            <div class="about-card-icon" style="--c:#10B981"><i class="fa-solid fa-seedling"></i></div>
+            <h3>Cultivation</h3>
+            <p>Multi-tower hydroponic and microalgae cultivation in a controlled environment.</p>
+          </div>
+          <div class="about-card">
+            <div class="about-card-icon" style="--c:#F59E0B"><i class="fa-solid fa-solar-panel"></i></div>
+            <h3>Renewable Energy</h3>
+            <p>Dual-source power from solar panels and wind turbines, monitored in real time.</p>
+          </div>
+          <div class="about-card">
+            <div class="about-card-icon" style="--c:#06B6D4"><i class="fa-solid fa-droplet"></i></div>
+            <h3>Water Quality</h3>
+            <p>Continuous monitoring of pH, turbidity, and water temperature for optimal growth.</p>
+          </div>
+          <div class="about-card">
+            <div class="about-card-icon" style="--c:#8B5CF6"><i class="fa-solid fa-microchip"></i></div>
+            <h3>AIoT Monitoring</h3>
+            <p>Cloud-based smart monitoring with Firebase and IoT sensors providing real-time insights.</p>
+          </div>
+        </div>
+
+        <!-- Sensor Table -->
+        <div class="about-sensor-table">
+          <h3>Sensor Specifications</h3>
+          <table>
+            <thead>
+              <tr><th>#</th><th>Sensor</th><th>Parameter</th><th>Unit</th><th>Optimal Range</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>pH Sensor</td><td>pH Level</td><td>pH</td><td>6.5 – 8.5</td></tr>
+              <tr><td>2</td><td>LDR / BH1750</td><td>Light Intensity</td><td>lux</td><td>500 – 5000</td></tr>
+              <tr><td>3</td><td>Turbidity Sensor</td><td>Water Turbidity</td><td>NTU</td><td>&lt; 20</td></tr>
+              <tr><td>4</td><td>DHT11</td><td>Ambient Temp. & Humidity</td><td>°C / %</td><td>22–32 / 50–80</td></tr>
+              <tr><td>5</td><td>DS18B20</td><td>Water Temperature</td><td>°C</td><td>18 – 28</td></tr>
+              <tr><td>6</td><td>ACS712 #1</td><td>Power Consumption</td><td>A / W</td><td>Monitor</td></tr>
+              <tr><td>7</td><td>ACS712 #2</td><td>Power Generation</td><td>A / W</td><td>Monitor</td></tr>
+              <tr><td>8</td><td>Relay Module</td><td>Pump 1 &amp; Pump 2</td><td>ON/OFF</td><td>Controlled</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="about-footer">
+          <p>Powered by Firebase &bull; Chart.js &bull; Font Awesome</p>
+          <p>ALHYDRA Research Project &copy; 2024</p>
+        </div>
+      </div><!-- /view-about -->
+
+    </main>
+  </div><!-- /main-wrapper -->
+</div><!-- /app -->
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- NOTIFICATIONS PANEL -->
+<div id="notif-panel" class="hidden">
+  <div class="notif-panel-header">
+    <h4>Notifications</h4>
+    <button onclick="ALHYDRA.app.clearNotifications()">Clear all</button>
+  </div>
+  <div id="notif-list" class="notif-list">
+    <div class="notif-empty">No notifications</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FIREBASE SDK (compat — works without build tools)
+═══════════════════════════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<!-- ═══════════════════════════════════════════
+     APP SCRIPTS (order matters)
+═══════════════════════════════════════════ -->
+<script src="js/firebase-config.js"></script>
+<script src="js/app.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/monitoring.js"></script>
+<script src="js/control.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/settings.js"></script>
+
+</body>
+</html>
