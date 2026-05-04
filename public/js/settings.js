@@ -135,15 +135,42 @@ ALHYDRA.settings = (() => {
     return el ? el.value.trim() : '';
   }
 
+  // ── Gemini API key (localStorage) ─────
+  function saveGeminiKey() {
+    const key = strVal('gemini-api-key');
+    const statusEl = document.getElementById('gemini-key-status');
+    if (key) {
+      localStorage.setItem('alhydra_gemini_key', key);
+      if (statusEl) { statusEl.textContent = '✅ API key saved. Reload the chat to activate.'; statusEl.className = 'sf-note success'; }
+      ALHYDRA.app.toast('Gemini API key saved!', 'success');
+    } else {
+      localStorage.removeItem('alhydra_gemini_key');
+      if (statusEl) { statusEl.textContent = 'API key removed — demo mode active.'; statusEl.className = 'sf-note'; }
+      ALHYDRA.app.toast('Gemini key removed.', 'info');
+    }
+  }
+
+  function loadGeminiKeyField() {
+    const inp     = document.getElementById('gemini-api-key');
+    const statusEl = document.getElementById('gemini-key-status');
+    const key     = localStorage.getItem('alhydra_gemini_key') || '';
+    if (inp) inp.value = key;
+    if (statusEl) {
+      statusEl.textContent = key ? '✅ Gemini AI is active.' : '💡 No key — running in demo mode.';
+      statusEl.className   = key ? 'sf-note success' : 'sf-note';
+    }
+  }
+
   function onEnter() {
     loadProfile();
     loadThresholds();
     loadSystem();
+    loadGeminiKeyField();
   }
 
   function init() {
     loadThresholds();
   }
 
-  return { init, onEnter, saveThresholds, saveSystem, updateProfile, changePassword };
+  return { init, onEnter, saveThresholds, saveSystem, updateProfile, changePassword, saveGeminiKey };
 })();

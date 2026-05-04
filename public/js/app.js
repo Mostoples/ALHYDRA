@@ -242,6 +242,7 @@ ALHYDRA.app = (() => {
     ALHYDRA.control?.init();
     ALHYDRA.analytics?.init();
     ALHYDRA.settings?.init();
+    ALHYDRA.chat?.init();
 
     // Monitor Firestore connectivity via known doc
     window.db.collection('_health').doc('ping')

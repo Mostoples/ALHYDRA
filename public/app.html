@@ -873,6 +873,25 @@
             </div>
           </div>
 
+          <!-- AI Configuration -->
+          <div class="settings-card">
+            <h3 class="settings-card-title"><i class="fa-solid fa-robot"></i> AI Assistant (Gemini)</h3>
+            <div class="settings-form">
+              <p class="sf-desc">Enter your <strong>Gemini API key</strong> to enable full AI responses. Without a key the assistant runs in smart demo mode. Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com</a>.</p>
+              <div class="sf-group">
+                <label><i class="fa-solid fa-key"></i> Gemini API Key</label>
+                <div class="input-pw-wrap">
+                  <input type="password" id="gemini-api-key" placeholder="AIzaSy…" autocomplete="off" />
+                  <button type="button" class="pw-toggle" onclick="togglePw('gemini-api-key',this)"><i class="fa-solid fa-eye"></i></button>
+                </div>
+              </div>
+              <button class="btn-primary" onclick="ALHYDRA.settings.saveGeminiKey()">
+                <i class="fa-solid fa-floppy-disk"></i> Save API Key
+              </button>
+              <p class="sf-note" id="gemini-key-status"></p>
+            </div>
+          </div>
+
           <!-- Firebase Integration Guide -->
           <div class="settings-card">
             <h3 class="settings-card-title"><i class="fa-solid fa-microchip"></i> IoT Integration (ESP32/Arduino)</h3>
@@ -995,6 +1014,52 @@ Content-Type: application/json
   </a>
 </nav>
 
+<!-- ═══════════════════════════════════════════
+     AI CHAT FAB + PANEL
+═══════════════════════════════════════════ -->
+<button id="chat-fab" title="ALHYDRA AI Assistant" aria-label="AI Assistant">
+  <i class="fa-solid fa-robot"></i>
+  <span class="chat-fab-badge">AI</span>
+</button>
+
+<div id="chat-panel" role="dialog" aria-label="ALHYDRA AI Assistant">
+  <!-- Header -->
+  <div class="chat-panel-header">
+    <div class="chat-header-info">
+      <div class="chat-avatar-icon"><i class="fa-solid fa-robot"></i></div>
+      <div>
+        <h4>ALHYDRA AI</h4>
+        <span class="chat-status-line" id="chat-status-line">Smart Assistant</span>
+      </div>
+    </div>
+    <div class="chat-header-btns">
+      <button id="chat-clear-btn" title="Clear chat"><i class="fa-solid fa-broom"></i></button>
+      <button onclick="ALHYDRA.chat.togglePanel()" title="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div id="chat-messages" class="chat-messages"></div>
+
+  <!-- Quick prompts -->
+  <div id="chat-quick-prompts" class="chat-quick-prompts">
+    <button class="chat-qp-btn" data-prompt="Give me a full system overview."><i class="fa-solid fa-chart-line"></i> Overview</button>
+    <button class="chat-qp-btn" data-prompt="What is the current pH status?"><i class="fa-solid fa-flask-vial"></i> pH Status</button>
+    <button class="chat-qp-btn" data-prompt="How is the water quality?"><i class="fa-solid fa-droplet"></i> Water</button>
+    <button class="chat-qp-btn" data-prompt="What is the energy balance?"><i class="fa-solid fa-bolt"></i> Energy</button>
+    <button class="chat-qp-btn" data-prompt="Give me recommendations to optimize the system."><i class="fa-solid fa-lightbulb"></i> Tips</button>
+    <button class="chat-qp-btn" data-prompt="Are the pumps running?"><i class="fa-solid fa-pump-soap"></i> Pumps</button>
+  </div>
+
+  <!-- Input -->
+  <div class="chat-input-row">
+    <textarea id="chat-input" placeholder="Ask about sensors, energy, recommendations…" rows="1"></textarea>
+    <button id="chat-send-btn" title="Send message">
+      <i class="fa-solid fa-paper-plane"></i>
+    </button>
+  </div>
+</div>
+
 <!-- TOAST CONTAINER -->
 <div id="toast-container"></div>
 
@@ -1027,6 +1092,7 @@ Content-Type: application/json
 <script src="js/control.js"></script>
 <script src="js/analytics.js"></script>
 <script src="js/settings.js"></script>
+<script src="js/chat.js"></script>
 
 </body>
 </html>
