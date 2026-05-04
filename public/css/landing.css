@@ -531,20 +531,93 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.85em; color: var(-
 }
 
 /* ═══════════════════════════════════════════
-   RESPONSIVE
+   RESPONSIVE — Tablets (≤ 860px)
 ═══════════════════════════════════════════ */
 @media (max-width: 860px) {
   .nav-links { display: none; }
   .nav-hamburger { display: flex; }
   .fi { display: none; }
+
+  /* Hero stats — wrap into 2×2 grid */
   .hs-divider { display: none; }
-  .hero-stats { gap: 16px; }
-  .hs-item { padding: 8px 12px; }
-  .hiw-flow { gap: 24px; }
+  .hero-stats {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1px; padding: 0; background: var(--border); border-radius: var(--radius); overflow: hidden;
+  }
+  .hs-item {
+    padding: 16px 12px; background: rgba(255,255,255,0.025);
+    border: none;
+  }
+  .hs-num { font-size: 22px; }
+
+  /* How it works — stack */
+  .hiw-flow { flex-direction: column; align-items: center; gap: 20px; }
+  .hiw-arrow { transform: rotate(90deg); }
+
+  /* Feature cards */
+  .features-grid { grid-template-columns: 1fr 1fr; }
+
+  /* Stats */
+  .stats-grid { grid-template-columns: 1fr 1fr; }
 }
-@media (max-width: 600px) {
-  .section { padding: 64px 0; }
-  .hero-stats { flex-direction: column; align-items: flex-start; padding: 20px; }
-  .cta-card { padding: 40px 24px; }
-  #hero { padding-top: calc(var(--nav-h) + 40px); }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE — Large phones (≤ 640px)
+═══════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .section { padding: 56px 0; }
+  .section-title { font-size: clamp(22px, 6vw, 32px); }
+
+  /* Hero */
+  #hero { padding-top: calc(var(--nav-h) + 32px); padding-bottom: 64px; }
+  .hero-title-main { letter-spacing: 4px; }
+  .hero-desc { font-size: 14px; }
+  .hero-actions { flex-direction: column; align-items: stretch; gap: 10px; }
+  .btn-hero-primary, .btn-hero-secondary { justify-content: center; padding: 14px 20px; }
+  .scroll-hint { display: none; }
+
+  /* About */
+  .about-grid { grid-template-columns: 1fr; gap: 32px; }
+  .av-card { width: 220px; height: 220px; margin: 0 auto; }
+
+  /* Features — 1 column */
+  .features-grid { grid-template-columns: 1fr; }
+  .feature-card { padding: 20px; }
+
+  /* Sensor showcase — simplified */
+  .sensor-item { grid-template-columns: 36px 44px 1fr; gap: 12px; padding: 14px 16px; }
+  .si-range { display: none; }
+  .si-info p { display: none; }
+
+  /* CTA */
+  .cta-card { padding: 36px 20px; }
+  .cta-actions { flex-direction: column; align-items: stretch; gap: 10px; }
+  .btn-cta-primary, .btn-cta-secondary { justify-content: center; padding: 14px 20px; }
+
+  /* Stats */
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-card { padding: 20px 16px; }
+  .stat-num { font-size: 24px; }
+
+  /* Footer */
+  .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+  .footer-bottom { flex-direction: column; text-align: center; }
+
+  /* Architecture diagram */
+  .arch-diagram { flex-direction: column; }
+  .arch-arrow { transform: rotate(90deg); padding: 6px 0; }
+  .arch-layer { border-right: none !important; border-bottom: 1px solid var(--border); }
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE — Small phones (≤ 400px)
+═══════════════════════════════════════════ */
+@media (max-width: 400px) {
+  .hero-stats { grid-template-columns: 1fr; }
+  .hero-title-main { font-size: 48px; letter-spacing: 3px; }
+  .btn-nav-cta span:not(.fa-solid) { display: none; }
+  .btn-nav-cta { padding: 9px 12px; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .section { padding: 44px 0; }
+  .container { padding: 0 16px; }
 }

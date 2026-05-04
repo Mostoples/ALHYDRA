@@ -59,6 +59,11 @@ ALHYDRA.app = (() => {
     const bc = document.getElementById('breadcrumb-current');
     if (bc) bc.textContent = labels[viewId] || viewId;
 
+    // Sync mobile bottom nav
+    document.querySelectorAll('.mbn-item').forEach(n => {
+      n.classList.toggle('active', n.dataset.view === viewId);
+    });
+
     // Close mobile sidebar
     closeMobileSidebar();
 
@@ -73,8 +78,8 @@ ALHYDRA.app = (() => {
   }
 
   function initRouter() {
-    // Nav link clicks
-    document.querySelectorAll('.nav-item').forEach(link => {
+    // Sidebar nav + mobile bottom nav clicks
+    document.querySelectorAll('.nav-item, .mbn-item').forEach(link => {
       link.addEventListener('click', e => {
         e.preventDefault();
         const v = link.dataset.view;
