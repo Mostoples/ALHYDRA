@@ -42,12 +42,12 @@ ALHYDRA.app = (() => {
 
     // Deactivate old
     const old = document.getElementById('view-' + currentView);
-    if (old) old.classList.remove('active');
+    if (old) { old.classList.remove('active'); old.classList.add('hidden'); }
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
     // Activate new
     const next = document.getElementById('view-' + viewId);
-    if (next) next.classList.add('active');
+    if (next) { next.classList.remove('hidden'); next.classList.add('active'); }
     const navLink = document.querySelector(`.nav-item[data-view="${viewId}"]`);
     if (navLink) navLink.classList.add('active');
 
