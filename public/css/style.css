@@ -219,6 +219,19 @@ hr { border: none; border-top: 1px solid var(--border); }
 .auth-error { color: var(--red); font-size: 12px; padding: 10px; background: rgba(239,68,68,0.1); border-radius: 6px; border-left: 3px solid var(--red); }
 .auth-success { color: var(--green); font-size: 12px; padding: 10px; background: rgba(16,185,129,0.1); border-radius: 6px; border-left: 3px solid var(--green); }
 
+/* Google sign-in */
+.auth-divider { display: flex; align-items: center; gap: 10px; margin: 2px 0; }
+.auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.auth-divider span { font-size: 11px; color: var(--text-muted); }
+.btn-google {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: #fff; color: #3c4043; font-weight: 500; font-size: 14px;
+  border: 1px solid #dadce0; border-radius: var(--radius-sm);
+  padding: 10px 18px; transition: var(--transition);
+  cursor: pointer; width: 100%;
+}
+.btn-google:hover { background: #f8f9fa; box-shadow: 0 1px 6px rgba(0,0,0,0.3); }
+
 /* ═══════════════════════════════════════════
    APP SHELL LAYOUT
 ═══════════════════════════════════════════ */

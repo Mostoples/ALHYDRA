@@ -93,6 +93,30 @@ ALHYDRA.auth = (() => {
     });
   }
 
+  // ── Google Sign-in ─────────────────────
+  async function googleSignIn() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    try {
+      const result = await window.auth.signInWithPopup(provider);
+      const user   = result.user;
+      // Create Firestore profile if first sign-in
+      const userDoc = await window.db.collection('users').doc(user.uid).get();
+      if (!userDoc.exists) {
+        await window.db.collection('users').doc(user.uid).set({
+          name:       user.displayName || '',
+          email:      user.email || '',
+          role:       'operator',
+          created_at: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+      ALHYDRA.app.toast('Signed in with Google!', 'success');
+    } catch(err) {
+      if (err.code === 'auth/popup-closed-by-user') return;
+      ALHYDRA.app.toast(friendlyError(err.code) || err.message, 'error');
+    }
+  }
+
   // ── Sign-out ───────────────────────────
   async function signOut() {
     try {
@@ -124,7 +148,7 @@ ALHYDRA.auth = (() => {
     initRegister();
   }
 
-  return { init, signOut };
+  return { init, signOut, googleSignIn };
 })();
 
 // Init auth on DOMContentLoaded (before Firebase auth state)
