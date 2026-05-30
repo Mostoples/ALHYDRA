@@ -148,6 +148,9 @@
   border: 1px solid var(--border); color: var(--text); transition: .2s;
 }
 .footer-social a:hover { color: var(--green-c); border-color: var(--green-c); transform: translateY(-2px); }
+.footer-legal { margin: 6px 0; }
+.footer-legal a { color: var(--muted); transition: color .2s; }
+.footer-legal a:hover { color: var(--green-c); }
 
 /* ── Back-to-top button ── */
 #to-top {
