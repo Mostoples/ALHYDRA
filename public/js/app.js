@@ -283,6 +283,7 @@ ALHYDRA.app = (() => {
     initNotifPanel();
     initTheme();
     ALHYDRA.i18n?.init();
+    ALHYDRA.audit?.init();
     setupChartDefaults();
 
     // Init all modules
@@ -298,8 +299,21 @@ ALHYDRA.app = (() => {
     ALHYDRA.impact?.init();
     ALHYDRA.help?.init();
     ALHYDRA.widgets?.init();
+    ALHYDRA.onboarding?.init();
+    ALHYDRA.profile?.init();
+    ALHYDRA.account?.init();
+    ALHYDRA.privacy?.init();
+    ALHYDRA.admin?.init();
+    ALHYDRA.tasks?.init();
+    ALHYDRA.notes?.init();
+    ALHYDRA.harvest?.init();
+    ALHYDRA.maintenance?.init();
+    ALHYDRA.automation?.init();
+    ALHYDRA.palette?.init();
+    ALHYDRA.report?.init();
     ALHYDRA.ml?.init();
     ALHYDRA.chat?.init();
+    ALHYDRA.audit?.log('login');
 
     // Monitor Firestore connectivity via known doc
     window.db.collection('_health').doc('ping')

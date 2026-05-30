@@ -1,0 +1,104 @@
+/* ═══════════════════════════════════════════════════════════
+   ALHYDRA — Onboarding wizard, product tour, setup checklist
+═══════════════════════════════════════════════════════════ */
+
+/* ── Wizard modal ── */
+#onb-modal {
+  position: fixed; inset: 0; z-index: 4000; display: none;
+  align-items: center; justify-content: center;
+  background: rgba(5, 9, 18, 0.72); backdrop-filter: blur(8px);
+  padding: 20px;
+}
+#onb-modal.open { display: flex; }
+.onb-box {
+  width: 100%; max-width: 440px;
+  background: var(--bg-card); border: 1px solid var(--glass-border, var(--border));
+  border-radius: 20px; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
+  overflow: hidden; position: relative;
+}
+#onb-content { position: relative; padding: 28px 26px 20px; }
+.onb-skip {
+  position: absolute; top: 14px; right: 16px; z-index: 2;
+  background: none; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer;
+}
+.onb-skip:hover { color: var(--text-primary); }
+.onb-body { min-height: 230px; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+.onb-hero { display: flex; justify-content: center; margin-bottom: 18px; }
+.onb-logo {
+  width: 72px; height: 72px; border-radius: 20px;
+  background: linear-gradient(135deg, #10B981, #06B6D4); color: #fff;
+  display: flex; align-items: center; justify-content: center; font-size: 30px;
+  box-shadow: 0 0 36px -4px rgba(16,185,129,.6); animation: onb-pop .5s ease;
+}
+@keyframes onb-pop { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.onb-title { font-size: 21px; font-weight: 800; color: var(--text-primary); margin-bottom: 8px; }
+.onb-sub { font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; max-width: 360px; margin: 0 auto; }
+.onb-choices { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+.onb-choices.grid { display: grid; grid-template-columns: 1fr 1fr; }
+.onb-choice {
+  display: flex; align-items: center; gap: 12px; justify-content: center;
+  padding: 14px 16px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600;
+  background: var(--bg-card2); border: 1.5px solid var(--border); color: var(--text-primary);
+  transition: border-color .2s, background .2s, transform .1s;
+}
+.onb-choice:hover { border-color: var(--green); transform: translateY(-1px); }
+.onb-choice.sel { border-color: var(--green); background: rgba(16,185,129,.12); }
+.onb-flag { font-size: 20px; }
+.onb-consent { font-size: 11px; color: var(--text-muted); margin-top: 14px; }
+.onb-consent a { color: var(--cyan); }
+.onb-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 26px 20px; border-top: 1px solid var(--border); }
+.onb-dots { display: flex; gap: 6px; }
+.onb-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); transition: .2s; }
+.onb-dot.active { background: var(--green); width: 20px; border-radius: 4px; }
+.onb-dot.done { background: var(--green-dark, #059669); }
+.onb-actions { display: flex; gap: 8px; }
+
+/* ── Product tour ── */
+#tour-layer { position: fixed; inset: 0; z-index: 4100; display: none; }
+#tour-layer.open { display: block; }
+#tour-spot {
+  position: absolute; border-radius: 12px; pointer-events: none;
+  box-shadow: 0 0 0 9999px rgba(5,9,18,0.74); transition: all .35s cubic-bezier(.4,0,.2,1);
+  border: 2px solid var(--green);
+}
+#tour-pop {
+  position: absolute; width: 290px; max-width: calc(100vw - 24px); z-index: 4102;
+  background: var(--bg-card); border: 1px solid var(--green);
+  border-radius: 14px; padding: 16px; box-shadow: 0 18px 50px -16px rgba(0,0,0,.8);
+  transition: top .35s ease, left .35s ease;
+}
+.tour-text { font-size: 13.5px; color: var(--text-primary); line-height: 1.6; margin-bottom: 14px; }
+.tour-foot { display: flex; align-items: center; justify-content: space-between; }
+.tour-count { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+.tour-x { position: absolute; top: 8px; right: 12px; background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; line-height: 1; }
+.tour-x:hover { color: var(--text-primary); }
+
+/* ── Setup checklist (dashboard) ── */
+#setup-checklist {
+  background: var(--glass-bg, var(--bg-card)); backdrop-filter: blur(var(--glass-blur, 12px));
+  border: 1px solid var(--glass-border, var(--border)); border-radius: var(--radius);
+  padding: 16px 18px; margin-bottom: 18px;
+}
+.chk-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.chk-head b { color: var(--text-primary); font-size: 14px; }
+.chk-head i { color: var(--green); margin-right: 4px; }
+.chk-prog { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-left: 6px; }
+.chk-dismiss { background: none; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; }
+.chk-dismiss:hover { color: var(--text-primary); }
+.chk-bar { height: 6px; background: var(--bg-card2); border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
+.chk-bar i { display: block; height: 100%; background: linear-gradient(90deg, #10B981, #06B6D4); border-radius: 4px; transition: width .6s ease; }
+.chk-items { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; }
+.chk-item {
+  display: flex; align-items: center; gap: 9px; text-align: left;
+  background: var(--bg-card2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 12px; font-size: 12.5px; color: var(--text-secondary); cursor: pointer; transition: .2s;
+}
+.chk-item:hover { border-color: var(--green); color: var(--text-primary); }
+.chk-item i { color: var(--text-muted); }
+.chk-item.done { color: var(--text-muted); }
+.chk-item.done i { color: var(--green); }
+
+@media (max-width: 480px) {
+  .onb-choices.grid { grid-template-columns: 1fr; }
+  #tour-pop { width: calc(100vw - 24px); }
+}

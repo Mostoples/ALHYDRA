@@ -104,11 +104,15 @@ ALHYDRA.help = (() => {
       </div>
       <button class="btn-primary full-width" onclick="ALHYDRA.help.openChat()" style="margin-top:14px">
         <i class="fa-solid fa-robot"></i> ${lg==='id'?'Tanya Asisten AI':'Ask the AI Assistant'}
+      </button>
+      <button class="btn-secondary full-width" onclick="ALHYDRA.help.runTour()" style="margin-top:8px">
+        <i class="fa-solid fa-route"></i> ${lg==='id'?'Ikuti tur aplikasi':'Take the app tour'}
       </button>`;
     m.classList.add('open');
   }
   function close(){ document.getElementById('help-modal')?.classList.remove('open'); }
   function openChat(){ close(); ALHYDRA.chat?.togglePanel?.(); }
+  function runTour(){ close(); ALHYDRA.onboarding?.startTour?.(); }
 
   function ensureModal(){
     let m=document.getElementById('help-modal');
@@ -131,5 +135,5 @@ ALHYDRA.help = (() => {
     document.getElementById('help-fab')?.addEventListener('click', open);
   }
 
-  return { init, open, close, openChat };
+  return { init, open, close, openChat, runTour };
 })();
