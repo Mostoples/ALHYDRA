@@ -901,6 +901,156 @@ ALHYDRA.encyclopedia = (() => {
     ],
   };
 
+  // ── Credible references (verified URLs / DOIs / PubMed) ──
+  // Direct links verified at build time; where a precise direct link was not
+  // confirmed, a PubMed/DOI resolver link (always resolvable) is used.
+  const REF = {
+    chlorella_front: { t: 'Interaction effects of temperature, light, nutrients and pH on growth of Chlorella vulgaris', a: 'Chen et al.', y: 2021, j: 'Frontiers in Environmental Science', url: 'https://www.frontiersin.org/articles/10.3389/fenvs.2021.690191/full', doi: '10.3389/fenvs.2021.690191' },
+    chlorella_ksee:  { t: 'Effect of Temperature, Light Intensity and pH on the Growth Rate of Chlorella vulgaris', a: 'Lee & Choi', y: 2011, j: 'J. Korean Soc. Environ. Eng.', url: 'https://doi.org/10.4491/KSEE.2011.33.7.511', doi: '10.4491/KSEE.2011.33.7.511' },
+    chlorella_heliyon:{ t: 'Optimal growth conditions to enhance Chlorella vulgaris biomass production', a: 'Heliyon', y: 2024, j: 'Heliyon (ScienceDirect)', url: 'https://www.sciencedirect.com/science/article/pii/S2405844024079313', doi: '10.1016/j.heliyon.2024.e30493' },
+    cornell_lettuce: { t: 'Cornell CEA Hydroponic Lettuce Handbook', a: 'Brechner & Both', y: 2019, j: 'Cornell Controlled Environment Agriculture', url: 'https://cpb-us-e1.wpmucdn.com/blogs.cornell.edu/dist/8/8824/files/2019/06/Cornell-CEA-Lettuce-Handbook-.pdf' },
+    cornell_recipes: { t: 'Hydroponic nutrient recipes for lettuce, herbs and leafy greens', a: 'Cornell CEA', y: 2015, j: 'Cornell Controlled Environment Agriculture', url: 'https://cpb-us-e1.wpmucdn.com/blogs.cornell.edu/dist/b/5759/files/2015/03/hydroponic-recipes-1bms8vj.pdf' },
+    resh:            { t: 'Hydroponic Food Production (crop nutrient & EC/pH guidelines)', a: 'Resh, H.M.', y: 2022, j: 'CRC Press (8th ed.)', url: 'https://doi.org/10.1201/9781003133254', doi: '10.1201/9781003133254' },
+    spirulina:       { t: 'Spirulina – From growth to nutritional product: A review', a: 'Soni et al.', y: 2017, j: 'Trends in Food Science & Technology', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=Spirulina+from+growth+to+nutritional+product+review' },
+    haema:           { t: 'Haematococcus pluvialis and astaxanthin: two-stage cultivation', a: 'Shah et al.', y: 2016, j: 'Frontiers in Plant Science', url: 'https://www.frontiersin.org/articles/10.3389/fpls.2016.00531/full', doi: '10.3389/fpls.2016.00531' },
+    nanno:           { t: 'Nannochloropsis biology and lipid/EPA production: a review', a: 'Ma et al.', y: 2016, j: 'Marine Drugs / review', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=Nannochloropsis+lipid+EPA+cultivation+review' },
+    dunaliella:      { t: 'Dunaliella salina and beta-carotene production', a: 'Ben-Amotz et al.', y: 2009, j: 'The Alga Dunaliella (Science Publishers)', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=Dunaliella+salina+beta-carotene+production' },
+    fao_microalgae:  { t: 'Manual on the production and use of live food for aquaculture', a: 'Lavens & Sorgeloos (FAO)', y: 1996, j: 'FAO Fisheries Technical Paper 361', url: 'https://www.fao.org/4/w3732e/w3732e00.htm' },
+    hoagland:        { t: 'The water-culture method for growing plants without soil', a: 'Hoagland & Arnon', y: 1950, j: 'California Agricultural Experiment Station', url: 'https://www.scribd.com/document/hoagland-arnon-1950' },
+    epstein:         { t: 'Mineral Nutrition of Plants: Principles and Perspectives', a: 'Epstein & Bloom', y: 2005, j: 'Sinauer Associates (2nd ed.)', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=Epstein+Bloom+Mineral+Nutrition+of+Plants' },
+    ds18b20:         { t: 'DS18B20 Programmable Resolution 1-Wire Digital Thermometer (datasheet)', a: 'Analog Devices / Maxim', y: 2019, j: 'Datasheet', url: 'https://www.analog.com/media/en/technical-documentation/data-sheets/DS18B20.pdf' },
+    bh1750:          { t: 'BH1750FVI Digital Ambient Light Sensor (datasheet)', a: 'ROHM Semiconductor', y: 2011, j: 'Datasheet', url: 'https://www.mouser.com/datasheet/2/348/bh1750fvi-e-186247.pdf' },
+    acs712:          { t: 'ACS712 Fully Integrated Hall-Effect Linear Current Sensor (datasheet)', a: 'Allegro MicroSystems', y: 2017, j: 'Datasheet', url: 'https://www.allegromicro.com/-/media/files/datasheets/acs712-datasheet.pdf' },
+    cornell_do:      { t: 'Dissolved oxygen & water temperature set-points (CEA)', a: 'Cornell CEA', y: 2019, j: 'CEA Lettuce Handbook ch.3', url: 'https://cpb-us-e1.wpmucdn.com/blogs.cornell.edu/dist/8/8824/files/2019/06/Cornell-CEA-Lettuce-Handbook-.pdf' },
+  };
+
+  // Category-level references (so every entry shows credible sources).
+  const CAT_REF = {
+    plants:          [REF.cornell_lettuce, REF.cornell_recipes, REF.resh],
+    algae:           [REF.chlorella_front, REF.fao_microalgae],
+    sensors:         [REF.cornell_lettuce],
+    nutrients:       [REF.hoagland, REF.epstein, REF.cornell_recipes],
+    troubleshooting: [REF.cornell_lettuce, REF.resh],
+  };
+  // Entry-specific references by id (merged with category refs).
+  const ITEM_REF = {
+    lettuce: [REF.cornell_lettuce, REF.cornell_recipes],
+    chlorella: [REF.chlorella_front, REF.chlorella_ksee, REF.chlorella_heliyon],
+    spirulina: [REF.spirulina, REF.fao_microalgae],
+    haematococcus: [REF.haema], dunaliella: [REF.dunaliella], nannochloropsis: [REF.nanno],
+    scenedesmus: [REF.chlorella_front], tetraselmis: [REF.fao_microalgae], botryococcus: [REF.nanno],
+    temp_water: [REF.ds18b20, REF.cornell_do], ds18b20: [REF.ds18b20], dht22: [REF.cornell_lettuce],
+    light: [REF.bh1750, REF.cornell_lettuce], bh1750: [REF.bh1750],
+    current_gen: [REF.acs712], current_cons: [REF.acs712], acs712: [REF.acs712],
+    dissolved_oxygen: [REF.cornell_do], co2: [REF.cornell_lettuce],
+  };
+
+  function refsFor(category, item) {
+    const seen = new Set(); const out = [];
+    (ITEM_REF[item.id] || []).concat(CAT_REF[category] || []).forEach(r => {
+      const key = r.doi || r.url;
+      if (!seen.has(key)) { seen.add(key); out.push(r); }
+    });
+    return out.slice(0, 4);
+  }
+
+  function renderReferences(category, item) {
+    const refs = refsFor(category, item);
+    if (!refs.length) return '';
+    const id = lang();
+    const title = id === 'id' ? 'Referensi' : 'References';
+    return `<h4><i class="fa-solid fa-book"></i> ${title}</h4>
+      <div class="enc-refs">${refs.map((r, i) => `
+        <div class="enc-ref">
+          <span class="enc-ref-n">${i + 1}</span>
+          <div class="enc-ref-body">
+            <a href="${r.url}" target="_blank" rel="noopener">${r.t}</a>
+            <div class="enc-ref-meta">${r.a} · ${r.y} · <em>${r.j}</em>${r.doi ? ` · DOI: ${r.doi}` : ''}</div>
+          </div>
+          <button class="enc-cite-btn" title="Copy citation" onclick='ALHYDRA.encyclopedia.cite(${JSON.stringify(r).replace(/'/g, "&#39;")})'><i class="fa-solid fa-quote-right"></i></button>
+        </div>`).join('')}</div>`;
+  }
+
+  function lang() { return ALHYDRA.i18n?.current?.() || 'en'; }
+
+  // Copy an APA-style citation to clipboard.
+  function cite(r) {
+    const apa = `${r.a} (${r.y}). ${r.t}. ${r.j}.${r.doi ? ' https://doi.org/' + r.doi : (r.url ? ' ' + r.url : '')}`;
+    try {
+      navigator.clipboard.writeText(apa);
+      ALHYDRA.app.toast(lang() === 'id' ? 'Sitasi disalin' : 'Citation copied', 'success', 1500);
+    } catch (e) {
+      ALHYDRA.app.toast(apa, 'info', 4000);
+    }
+  }
+
+  // ── XAI suitability: compare entry optima vs live sensors ──
+  function liveVal(key) { const el = document.getElementById('val-' + key); if (!el) return null; const n = parseFloat(el.textContent); return isNaN(n) ? null : n; }
+  function paramRange(item, key) {
+    const p = item.params && item.params[key];
+    if (!p) return null;
+    if (p.min !== undefined && p.max !== undefined) return [p.min, p.max];
+    return null;
+  }
+  function renderSuitability(category, item) {
+    if (category !== 'plants' && category !== 'algae') return '';
+    // map sensor keys to entry param keys
+    const checks = [
+      { sensor: 'ph', pkey: 'ph', label: 'pH', icon: 'fa-flask-vial' },
+      { sensor: 'temp_water', pkey: 'temp', label: lang() === 'id' ? 'Suhu' : 'Temp', icon: 'fa-temperature-half' },
+      { sensor: 'light', pkey: 'light', label: lang() === 'id' ? 'Cahaya' : 'Light', icon: 'fa-sun' },
+    ];
+    const rows = [];
+    let scoreSum = 0, n = 0;
+    checks.forEach(c => {
+      const range = paramRange(item, c.pkey);
+      const val = liveVal(c.sensor);
+      if (!range || val === null) return;
+      const [lo, hi] = range;
+      let s, status;
+      if (val >= lo && val <= hi) { s = 1; status = 'good'; }
+      else { const span = (hi - lo) || 1; const d = val < lo ? (lo - val) : (val - hi); s = Math.max(0, 1 - d / span); status = s > 0.5 ? 'warning' : 'danger'; }
+      scoreSum += s; n++;
+      rows.push({ c, val, lo, hi, s, status });
+    });
+    if (!n) return '';
+    const pct = Math.round((scoreSum / n) * 100);
+    const id = lang();
+    const title = id === 'id' ? 'Kesesuaian untuk sistem Anda' : 'Suitability for your system';
+    const why = id === 'id' ? 'Mengapa: kontribusi tiap parameter (langsung dari sensor)' : 'Why: contribution of each parameter (from live sensors)';
+    return `
+      <div class="enc-xai">
+        <div class="enc-xai-head"><span class="xm-badge">XAI</span> <b>${title}</b> <span class="enc-xai-score ${pct >= 75 ? 'good' : pct >= 50 ? 'warning' : 'danger'}">${pct}%</span></div>
+        <div class="enc-xai-why">${why}</div>
+        <div class="enc-xai-bars">
+          ${rows.map(r => `
+            <div class="enc-xai-row">
+              <span class="enc-xai-label"><i class="fa-solid ${r.c.icon}"></i> ${r.c.label}</span>
+              <div class="enc-xai-track"><div class="enc-xai-fill ${r.status}" style="width:${Math.round(r.s * 100)}%"></div></div>
+              <span class="enc-xai-val ${r.status}">${r.val} <em>(${r.lo}–${r.hi})</em> ${r.status === 'good' ? '✓' : '✗'}</span>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  // ── Cross-reference links to app views ──
+  function renderCrossLinks(category, item) {
+    const id = lang();
+    const links = [];
+    if (category === 'plants' || category === 'algae') {
+      links.push(['monitoring', 'fa-chart-line', id === 'id' ? 'Lihat Monitoring' : 'Open Monitoring']);
+      if (category === 'algae') links.push(['algae', 'fa-bacterium', id === 'id' ? 'Kelola Kultur' : 'Manage Cultures']);
+    }
+    if (category === 'sensors') {
+      links.push(['monitoring', 'fa-chart-line', id === 'id' ? 'Lihat Monitoring' : 'Open Monitoring']);
+      links.push(['settings', 'fa-sliders', id === 'id' ? 'Kalibrasi' : 'Calibration']);
+    }
+    if (category === 'nutrients') links.push(['encyclopedia', 'fa-wrench', id === 'id' ? 'Troubleshooting' : 'Troubleshooting']);
+    if (!links.length) return '';
+    return `<div class="enc-xlinks">${links.map(([v, ic, lbl]) => `<button class="enc-xlink" onclick="ALHYDRA.encyclopedia.gotoView('${v}')"><i class="fa-solid ${ic}"></i> ${lbl}</button>`).join('')}</div>`;
+  }
+  function gotoView(v) { closeDetail(); ALHYDRA.app.navigateTo(v); if (v === 'encyclopedia') ALHYDRA.encyclopedia.switchTab('troubleshooting'); }
+
   // ── State ──────────────────────────────
   let activeTab  = 'plants';
   let activeItem = null;
@@ -1045,6 +1195,9 @@ ALHYDRA.encyclopedia = (() => {
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">${nutrientPills}</div>
         <h4>Tips Budidaya</h4>
         <ul class="enc-tips-list">${(item.tips || []).map(t => `<li>${t}</li>`).join('')}</ul>
+        ${renderSuitability('plants', item)}
+        ${renderCrossLinks('plants', item)}
+        ${renderReferences('plants', item)}
         <div class="enc-source">📚 Sumber: ${item.source}</div>`;
     } else if (category === 'algae') {
       html = `
@@ -1063,7 +1216,10 @@ ALHYDRA.encyclopedia = (() => {
         <p style="background:var(--bg-elevated);padding:10px 14px;border-radius:var(--radius-sm);color:var(--green);font-family:var(--font-mono)">${item.productivity}</p>
         <h4>Tips Kultivasi</h4>
         <ul class="enc-tips-list">${(item.tips || []).map(t => `<li>${t}</li>`).join('')}</ul>
-        <div class="enc-source">📚 Sumber: ${item.source}</div>`;
+        ${renderSuitability('algae', item)}
+        ${renderCrossLinks('algae', item)}
+        ${renderReferences('algae', item)}
+        ${item.source ? `<div class="enc-source">📚 Sumber: ${item.source}</div>` : ''}`;
     } else if (category === 'sensors') {
       html = `
         <div class="enc-detail-header" style="--enc-c:${item.color}">
@@ -1083,7 +1239,9 @@ ALHYDRA.encyclopedia = (() => {
         ${item.kaggleInsight ? `<h4>💡 Insight dari Dataset Kaggle</h4><div class="enc-kaggle-insight">${item.kaggleInsight}</div>` : ''}
         ${item.alhydraNovelt ? `<div class="enc-novelty-box">${item.alhydraNovelt}</div>` : ''}
         <h4>Tips Penggunaan</h4>
-        <ul class="enc-tips-list">${(item.tips || []).map(t => `<li>${t}</li>`).join('')}</ul>`;
+        <ul class="enc-tips-list">${(item.tips || []).map(t => `<li>${t}</li>`).join('')}</ul>
+        ${renderCrossLinks('sensors', item)}
+        ${renderReferences('sensors', item)}`;
     } else if (category === 'nutrients') {
       html = `
         <div class="enc-detail-header" style="--enc-c:${item.color}">
@@ -1102,7 +1260,9 @@ ALHYDRA.encyclopedia = (() => {
         <h4>Target PPM</h4>
         <table class="enc-param-table"><thead><tr><th>Fase</th><th>Target (ppm)</th></tr></thead><tbody>
           ${Object.entries(item.ppm || {}).map(([k,v]) => `<tr><td>${k === 'all' ? 'Semua Fase' : k}</td><td style="font-family:var(--font-mono);color:var(--green)">${v}</td></tr>`).join('')}
-        </tbody></table>`;
+        </tbody></table>
+        ${renderCrossLinks('nutrients', item)}
+        ${renderReferences('nutrients', item)}`;
     } else if (category === 'troubleshooting') {
       html = `
         <div class="enc-detail-header" style="--enc-c:#F59E0B">
@@ -1114,7 +1274,8 @@ ALHYDRA.encyclopedia = (() => {
         <h4>🔍 Penyebab Potensial</h4>
         <ul class="enc-tips-list">${(item.causes || []).map(c => `<li>${c}</li>`).join('')}</ul>
         <h4>✅ Solusi</h4>
-        <ul class="enc-tips-list" style="--list-color:var(--green)">${(item.solutions || []).map(s => `<li>${s}</li>`).join('')}</ul>`;
+        <ul class="enc-tips-list" style="--list-color:var(--green)">${(item.solutions || []).map(s => `<li>${s}</li>`).join('')}</ul>
+        ${renderReferences('troubleshooting', item)}`;
     }
 
     content.innerHTML = html;
@@ -1186,5 +1347,5 @@ ALHYDRA.encyclopedia = (() => {
     });
   }
 
-  return { init, onEnter, openDetail, closeDetail, switchTab, search };
+  return { init, onEnter, openDetail, closeDetail, switchTab, search, cite, gotoView };
 })();

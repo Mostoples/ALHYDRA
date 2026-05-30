@@ -162,3 +162,35 @@ html.is-admin .admin-only { display: flex !important; }
 .dash-fav { display: inline-flex; align-items: center; gap: 7px; background: var(--bg-card2); border: 1px solid var(--border); border-radius: 99px; padding: 7px 13px; font-size: 12.5px; color: var(--text-secondary); cursor: pointer; transition: .15s; }
 .dash-fav:hover { border-color: var(--amber); color: var(--text-primary); }
 .dash-fav i { color: var(--amber); }
+
+/* ── ENCYCLOPEDIA: XAI suitability, references, cross-links ── */
+.enc-xai { background: var(--bg-card2, rgba(255,255,255,.03)); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin: 16px 0; }
+.enc-xai-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.enc-xai-head b { color: var(--text-primary); font-size: 13.5px; }
+.enc-xai-score { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 16px; }
+.enc-xai-score.good { color: var(--green); } .enc-xai-score.warning { color: var(--amber); } .enc-xai-score.danger { color: var(--red); }
+.enc-xai-why { font-size: 11.5px; color: var(--text-muted); margin-bottom: 12px; }
+.enc-xai-bars { display: flex; flex-direction: column; gap: 9px; }
+.enc-xai-row { display: grid; grid-template-columns: 90px 1fr auto; align-items: center; gap: 10px; }
+.enc-xai-label { font-size: 12px; color: var(--text-secondary); }
+.enc-xai-label i { width: 14px; text-align: center; }
+.enc-xai-track { height: 10px; background: var(--bg-card); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.enc-xai-fill { height: 100%; border-radius: 6px; transition: width .5s ease; }
+.enc-xai-fill.good { background: var(--green); } .enc-xai-fill.warning { background: var(--amber); } .enc-xai-fill.danger { background: var(--red); }
+.enc-xai-val { font-size: 11px; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+.enc-xai-val em { color: var(--text-muted); font-style: normal; }
+.enc-xai-val.good { color: var(--green); } .enc-xai-val.warning { color: var(--amber); } .enc-xai-val.danger { color: var(--red); }
+
+.enc-xlinks { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+.enc-xlink { display: inline-flex; align-items: center; gap: 7px; background: var(--bg-card2); border: 1px solid var(--border); border-radius: 99px; padding: 7px 14px; font-size: 12.5px; color: var(--text-secondary); cursor: pointer; transition: .15s; }
+.enc-xlink:hover { border-color: var(--cyan); color: var(--text-primary); }
+.enc-xlink i { color: var(--cyan); }
+
+.enc-refs { display: flex; flex-direction: column; gap: 8px; margin: 8px 0 4px; }
+.enc-ref { display: grid; grid-template-columns: 24px 1fr auto; align-items: start; gap: 10px; background: var(--bg-card2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+.enc-ref-n { width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: rgba(6,182,212,.14); color: var(--cyan); font-size: 11px; font-weight: 700; }
+.enc-ref-body a { font-size: 13px; color: var(--text-primary); font-weight: 600; line-height: 1.4; }
+.enc-ref-body a:hover { color: var(--cyan); text-decoration: underline; }
+.enc-ref-meta { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+.enc-cite-btn { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); cursor: pointer; padding: 6px 9px; font-size: 12px; transition: .15s; }
+.enc-cite-btn:hover { border-color: var(--cyan); color: var(--cyan); }
