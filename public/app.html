@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/ai-theme.css" />
   <link rel="stylesheet" href="css/icon-anim.css" />
+  <link rel="stylesheet" href="css/decor.css" />
   <!-- Apply saved theme before paint to avoid flash -->
   <script>
     (function () {
@@ -312,6 +313,9 @@
             </button>
           </div>
         </div>
+
+        <!-- Summary Hero (greeting + live KPI chips) -->
+        <div id="dash-hero"></div>
 
         <!-- Sensor Cards Grid -->
         <div class="sensor-grid" id="sensor-grid">
@@ -825,8 +829,17 @@
         </div>
 
         <div id="analytics-empty" class="empty-state hidden">
-          <i class="fa-solid fa-chart-simple"></i>
-          <p>No data for the selected range.<br>Adjust the date range or use Demo Mode.</p>
+          <svg class="empty-illustration" viewBox="0 0 120 120" fill="none">
+            <path d="M18 96 H102" class="ei-stroke" stroke-width="2.5"/>
+            <path d="M22 96 V62" class="ei-stroke" stroke-width="2.5"/>
+            <rect x="30" y="70" width="14" height="26" rx="3" class="ei-fill"/>
+            <rect x="52" y="54" width="14" height="42" rx="3" class="ei-fill"/>
+            <rect x="74" y="40" width="14" height="56" rx="3" class="ei-accent" stroke-width="2.5" fill="none"/>
+            <path d="M30 60 L52 46 L74 50 L96 28" class="ei-accent" stroke-width="2.5"/>
+            <circle cx="96" cy="28" r="4" class="ei-fill"/>
+          </svg>
+          <div class="es-title" id="analytics-empty-title">No data for this range</div>
+          <p class="es-desc" id="analytics-empty-desc">Adjust the date range, or enable Demo Mode on the dashboard to generate sample readings.</p>
         </div>
       </div><!-- /view-analytics -->
 
@@ -848,9 +861,16 @@
         <div class="algae-grid" id="algae-grid"></div>
 
         <div id="algae-empty" class="empty-state hidden">
-          <i class="fa-solid fa-bacterium"></i>
-          <p><strong>No cultures yet</strong><br>Add your first microalgae culture to start tracking growth.</p>
-          <button class="btn-primary sm" onclick="ALHYDRA.algae.openAdd()" style="margin-top:12px">
+          <svg class="empty-illustration" viewBox="0 0 120 120" fill="none">
+            <ellipse cx="60" cy="98" rx="34" ry="7" class="ei-fill"/>
+            <path d="M40 96 C36 70 44 44 60 30 C58 54 54 76 48 96 Z" class="ei-accent" stroke-width="2.5" fill="none"/>
+            <path d="M80 96 C84 70 76 44 60 30 C62 54 66 76 72 96 Z" class="ei-stroke" stroke-width="2.5" fill="none"/>
+            <circle cx="60" cy="26" r="6" class="ei-accent" stroke-width="2.5" fill="none"/>
+            <circle cx="44" cy="56" r="3" class="ei-fill"/><circle cx="74" cy="64" r="3" class="ei-fill"/><circle cx="60" cy="78" r="2.5" class="ei-fill"/>
+          </svg>
+          <div class="es-title" id="algae-empty-title">No cultures yet</div>
+          <p class="es-desc" id="algae-empty-desc">Add your first microalgae culture to start tracking growth, density and harvest readiness.</p>
+          <button class="btn-primary sm" onclick="ALHYDRA.algae.openAdd()">
             <i class="fa-solid fa-plus"></i> New Culture
           </button>
         </div>
@@ -1496,6 +1516,7 @@ Content-Type: application/json
 <script src="js/energy.js"></script>
 <script src="js/impact.js"></script>
 <script src="js/help.js"></script>
+<script src="js/widgets.js"></script>
 <script src="js/ml.js"></script>
 <script src="js/chat.js"></script>
 

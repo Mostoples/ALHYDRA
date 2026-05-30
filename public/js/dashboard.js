@@ -160,6 +160,9 @@ ALHYDRA.dashboard = (() => {
 
     // Forward to monitoring charts
     ALHYDRA.monitoring?.pushData(data);
+
+    // Refresh dashboard hero KPI chips
+    ALHYDRA.widgets?.refresh();
   }
 
   // ── Subscribe to Firestore ─────────────

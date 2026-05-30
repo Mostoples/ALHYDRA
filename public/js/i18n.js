@@ -192,6 +192,10 @@ ALHYDRA.i18n = (() => {
     'Auto-backup tuning': 'Penyetelan auto-cadangan',
     // Quick help
     'Quick Help': 'Bantuan Cepat',
+    // Illustrative empty-states
+    'Add your first microalgae culture to start tracking growth, density and harvest readiness.': 'Tambahkan kultur mikroalga pertama untuk mulai melacak pertumbuhan, kepadatan, dan kesiapan panen.',
+    'No data for this range': 'Tidak ada data untuk rentang ini',
+    'Adjust the date range, or enable Demo Mode on the dashboard to generate sample readings.': 'Sesuaikan rentang tanggal, atau aktifkan Mode Demo di dasbor untuk membuat data contoh.',
     'Connecting…': 'Menghubungkan…',
     'Online': 'Daring',
     'Offline': 'Luring',

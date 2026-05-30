@@ -297,6 +297,7 @@ ALHYDRA.app = (() => {
     ALHYDRA.energy?.init();
     ALHYDRA.impact?.init();
     ALHYDRA.help?.init();
+    ALHYDRA.widgets?.init();
     ALHYDRA.ml?.init();
     ALHYDRA.chat?.init();
 
