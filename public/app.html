@@ -21,8 +21,32 @@
 
   <!-- App CSS -->
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/ai-theme.css" />
+  <link rel="stylesheet" href="css/icon-anim.css" />
+  <!-- Apply saved theme before paint to avoid flash -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('alhydra-theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        if (localStorage.getItem('alhydra-aura') === 'off') {
+          document.documentElement.classList.add('aura-off');
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
+
+<!-- ═══════════════════════════════════════════
+     AURA LAYER — animated ambient glow orbs
+═══════════════════════════════════════════ -->
+<div id="aura-layer" aria-hidden="true">
+  <div class="aura-orb a1"></div>
+  <div class="aura-orb a2"></div>
+  <div class="aura-orb a3"></div>
+  <div class="aura-orb a4"></div>
+</div>
 
 <!-- ═══════════════════════════════════════════
      LOADING SCREEN
@@ -181,6 +205,12 @@
         <i class="fa-solid fa-chart-bar"></i>
         <span>Analytics</span>
       </a>
+      <div class="nav-section-label">INTELLIGENCE</div>
+      <a class="nav-item" data-view="ai" href="#ai">
+        <i class="fa-solid fa-brain"></i>
+        <span>AI Insights</span>
+        <span class="nav-badge live" style="background:linear-gradient(135deg,#8B5CF6,#06B6D4)">ML</span>
+      </a>
       <div class="nav-section-label">KNOWLEDGE</div>
       <a class="nav-item" data-view="encyclopedia" href="#encyclopedia">
         <i class="fa-solid fa-book-open"></i>
@@ -220,6 +250,13 @@
       </div>
       <div class="topbar-right">
         <div class="topbar-time" id="topbar-time"></div>
+        <button id="theme-toggle" title="Toggle dark / light" aria-label="Toggle theme">
+          <i class="fa-solid fa-moon ti-moon"></i>
+          <i class="fa-solid fa-sun ti-sun"></i>
+        </button>
+        <button class="topbar-btn" id="aura-toggle" title="Toggle aura">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </button>
         <button class="topbar-btn" id="notif-btn" title="Notifications">
           <i class="fa-solid fa-bell"></i>
           <span class="notif-badge hidden" id="notif-count">0</span>
@@ -757,6 +794,115 @@
         </div>
       </div><!-- /view-analytics -->
 
+      <!-- ─── AI INSIGHTS VIEW (ML + XAI) ─── -->
+      <div class="view hidden" id="view-ai">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">AI Insights</h1>
+            <p class="view-subtitle">On-device machine learning · forecasting, anomaly detection &amp; explainable AI</p>
+          </div>
+          <div class="view-header-actions ai-toolbar">
+            <div class="ai-train-status" id="ai-train-status">
+              <span class="ai-dot"></span><span id="ai-train-text">Model ready</span>
+            </div>
+            <button class="btn-secondary sm" id="ai-retrain-btn" onclick="ALHYDRA.ml.retrain()">
+              <i class="fa-solid fa-rotate"></i> Retrain
+            </button>
+          </div>
+        </div>
+
+        <div class="ai-grid">
+
+          <!-- System Health (ML score) -->
+          <div class="ai-card">
+            <div class="ai-card-head">
+              <div class="ai-ic"><i class="fa-solid fa-heart-pulse"></i></div>
+              <div>
+                <h3>System Health Score</h3>
+                <span class="ai-sub">Regression model · 0–100</span>
+              </div>
+            </div>
+            <div class="ai-health-wrap">
+              <div class="ai-gauge">
+                <svg width="150" height="150" viewBox="0 0 150 150">
+                  <circle class="ai-gauge-track" cx="75" cy="75" r="62"></circle>
+                  <circle class="ai-gauge-fill" id="ai-gauge-fill" cx="75" cy="75" r="62"
+                          stroke="#10B981" stroke-dasharray="389.6" stroke-dashoffset="389.6"></circle>
+                </svg>
+                <div class="ai-gauge-center">
+                  <span class="ai-gauge-score" id="ai-health-score">—</span>
+                  <span class="ai-gauge-label">Health</span>
+                </div>
+              </div>
+              <div class="ai-health-info">
+                <div class="ai-health-status" id="ai-health-status">Analyzing…</div>
+                <div class="ai-health-note" id="ai-health-note">Training model on recent sensor history…</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Anomaly Detection -->
+          <div class="ai-card">
+            <div class="ai-card-head">
+              <div class="ai-ic" style="background:linear-gradient(135deg,#EF4444,#F59E0B)"><i class="fa-solid fa-radar"></i></div>
+              <div>
+                <h3>Anomaly Detection</h3>
+                <span class="ai-sub">Z-score outlier model (|z| &gt; 2)</span>
+              </div>
+            </div>
+            <div class="ai-anom-list" id="ai-anom-list">
+              <div class="ai-anom sev-low"><span class="a-ic"><i class="fa-solid fa-circle-notch fa-spin"></i></span><span class="a-name">Scanning sensors…</span></div>
+            </div>
+          </div>
+
+          <!-- Forecast tiles -->
+          <div class="ai-card span-2">
+            <div class="ai-card-head">
+              <div class="ai-ic" style="background:linear-gradient(135deg,#3B82F6,#06B6D4)"><i class="fa-solid fa-chart-line"></i></div>
+              <div>
+                <h3>Next-Reading Forecast</h3>
+                <span class="ai-sub">Least-squares linear trend per sensor</span>
+              </div>
+            </div>
+            <div class="ai-pred-grid" id="ai-pred-grid"></div>
+            <div class="chart-container" style="height:220px; margin-top:16px">
+              <canvas id="ai-forecast-chart"></canvas>
+            </div>
+          </div>
+
+          <!-- XAI Feature Attribution -->
+          <div class="ai-card span-2">
+            <div class="ai-card-head">
+              <div class="ai-ic" style="background:linear-gradient(135deg,#8B5CF6,#06B6D4)"><i class="fa-solid fa-lightbulb"></i></div>
+              <div>
+                <h3>Explainable AI — Feature Attribution</h3>
+                <span class="ai-sub">Why the model predicts this health score</span>
+              </div>
+            </div>
+            <div class="xm-panel" style="border:none; padding:0; background:transparent">
+              <div class="xm-head">
+                <span class="xm-badge">XAI</span>
+                <span class="xm-title" style="font-size:13px">Per-feature contribution to current prediction</span>
+              </div>
+              <p class="xm-desc">
+                Each bar is the additive contribution of one sensor to the predicted health score
+                (linear-SHAP: βᵢ × standardized deviation). Green raises the score, red lowers it.
+              </p>
+              <span class="xm-formula" id="ai-xai-formula">ŷ = β₀ + Σ βᵢ·zᵢ</span>
+              <div class="xm-bars" id="ai-xai-bars"></div>
+              <div class="ai-model-meta">
+                <span>Model: <strong>Linear Regression (GD)</strong></span>
+                <span>R²: <strong id="ai-r2">—</strong></span>
+                <span>Training rows: <strong id="ai-rows">—</strong></span>
+                <span>Data: <strong id="ai-source">—</strong></span>
+                <span>Updated: <strong id="ai-updated">—</strong></span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /view-ai -->
+
       <!-- ─── SETTINGS VIEW ─── -->
       <div class="view hidden" id="view-settings">
         <div class="view-header">
@@ -1143,6 +1289,7 @@ Content-Type: application/json
 <script src="js/settings.js"></script>
 <script src="js/encyclopedia.js"></script>
 <script src="js/calibration.js"></script>
+<script src="js/ml.js"></script>
 <script src="js/chat.js"></script>
 
 </body>

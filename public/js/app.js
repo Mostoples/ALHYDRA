@@ -9,7 +9,7 @@ window.ALHYDRA = window.ALHYDRA || {};
 
 ALHYDRA.app = (() => {
   // ── State ──────────────────────────────
-  const views = ['dashboard', 'monitoring', 'control', 'analytics', 'encyclopedia', 'settings', 'about'];
+  const views = ['dashboard', 'monitoring', 'control', 'analytics', 'ai', 'encyclopedia', 'settings', 'about'];
   let currentView = 'dashboard';
   let notifications = [];
   let notifPanelOpen = false;
@@ -27,8 +27,9 @@ ALHYDRA.app = (() => {
 
   // ── Chart.js global defaults ───────────
   function setupChartDefaults() {
-    Chart.defaults.color           = '#94A3B8';
-    Chart.defaults.borderColor     = 'rgba(255,255,255,0.06)';
+    const light = document.documentElement.getAttribute('data-theme') === 'light';
+    Chart.defaults.color           = light ? '#475569' : '#94A3B8';
+    Chart.defaults.borderColor     = light ? 'rgba(15,23,42,0.08)' : 'rgba(255,255,255,0.06)';
     Chart.defaults.font.family     = "'Inter', sans-serif";
     Chart.defaults.font.size       = 12;
     Chart.defaults.plugins.legend.display = false;
@@ -54,7 +55,8 @@ ALHYDRA.app = (() => {
     // Update breadcrumb
     const labels = {
       dashboard: 'Dashboard', monitoring: 'Monitoring', control: 'Control Panel',
-      analytics: 'Analytics', encyclopedia: 'Encyclopedia', settings: 'Settings', about: 'About'
+      analytics: 'Analytics', ai: 'AI Insights', encyclopedia: 'Encyclopedia',
+      settings: 'Settings', about: 'About'
     };
     const bc = document.getElementById('breadcrumb-current');
     if (bc) bc.textContent = labels[viewId] || viewId;
@@ -74,6 +76,7 @@ ALHYDRA.app = (() => {
     if (prev === 'monitoring' && ALHYDRA.monitoring) ALHYDRA.monitoring.pause();
     if (viewId === 'monitoring'  && ALHYDRA.monitoring) ALHYDRA.monitoring.resume();
     if (viewId === 'analytics'    && ALHYDRA.analytics)    ALHYDRA.analytics.onEnter();
+    if (viewId === 'ai'           && ALHYDRA.ml)           ALHYDRA.ml.onEnter();
     if (viewId === 'settings'     && ALHYDRA.settings)    ALHYDRA.settings.onEnter();
     if (viewId === 'encyclopedia' && ALHYDRA.encyclopedia) ALHYDRA.encyclopedia.onEnter();
   }
@@ -141,6 +144,39 @@ ALHYDRA.app = (() => {
   function closeMobileSidebar() {
     document.getElementById('sidebar')?.classList.remove('mobile-open');
     document.getElementById('sidebar-overlay')?.classList.remove('active');
+  }
+
+  // ── Theme (dark / light) + Aura toggle ──
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    try { localStorage.setItem('alhydra-theme', theme); } catch (e) {}
+    // Re-tint Chart.js gridlines/text and repaint open charts
+    setupChartDefaults();
+    if (window.Chart?.instances) {
+      Object.values(Chart.instances).forEach(c => { try { c.update('none'); } catch (e) {} });
+    }
+  }
+
+  function initTheme() {
+    const saved = (() => { try { return localStorage.getItem('alhydra-theme'); } catch (e) { return null; } })() || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+
+    const btn = document.getElementById('theme-toggle');
+    btn?.addEventListener('click', () => {
+      const cur  = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = cur === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      toast(`${next === 'light' ? 'Light' : 'Dark'} mode`, 'info', 1500);
+    });
+
+    const auraBtn = document.getElementById('aura-toggle');
+    auraBtn?.addEventListener('click', () => {
+      const off = document.documentElement.classList.toggle('aura-off');
+      try { localStorage.setItem('alhydra-aura', off ? 'off' : 'on'); } catch (e) {}
+      auraBtn.classList.toggle('active', !off);
+      toast(off ? 'Aura off' : 'Aura on', 'info', 1500);
+    });
+    if (auraBtn) auraBtn.classList.toggle('active', !document.documentElement.classList.contains('aura-off'));
   }
 
   // ── Notifications panel ────────────────
@@ -235,6 +271,7 @@ ALHYDRA.app = (() => {
     initRouter();
     initSidebar();
     initNotifPanel();
+    initTheme();
     setupChartDefaults();
 
     // Init all modules
@@ -245,6 +282,7 @@ ALHYDRA.app = (() => {
     ALHYDRA.settings?.init();
     ALHYDRA.encyclopedia?.init();
     ALHYDRA.calibration?.init();
+    ALHYDRA.ml?.init();
     ALHYDRA.chat?.init();
 
     // Monitor Firestore connectivity via known doc

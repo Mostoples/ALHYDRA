@@ -1,0 +1,271 @@
+/* ═══════════════════════════════════════════════════════════
+   ALHYDRA — Theme system (dark / pure-white light), Auras,
+   AI Insights view (ML + XAI).
+   Uses the project's real CSS variables (see style.css :root).
+═══════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────
+   LIGHT THEME — pure white.
+   Overrides the core variables so the WHOLE app flips.
+   Activated via <html data-theme="light">.
+───────────────────────────────────────── */
+[data-theme="light"] {
+  --bg-primary:    #FFFFFF;
+  --bg-secondary:  #FFFFFF;
+  --bg-card:       #FFFFFF;
+  --bg-card2:      #F4F7FB;
+  --bg-input:      #FFFFFF;
+  --bg-elevated:   #F4F7FB;
+
+  --border:        rgba(15,23,42,0.10);
+  --border-hover:  rgba(15,23,42,0.20);
+
+  --text-primary:  #0F172A;
+  --text-secondary:#475569;
+  --text-muted:    #94A3B8;
+
+  --green-glow:    rgba(16,185,129,0.30);
+  --cyan-glow:     rgba(6,182,212,0.30);
+  --amber-glow:    rgba(245,158,11,0.30);
+  --red-glow:      rgba(239,68,68,0.30);
+  --purple-glow:   rgba(139,92,246,0.30);
+
+  --shadow:        0 8px 28px rgba(15,23,42,0.10);
+
+  color-scheme: light;
+}
+
+/* In light mode surfaces are white — lean on borders + soft shadows */
+[data-theme="light"] body { background: #FFFFFF; }
+[data-theme="light"] .sensor-card,
+[data-theme="light"] .chart-card,
+[data-theme="light"] .control-card,
+[data-theme="light"] .settings-card,
+[data-theme="light"] .control-log-card,
+[data-theme="light"] .dash-relay-card,
+[data-theme="light"] .dash-chart-card,
+[data-theme="light"] .calib-card,
+[data-theme="light"] .stat-pill,
+[data-theme="light"] .ai-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+[data-theme="light"] #sidebar,
+[data-theme="light"] #topbar,
+[data-theme="light"] #mobile-bottom-nav,
+[data-theme="light"] #chat-panel,
+[data-theme="light"] #notif-panel {
+  background: #FFFFFF;
+  border-color: var(--border);
+}
+[data-theme="light"] .nav-item:hover,
+[data-theme="light"] .tab-btn,
+[data-theme="light"] .qr-btn,
+[data-theme="light"] .enc-tab-btn { background: #F4F7FB; }
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(15,23,42,0.18); }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(15,23,42,0.30); }
+
+/* Smooth cross-fade between themes */
+body, #sidebar, #topbar, .sensor-card, .chart-card, .control-card,
+.settings-card, .ai-card {
+  transition: background var(--transition), color var(--transition),
+              border-color var(--transition), box-shadow var(--transition);
+}
+
+/* ─────────────────────────────────────────
+   THEME TOGGLE + AURA TOGGLE (topbar buttons)
+───────────────────────────────────────── */
+#theme-toggle {
+  position: relative;
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-card2);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  transition: var(--transition);
+  overflow: hidden;
+}
+#theme-toggle:hover { color: var(--amber); border-color: var(--amber); box-shadow: 0 0 14px var(--amber-glow); }
+#theme-toggle .ti-sun, #theme-toggle .ti-moon {
+  position: absolute; transition: transform .4s cubic-bezier(.4,0,.2,1), opacity .3s;
+}
+#theme-toggle .ti-sun  { transform: translateY(28px); opacity: 0; }
+#theme-toggle .ti-moon { transform: translateY(0);    opacity: 1; }
+[data-theme="light"] #theme-toggle .ti-sun  { transform: translateY(0);    opacity: 1; }
+[data-theme="light"] #theme-toggle .ti-moon { transform: translateY(-28px); opacity: 0; }
+
+#aura-toggle.active { color: var(--purple); border-color: var(--purple); }
+
+/* ─────────────────────────────────────────
+   AURA — animated ambient glow orbs
+───────────────────────────────────────── */
+#aura-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.aura-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.22;
+  will-change: transform;
+  mix-blend-mode: screen;
+}
+[data-theme="light"] .aura-orb { opacity: 0.32; mix-blend-mode: multiply; filter: blur(110px); }
+
+.aura-orb.a1 { width: 460px; height: 460px; background: var(--green);  top: -120px;    left: -80px;   animation: aura-float-1 22s ease-in-out infinite; }
+.aura-orb.a2 { width: 520px; height: 520px; background: var(--cyan);   top: 40%;       right: -140px; animation: aura-float-2 26s ease-in-out infinite; }
+.aura-orb.a3 { width: 400px; height: 400px; background: var(--purple); bottom: -140px; left: 30%;     animation: aura-float-3 30s ease-in-out infinite; }
+.aura-orb.a4 { width: 360px; height: 360px; background: var(--amber);  top: 10%;       left: 55%;     animation: aura-float-1 24s ease-in-out infinite reverse; }
+
+@keyframes aura-float-1 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33%     { transform: translate(120px,80px) scale(1.15); }
+  66%     { transform: translate(-60px,140px) scale(0.92); }
+}
+@keyframes aura-float-2 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%     { transform: translate(-160px,-90px) scale(1.2); }
+}
+@keyframes aura-float-3 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  40%     { transform: translate(140px,-70px) scale(1.1); }
+  75%     { transform: translate(-100px,40px) scale(0.95); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aura-orb { animation: none !important; }
+}
+
+/* App content sits above the aura layer */
+#app { position: relative; z-index: 1; }
+
+/* Aura glow accent on hover for sensor cards */
+.sensor-card { position: relative; }
+.sensor-card::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit;
+  box-shadow: 0 0 0 0 transparent; transition: box-shadow .4s; pointer-events: none;
+}
+.sensor-card:hover::after { box-shadow: 0 0 32px -4px var(--green-glow); }
+
+/* Toggle to disable auras (.aura-off on <html> or <body>) */
+.aura-off #aura-layer { display: none; }
+
+/* ─────────────────────────────────────────
+   XAI / ML explainability component (.xm-*)
+───────────────────────────────────────── */
+.xm-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+.xm-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+.xm-badge {
+  font-size: 10px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 999px;
+  background: linear-gradient(135deg, rgba(139,92,246,.18), rgba(6,182,212,.18));
+  color: var(--purple); border: 1px solid rgba(139,92,246,.35);
+}
+.xm-desc { font-size: 12.5px; color: var(--text-secondary); margin: 6px 0 14px; line-height: 1.5; }
+.xm-formula {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--cyan);
+  background: var(--bg-card2); padding: 8px 12px; border-radius: 8px; display: inline-block;
+  border: 1px solid var(--border); margin-top: 6px; overflow-x: auto; max-width: 100%;
+}
+.xm-bars { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+.xm-bar-row { display: grid; grid-template-columns: 130px 1fr 60px; align-items: center; gap: 10px; }
+.xm-bar-label { font-size: 12.5px; color: var(--text-secondary); font-weight: 500; }
+.xm-bar-track { height: 14px; background: var(--bg-card2); border-radius: 8px; overflow: hidden; }
+.xm-bar-fill {
+  height: 100%; border-radius: 8px; transition: width .6s cubic-bezier(.4,0,.2,1);
+  background: linear-gradient(90deg, #06B6D4, #3B82F6);
+}
+.xm-bar-fill.pos { background: linear-gradient(90deg, #10B981, #34D399); }
+.xm-bar-fill.neg { background: linear-gradient(90deg, #EF4444, #F87171); }
+.xm-bar-val { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); text-align: right; }
+
+/* ─────────────────────────────────────────
+   AI INSIGHTS VIEW
+───────────────────────────────────────── */
+.ai-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 18px;
+}
+.ai-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.ai-card.span-2 { grid-column: span 2; }
+@media (max-width: 980px){ .ai-card.span-2 { grid-column: span 1; } }
+
+.ai-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.ai-card-head .ai-ic {
+  width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: #fff; background: linear-gradient(135deg, #10B981, #06B6D4); box-shadow: 0 0 18px var(--green-glow);
+  flex-shrink: 0;
+}
+.ai-card-head h3 { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+.ai-card-head .ai-sub { font-size: 11.5px; color: var(--text-muted); }
+
+/* Prediction tiles */
+.ai-pred-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 12px; }
+.ai-pred {
+  background: var(--bg-card2); border: 1px solid var(--border); border-radius: 12px; padding: 14px;
+}
+.ai-pred-label { font-size: 11.5px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.ai-pred-val { font-size: 22px; font-weight: 800; color: var(--text-primary); margin-top: 6px; font-family: 'JetBrains Mono', monospace; }
+.ai-pred-trend { font-size: 11.5px; margin-top: 4px; font-weight: 600; }
+.ai-pred-trend.up   { color: var(--green); }
+.ai-pred-trend.down { color: var(--red); }
+.ai-pred-trend.flat { color: var(--text-muted); }
+
+/* Health gauge */
+.ai-health-wrap { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.ai-gauge { position: relative; width: 150px; height: 150px; flex-shrink: 0; }
+.ai-gauge svg { transform: rotate(-90deg); }
+.ai-gauge-track { fill: none; stroke: var(--bg-card2); stroke-width: 14; }
+.ai-gauge-fill  { fill: none; stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(.4,0,.2,1), stroke .4s; }
+.ai-gauge-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ai-gauge-score { font-size: 34px; font-weight: 800; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
+.ai-gauge-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; }
+.ai-health-info { flex: 1; min-width: 180px; }
+.ai-health-status { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.ai-health-status.good { color: var(--green); }
+.ai-health-status.warning { color: var(--amber); }
+.ai-health-status.danger { color: var(--red); }
+.ai-health-note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; }
+
+/* Anomaly list */
+.ai-anom-list { display: flex; flex-direction: column; gap: 8px; }
+.ai-anom {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  background: var(--bg-card2); border: 1px solid var(--border); border-radius: 10px; font-size: 13px;
+}
+.ai-anom .a-ic { width: 26px; text-align: center; flex-shrink: 0; }
+.ai-anom.sev-high { border-left: 3px solid var(--red); }
+.ai-anom.sev-med  { border-left: 3px solid var(--amber); }
+.ai-anom.sev-low  { border-left: 3px solid var(--green); }
+.ai-anom .a-name { font-weight: 600; color: var(--text-primary); }
+.ai-anom .a-detail { color: var(--text-muted); margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 12px; white-space: nowrap; }
+
+.ai-model-meta {
+  display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--text-muted);
+  margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border);
+}
+.ai-model-meta strong { color: var(--text-secondary); }
+
+.ai-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ai-train-status { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.ai-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green-glow); }
+
+@media (max-width: 600px){
+  .xm-bar-row { grid-template-columns: 96px 1fr 52px; }
+  .ai-gauge { width: 124px; height: 124px; }
+}
