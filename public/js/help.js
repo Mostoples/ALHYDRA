@@ -107,12 +107,32 @@ ALHYDRA.help = (() => {
       </button>
       <button class="btn-secondary full-width" onclick="ALHYDRA.help.runTour()" style="margin-top:8px">
         <i class="fa-solid fa-route"></i> ${lg==='id'?'Ikuti tur aplikasi':'Take the app tour'}
+      </button>
+      <button class="btn-secondary full-width" onclick="ALHYDRA.help.sendFeedback()" style="margin-top:8px">
+        <i class="fa-solid fa-comment-dots"></i> ${lg==='id'?'Kirim masukan':'Send feedback'}
       </button>`;
     m.classList.add('open');
   }
   function close(){ document.getElementById('help-modal')?.classList.remove('open'); }
   function openChat(){ close(); ALHYDRA.chat?.togglePanel?.(); }
   function runTour(){ close(); ALHYDRA.onboarding?.startTour?.(); }
+  function sendFeedback(){
+    const id = lang()==='id';
+    const msg = prompt(id?'Tulis masukan/saran Anda untuk tim:':'Write your feedback for the team:');
+    if (!msg || !msg.trim()) return;
+    try {
+      window.db.collection('feedback').add({
+        message: msg.trim(),
+        email: window.auth?.currentUser?.email || 'anon',
+        uid: window.auth?.currentUser?.uid || null,
+        resolved: false,
+        ts: firebase.firestore.FieldValue.serverTimestamp(),
+      }).then(()=>{
+        ALHYDRA.app.toast(id?'Terima kasih atas masukannya!':'Thanks for your feedback!','success');
+        ALHYDRA.audit?.log('feedback_submit');
+      }).catch(e=>ALHYDRA.app.toast('Failed: '+e.message,'error'));
+    } catch(e){ ALHYDRA.app.toast('Failed','error'); }
+  }
 
   function ensureModal(){
     let m=document.getElementById('help-modal');
@@ -135,5 +155,5 @@ ALHYDRA.help = (() => {
     document.getElementById('help-fab')?.addEventListener('click', open);
   }
 
-  return { init, open, close, openChat, runTour };
+  return { init, open, close, openChat, runTour, sendFeedback };
 })();
