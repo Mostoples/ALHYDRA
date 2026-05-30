@@ -142,6 +142,13 @@ ALHYDRA.i18n = (() => {
     'Research': 'Riset',
     'Stack': 'Teknologi',
     // Startup landing additions
+    'A real-time look at the ALHYDRA dashboard & mobile app': 'Tampilan real-time dasbor & aplikasi seluler ALHYDRA',
+    'Good morning, Operator 👋': 'Selamat pagi, Operator 👋',
+    'Live system snapshot': 'Ringkasan sistem langsung',
+    'Health': 'Kesehatan',
+    'Cultures': 'Kultur',
+    'AI Health': 'Kesehatan AI',
+    'All parameters optimal 🎉': 'Semua parameter optimal 🎉',
     'FAQ': 'FAQ',
     'Powered by industry-grade tech': 'Didukung teknologi kelas industri',
     'Frequently Asked': 'Pertanyaan',
