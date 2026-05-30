@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="css/landing.css" />
   <link rel="stylesheet" href="css/icon-anim.css" />
   <link rel="stylesheet" href="css/decor.css" />
+  <link rel="stylesheet" href="css/landing-startup.css" />
   <style>
     .btn-lang {
       display: inline-flex; align-items: center; gap: 6px;
@@ -48,6 +49,7 @@
       <li><a href="#features">Features</a></li>
       <li><a href="#technology">Technology</a></li>
       <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#faq">FAQ</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="nav-actions">
@@ -70,6 +72,7 @@
   <a href="#features"     onclick="closeMobileMenu()">Features</a>
   <a href="#technology"   onclick="closeMobileMenu()">Technology</a>
   <a href="#how-it-works" onclick="closeMobileMenu()">How It Works</a>
+  <a href="#faq"          onclick="closeMobileMenu()">FAQ</a>
   <a href="#contact"      onclick="closeMobileMenu()">Contact</a>
   <a href="/app" class="mobile-cta"><i class="fa-solid fa-gauge-high"></i> Launch Dashboard</a>
   <button class="btn-lang" data-lang-toggle style="margin-top:10px;width:100%;justify-content:center">
@@ -153,6 +156,22 @@
     <div class="scroll-hint-dot"></div>
   </a>
 </section>
+
+<!-- ═══════════════════════════════════════════
+     TRUST / SOCIAL-PROOF STRIP
+═══════════════════════════════════════════ -->
+<div class="trust-strip">
+  <div class="container trust-inner">
+    <span class="trust-label">Powered by industry-grade tech</span>
+    <div class="trust-logos">
+      <span class="trust-logo"><i class="fa-brands fa-google"></i> Firebase</span>
+      <span class="trust-logo"><i class="fa-solid fa-bolt"></i> ESP32</span>
+      <span class="trust-logo"><i class="fa-solid fa-chart-line"></i> Chart.js</span>
+      <span class="trust-logo"><i class="fa-solid fa-brain"></i> On-device ML</span>
+      <span class="trust-logo"><i class="fa-solid fa-solar-panel"></i> Solar + Wind</span>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════════════
      ABOUT
@@ -510,6 +529,63 @@
 </section>
 
 <!-- ═══════════════════════════════════════════
+     TECH MARQUEE
+═══════════════════════════════════════════ -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span class="marquee-item"><i class="fa-solid fa-flask-vial"></i> Microalgae</span>
+    <span class="marquee-item"><i class="fa-solid fa-seedling"></i> Hydroponics</span>
+    <span class="marquee-item"><i class="fa-solid fa-solar-panel"></i> Solar PV</span>
+    <span class="marquee-item"><i class="fa-solid fa-wind"></i> Wind Turbine</span>
+    <span class="marquee-item"><i class="fa-solid fa-brain"></i> Explainable AI</span>
+    <span class="marquee-item"><i class="fa-solid fa-earth-asia"></i> Carbon Capture</span>
+    <span class="marquee-item"><i class="fa-solid fa-microchip"></i> AIoT</span>
+    <!-- duplicate for seamless loop -->
+    <span class="marquee-item"><i class="fa-solid fa-flask-vial"></i> Microalgae</span>
+    <span class="marquee-item"><i class="fa-solid fa-seedling"></i> Hydroponics</span>
+    <span class="marquee-item"><i class="fa-solid fa-solar-panel"></i> Solar PV</span>
+    <span class="marquee-item"><i class="fa-solid fa-wind"></i> Wind Turbine</span>
+    <span class="marquee-item"><i class="fa-solid fa-brain"></i> Explainable AI</span>
+    <span class="marquee-item"><i class="fa-solid fa-earth-asia"></i> Carbon Capture</span>
+    <span class="marquee-item"><i class="fa-solid fa-microchip"></i> AIoT</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FAQ
+═══════════════════════════════════════════ -->
+<section id="faq" class="section section-alt section-pattern">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-eyebrow">FAQ</div>
+      <h2 class="section-title">Frequently Asked<br /><span class="gradient-text">Questions</span></h2>
+    </div>
+    <div class="faq-wrap reveal">
+      <details class="faq-item" open>
+        <summary>What exactly is ALHYDRA?</summary>
+        <p>ALHYDRA (Algae-Hydroponic Dual-Renewable Apparatus) is a hybrid multi-tower cultivation system that integrates microalgae, horticulture, and hydroponic towers — fully powered by solar and wind energy and monitored in real time through an AIoT cloud platform.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Do I need special hardware to use the dashboard?</summary>
+        <p>The web dashboard works on its own with built-in Demo Mode. To stream live data, connect an ESP32/Arduino with the supported sensors and POST readings to Firebase Firestore via the REST API — full instructions are in Settings → IoT Integration.</p>
+      </details>
+      <details class="faq-item">
+        <summary>What can the AI features do?</summary>
+        <p>You get an on-device machine-learning health score, next-reading forecasting, anomaly detection, and explainable-AI feature attribution — plus an AI assistant that answers questions about your live sensors, energy, and algae cultures.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Is it really powered only by renewables?</summary>
+        <p>Yes — solar panels and a small wind turbine supply the system, with an automatic backup mode and battery state-of-charge tracking. The Environmental Impact page estimates CO₂ avoided, carbon captured, and water saved.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Is it free to use?</summary>
+        <p>The dashboard is open and runs on Firebase Hosting. Just launch it, sign in, and start monitoring — no installation required.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
      CONTACT / CTA
 ═══════════════════════════════════════════ -->
 <section id="contact" class="section cta-section">
@@ -597,11 +673,17 @@
   </div>
 </footer>
 
+<!-- Back to top -->
+<button id="to-top" aria-label="Back to top"><i class="fa-solid fa-arrow-up"></i></button>
+
 <script>
-/* ── Navbar scroll effect ── */
+/* ── Navbar scroll effect + back-to-top ── */
+const toTop = document.getElementById('to-top');
 window.addEventListener('scroll', () => {
   document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
+  toTop.classList.toggle('show', window.scrollY > 600);
 });
+toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
 /* ── Mobile menu ── */
 document.getElementById('hamburger').addEventListener('click', () => {

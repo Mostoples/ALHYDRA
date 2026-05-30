@@ -1,0 +1,169 @@
+/* ═══════════════════════════════════════════════════════════
+   ALHYDRA — Startup landing polish (landing-startup.css)
+   Loaded after landing.css + decor.css. Elevates the landing into
+   a modern SaaS/startup look: gradient mesh hero, glass nav pill,
+   social-proof strip, tech marquee, bento feature accents, FAQ,
+   gradient CTA. Additive only — existing JS/animations untouched.
+═══════════════════════════════════════════════════════════ */
+
+/* ── Nav: floating glass pill ── */
+#navbar.scrolled {
+  background: rgba(8,13,24,0.72);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+.btn-nav-cta { position: relative; overflow: hidden; }
+.btn-nav-cta::after {
+  content: ''; position: absolute; top: 0; left: -120%; width: 80%; height: 100%;
+  background: linear-gradient(110deg, transparent, rgba(255,255,255,.35), transparent);
+  transform: skewX(-18deg); transition: left .6s ease;
+}
+.btn-nav-cta:hover::after { left: 140%; }
+
+/* ── Hero: gradient mesh + conic glow behind title ── */
+#hero::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(40% 50% at 20% 30%, rgba(16,185,129,.14), transparent 70%),
+    radial-gradient(40% 50% at 80% 20%, rgba(6,182,212,.12), transparent 70%),
+    radial-gradient(50% 60% at 60% 90%, rgba(139,92,246,.10), transparent 70%);
+}
+.hero-content { z-index: 2; }
+.hero-badge {
+  background: linear-gradient(135deg, rgba(16,185,129,.16), rgba(6,182,212,.12));
+  backdrop-filter: blur(6px); box-shadow: 0 2px 18px rgba(16,185,129,.15);
+}
+.btn-hero-primary { position: relative; overflow: hidden; }
+.btn-hero-primary::after {
+  content: ''; position: absolute; top: 0; left: -120%; width: 70%; height: 100%;
+  background: linear-gradient(110deg, transparent, rgba(255,255,255,.4), transparent);
+  transform: skewX(-18deg); transition: left .7s ease;
+}
+.btn-hero-primary:hover::after { left: 150%; }
+
+/* Hero stats → glass cards with gradient top edge */
+.hero-stats {
+  background: rgba(255,255,255,0.04);
+  box-shadow: 0 18px 50px -20px rgba(0,0,0,.6);
+}
+.hs-num { background: linear-gradient(135deg, #fff, var(--green-c)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+/* ── Universal section eyebrow pill ── */
+.section-eyebrow {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+  color: var(--green-c);
+  background: linear-gradient(135deg, rgba(16,185,129,.14), rgba(6,182,212,.10));
+  border: 1px solid rgba(16,185,129,.28);
+  padding: 6px 14px; border-radius: 99px; margin-bottom: 18px;
+}
+.section-eyebrow::before { content: '\f0eb'; font-family: 'Font Awesome 6 Free'; font-weight: 900; font-size: 11px; }
+.section-header { text-align: center; max-width: 720px; margin: 0 auto 56px; }
+.section-header .section-eyebrow { margin-left: auto; margin-right: auto; }
+
+/* ═══════════════════════════════════════════
+   SOCIAL-PROOF / TRUST STRIP (after hero)
+═══════════════════════════════════════════ */
+.trust-strip {
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.015); padding: 28px 0;
+}
+.trust-inner { display: flex; align-items: center; justify-content: center; gap: 14px 40px; flex-wrap: wrap; }
+.trust-label { font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+.trust-logos { display: flex; align-items: center; gap: 30px; flex-wrap: wrap; justify-content: center; }
+.trust-logo { display: flex; align-items: center; gap: 9px; color: var(--text); opacity: .72; font-weight: 600; font-size: 15px; transition: opacity .2s; }
+.trust-logo:hover { opacity: 1; }
+.trust-logo i { font-size: 19px; color: var(--green-c); }
+
+/* ═══════════════════════════════════════════
+   BENTO accents on existing feature cards
+═══════════════════════════════════════════ */
+.feature-card {
+  position: relative; overflow: hidden;
+  transition: transform .28s var(--ease), border-color .28s, box-shadow .28s;
+}
+.feature-card::before {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(120% 120% at 100% 0%, color-mix(in srgb, var(--c,#10B981) 16%, transparent), transparent 55%);
+  opacity: 0; transition: opacity .3s;
+}
+.feature-card:hover { transform: translateY(-6px); box-shadow: 0 22px 50px -24px rgba(0,0,0,.7); border-color: color-mix(in srgb, var(--c,#10B981) 45%, var(--border)); }
+.feature-card:hover::before { opacity: 1; }
+.fc-icon { box-shadow: 0 0 28px -6px var(--c, #10B981); }
+
+/* ═══════════════════════════════════════════
+   TECH MARQUEE (trusted/built-with)
+═══════════════════════════════════════════ */
+.marquee {
+  position: relative; overflow: hidden; padding: 22px 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.marquee-track { display: flex; gap: 56px; width: max-content; animation: marquee 26s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+.marquee-item { display: flex; align-items: center; gap: 11px; font-size: 17px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.marquee-item i { font-size: 22px; color: var(--cyan-c); }
+@keyframes marquee { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
+
+/* ═══════════════════════════════════════════
+   FAQ accordion
+═══════════════════════════════════════════ */
+.faq-wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+.faq-item {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 4px 22px; transition: border-color .2s, background .2s;
+}
+.faq-item[open] { border-color: rgba(16,185,129,.4); background: rgba(16,185,129,.04); }
+.faq-item summary {
+  cursor: pointer; list-style: none; padding: 18px 0; font-size: 16px; font-weight: 600;
+  color: var(--text); display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after { content: '\2b'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: var(--green-c); font-size: 14px; transition: transform .25s; }
+.faq-item[open] summary::after { transform: rotate(45deg); }
+.faq-item p { color: var(--muted); font-size: 14.5px; line-height: 1.75; padding: 0 0 20px; margin: 0; }
+
+/* ═══════════════════════════════════════════
+   CTA section upgrade
+═══════════════════════════════════════════ */
+.cta-card {
+  background: linear-gradient(135deg, rgba(16,185,129,.16), rgba(6,182,212,.12), rgba(139,92,246,.10));
+  border: 1px solid rgba(16,185,129,.28);
+  position: relative; overflow: hidden;
+}
+.cta-card::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
+  background-size: 26px 26px; pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════
+   FOOTER richer
+═══════════════════════════════════════════ */
+#footer { border-top: 1px solid var(--border); }
+.footer-social a {
+  width: 38px; height: 38px; border-radius: 10px; display: inline-flex;
+  align-items: center; justify-content: center; background: rgba(255,255,255,.05);
+  border: 1px solid var(--border); color: var(--text); transition: .2s;
+}
+.footer-social a:hover { color: var(--green-c); border-color: var(--green-c); transform: translateY(-2px); }
+
+/* ── Back-to-top button ── */
+#to-top {
+  position: fixed; right: 22px; bottom: 22px; z-index: 800;
+  width: 44px; height: 44px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--green-d), #0891B2); color: #fff;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+  box-shadow: 0 8px 24px rgba(16,185,129,.45);
+  opacity: 0; transform: translateY(16px) scale(.9); pointer-events: none;
+  transition: opacity .3s, transform .3s;
+}
+#to-top.show { opacity: 1; transform: none; pointer-events: auto; }
+#to-top:hover { transform: translateY(-2px); }
+
+@media (max-width: 600px) {
+  .trust-inner { gap: 12px 24px; }
+  .trust-logos { gap: 20px; }
+  .section-header { margin-bottom: 40px; }
+}

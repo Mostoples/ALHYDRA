@@ -141,6 +141,26 @@ ALHYDRA.i18n = (() => {
     'System': 'Sistem',
     'Research': 'Riset',
     'Stack': 'Teknologi',
+    // Startup landing additions
+    'FAQ': 'FAQ',
+    'Powered by industry-grade tech': 'Didukung teknologi kelas industri',
+    'Frequently Asked': 'Pertanyaan',
+    'Questions': 'yang Sering Diajukan',
+    'What exactly is ALHYDRA?': 'Apa itu ALHYDRA?',
+    'ALHYDRA (Algae-Hydroponic Dual-Renewable Apparatus) is a hybrid multi-tower cultivation system that integrates microalgae, horticulture, and hydroponic towers — fully powered by solar and wind energy and monitored in real time through an AIoT cloud platform.':
+      'ALHYDRA (Algae-Hydroponic Dual-Renewable Apparatus) adalah sistem budidaya multi-menara hibrida yang memadukan mikroalga, hortikultura, dan menara hidroponik — sepenuhnya ditenagai energi surya & angin dan dipantau real-time melalui platform cloud AIoT.',
+    'Do I need special hardware to use the dashboard?': 'Apakah perlu perangkat khusus untuk memakai dasbor?',
+    'The web dashboard works on its own with built-in Demo Mode. To stream live data, connect an ESP32/Arduino with the supported sensors and POST readings to Firebase Firestore via the REST API — full instructions are in Settings → IoT Integration.':
+      'Dasbor web bisa dipakai sendiri dengan Mode Demo bawaan. Untuk data langsung, hubungkan ESP32/Arduino dengan sensor yang didukung dan kirim data ke Firebase Firestore via REST API — panduan lengkap ada di Pengaturan → Integrasi IoT.',
+    'What can the AI features do?': 'Apa yang bisa dilakukan fitur AI?',
+    'You get an on-device machine-learning health score, next-reading forecasting, anomaly detection, and explainable-AI feature attribution — plus an AI assistant that answers questions about your live sensors, energy, and algae cultures.':
+      'Anda mendapat skor kesehatan machine-learning di perangkat, prakiraan pembacaan berikutnya, deteksi anomali, dan atribusi fitur explainable-AI — plus asisten AI yang menjawab soal sensor, energi, dan kultur alga Anda.',
+    'Is it really powered only by renewables?': 'Apakah benar hanya ditenagai energi terbarukan?',
+    'Yes — solar panels and a small wind turbine supply the system, with an automatic backup mode and battery state-of-charge tracking. The Environmental Impact page estimates CO₂ avoided, carbon captured, and water saved.':
+      'Ya — panel surya dan turbin angin kecil memasok sistem, dengan mode cadangan otomatis dan pelacakan SOC baterai. Halaman Dampak Lingkungan memperkirakan CO₂ dihindari, karbon ditangkap, dan air dihemat.',
+    'Is it free to use?': 'Apakah gratis digunakan?',
+    'The dashboard is open and runs on Firebase Hosting. Just launch it, sign in, and start monitoring — no installation required.':
+      'Dasbor terbuka dan berjalan di Firebase Hosting. Cukup buka, masuk, dan mulai memantau — tanpa instalasi.',
     'Control Panel': 'Panel Kontrol',
     'Settings': 'Pengaturan',
     'About ALHYDRA': 'Tentang ALHYDRA',
