@@ -169,6 +169,13 @@ ALHYDRA.i18n = (() => {
     'SYSTEM': 'SISTEM',
     'AI Insights': 'Wawasan AI',
     'Encyclopedia': 'Ensiklopedia',
+    'CULTIVATION': 'BUDIDAYA',
+    'Microalgae': 'Mikroalga',
+    'Microalgae Management': 'Manajemen Mikroalga',
+    'Manage cultures, track growth & schedule harvests': 'Kelola kultur, lacak pertumbuhan & jadwalkan panen',
+    'New Culture': 'Kultur Baru',
+    'No cultures yet': 'Belum ada kultur',
+    'Add your first microalgae culture to start tracking growth.': 'Tambahkan kultur mikroalga pertama untuk mulai melacak pertumbuhan.',
     'Connecting…': 'Menghubungkan…',
     'Online': 'Daring',
     'Offline': 'Luring',
@@ -395,6 +402,8 @@ ALHYDRA.i18n = (() => {
     translateTextNodes(toID);
     translateAttrs(toID);
     updateToggleLabel();
+    // Let dynamic modules (e.g. algae) re-render their JS-built content.
+    try { window.dispatchEvent(new CustomEvent('alhydra:lang', { detail: { lang } })); } catch (e) {}
   }
 
   function set(next) {

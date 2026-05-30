@@ -9,7 +9,7 @@ window.ALHYDRA = window.ALHYDRA || {};
 
 ALHYDRA.app = (() => {
   // ── State ──────────────────────────────
-  const views = ['dashboard', 'monitoring', 'control', 'analytics', 'ai', 'encyclopedia', 'settings', 'about'];
+  const views = ['dashboard', 'monitoring', 'control', 'algae', 'analytics', 'ai', 'encyclopedia', 'settings', 'about'];
   let currentView = 'dashboard';
   let notifications = [];
   let notifPanelOpen = false;
@@ -55,7 +55,7 @@ ALHYDRA.app = (() => {
     // Update breadcrumb
     const labels = {
       dashboard: 'Dashboard', monitoring: 'Monitoring', control: 'Control Panel',
-      analytics: 'Analytics', ai: 'AI Insights', encyclopedia: 'Encyclopedia',
+      algae: 'Microalgae', analytics: 'Analytics', ai: 'AI Insights', encyclopedia: 'Encyclopedia',
       settings: 'Settings', about: 'About'
     };
     const bc = document.getElementById('breadcrumb-current');
@@ -80,6 +80,7 @@ ALHYDRA.app = (() => {
 
     if (prev === 'monitoring' && ALHYDRA.monitoring) ALHYDRA.monitoring.pause();
     if (viewId === 'monitoring'  && ALHYDRA.monitoring) ALHYDRA.monitoring.resume();
+    if (viewId === 'algae'        && ALHYDRA.algae)        ALHYDRA.algae.onEnter();
     if (viewId === 'analytics'    && ALHYDRA.analytics)    ALHYDRA.analytics.onEnter();
     if (viewId === 'ai'           && ALHYDRA.ml)           ALHYDRA.ml.onEnter();
     if (viewId === 'settings'     && ALHYDRA.settings)    ALHYDRA.settings.onEnter();
@@ -288,6 +289,7 @@ ALHYDRA.app = (() => {
     ALHYDRA.settings?.init();
     ALHYDRA.encyclopedia?.init();
     ALHYDRA.calibration?.init();
+    ALHYDRA.algae?.init();
     ALHYDRA.ml?.init();
     ALHYDRA.chat?.init();
 

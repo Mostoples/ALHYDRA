@@ -33,6 +33,11 @@ service cloud.firestore {
       allow read, write: if isSignedIn();
     }
 
+    // Microalgae cultures (culture/batch management)
+    match /algae_cultures/{docId} {
+      allow read, write: if isSignedIn();
+    }
+
     // Per-user profile data
     match /users/{userId} {
       allow read, write: if isSignedIn() && request.auth.uid == userId;

@@ -200,6 +200,11 @@
         <i class="fa-solid fa-sliders"></i>
         <span>Control Panel</span>
       </a>
+      <div class="nav-section-label">CULTIVATION</div>
+      <a class="nav-item" data-view="algae" href="#algae">
+        <i class="fa-solid fa-bacterium"></i>
+        <span>Microalgae</span>
+      </a>
       <div class="nav-section-label">ANALYSIS</div>
       <a class="nav-item" data-view="analytics" href="#analytics">
         <i class="fa-solid fa-chart-bar"></i>
@@ -798,6 +803,32 @@
         </div>
       </div><!-- /view-analytics -->
 
+      <!-- ─── MICROALGAE MANAGEMENT VIEW ─── -->
+      <div class="view hidden" id="view-algae">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Microalgae Management</h1>
+            <p class="view-subtitle">Manage cultures, track growth &amp; schedule harvests</p>
+          </div>
+          <div class="view-header-actions">
+            <button class="btn-primary sm" onclick="ALHYDRA.algae.openAdd()">
+              <i class="fa-solid fa-plus"></i> New Culture
+            </button>
+          </div>
+        </div>
+
+        <div class="algae-stats" id="algae-stats"></div>
+        <div class="algae-grid" id="algae-grid"></div>
+
+        <div id="algae-empty" class="empty-state hidden">
+          <i class="fa-solid fa-bacterium"></i>
+          <p><strong>No cultures yet</strong><br>Add your first microalgae culture to start tracking growth.</p>
+          <button class="btn-primary sm" onclick="ALHYDRA.algae.openAdd()" style="margin-top:12px">
+            <i class="fa-solid fa-plus"></i> New Culture
+          </button>
+        </div>
+      </div><!-- /view-algae -->
+
       <!-- ─── AI INSIGHTS VIEW (ML + XAI) ─── -->
       <div class="view hidden" id="view-ai">
         <div class="view-header">
@@ -1294,6 +1325,7 @@ Content-Type: application/json
 <script src="js/settings.js"></script>
 <script src="js/encyclopedia.js"></script>
 <script src="js/calibration.js"></script>
+<script src="js/algae.js"></script>
 <script src="js/ml.js"></script>
 <script src="js/chat.js"></script>
 
