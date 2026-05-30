@@ -287,6 +287,9 @@
       </div>
       <div class="topbar-right">
         <div class="topbar-time" id="topbar-time"></div>
+        <button class="topbar-btn" id="cmdk-btn" title="Command palette (Ctrl/⌘ K)" onclick="ALHYDRA.palette.show()">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
         <button id="theme-toggle" title="Toggle dark / light" aria-label="Toggle theme">
           <i class="fa-solid fa-moon ti-moon"></i>
           <i class="fa-solid fa-sun ti-sun"></i>
@@ -332,6 +335,9 @@
             </div>
             <button class="btn-secondary sm" id="dash-simulate-btn" onclick="ALHYDRA.dashboard.toggleSimulate()">
               <i class="fa-solid fa-flask"></i> Demo Mode
+            </button>
+            <button class="btn-secondary sm" onclick="ALHYDRA.report.print()">
+              <i class="fa-solid fa-file-pdf"></i> Report
             </button>
           </div>
         </div>
@@ -1631,6 +1637,8 @@ Content-Type: application/json
 <script src="js/admin.js"></script>
 <script src="js/ops.js"></script>
 <script src="js/alerts.js"></script>
+<script src="js/palette.js"></script>
+<script src="js/report.js"></script>
 <script src="js/ml.js"></script>
 <script src="js/chat.js"></script>
 
