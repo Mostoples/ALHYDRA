@@ -24,7 +24,13 @@ Guidelines:
 - Use bullet points (•) for lists
 - Provide specific, actionable recommendations
 - Be friendly and professional
-- When sensor data is available, always reference the actual values`;
+- When sensor data is available, always reference the actual values
+
+The app's pages: Dashboard, Monitoring, Control Panel, Microalgae (culture/batch management,
+growth tracking, harvest prediction), Analytics, Energy Optimization (dynamic management +
+automatic backup system, battery SOC), Environmental Impact (CO₂ avoided/captured, water saved,
+tree-equivalents), AI Insights (ML health score, forecasting, anomaly detection, explainable AI),
+Encyclopedia, and Settings. A water-level sensor and a Quick Help button are also available.`;
 
   // ── Get API key ────────────────────────
   function getApiKey() {
@@ -34,7 +40,7 @@ Guidelines:
   // ── Read current sensor values from DOM ──
   function getSensorData() {
     const data = {};
-    ['ph', 'light', 'turbidity', 'temp_ambient', 'humidity', 'temp_water', 'current_gen', 'current_cons'].forEach(k => {
+    ['ph', 'light', 'turbidity', 'temp_ambient', 'humidity', 'temp_water', 'water_level', 'current_gen', 'current_cons'].forEach(k => {
       const el = document.getElementById('val-' + k);
       if (el && el.textContent !== '—') {
         const n = parseFloat(el.textContent);
@@ -60,10 +66,16 @@ Guidelines:
     if (data.temp_ambient   !== undefined) lines.push(`Ambient Temp: ${data.temp_ambient.toFixed(1)} °C`);
     if (data.humidity       !== undefined) lines.push(`Humidity: ${data.humidity.toFixed(1)} %`);
     if (data.light          !== undefined) lines.push(`Light Intensity: ${data.light.toFixed(0)} lux`);
+    if (data.water_level    !== undefined) lines.push(`Water Level: ${data.water_level.toFixed(0)} %`);
     if (data.current_gen    !== undefined) lines.push(`Generation Current: ${data.current_gen.toFixed(2)} A (${(data.current_gen * voltage).toFixed(1)} W)`);
     if (data.current_cons   !== undefined) lines.push(`Consumption Current: ${data.current_cons.toFixed(2)} A (${(data.current_cons * voltage).toFixed(1)} W)`);
     if (data.pump1          !== undefined) lines.push(`Pump 1: ${data.pump1 ? 'ON' : 'OFF'}`);
     if (data.pump2          !== undefined) lines.push(`Pump 2: ${data.pump2 ? 'ON' : 'OFF'}`);
+    // Subsystem context (energy optimization + algae biomass)
+    const e = ALHYDRA.energy?.getState?.();
+    if (e) lines.push(`Energy mode: ${e.mode}, backup ${e.backup ? 'ON' : 'off'}, battery ${e.soc}%, net ${e.balanceW} W`);
+    const b = ALHYDRA.algae?.getBiomassEstimate?.();
+    if (b && b.byCulture.length) lines.push(`Algae: est. active biomass ≈ ${b.kg.toFixed(2)} kg across ${b.byCulture.length} culture(s)`);
     return lines.join('\n');
   }
 
@@ -106,7 +118,7 @@ Guidelines:
       const advice = data.turbidity > 40 ? '\n\n⚠️ High turbidity detected. Check filters and consider a 20–30% water change.' : '\n\n✅ Water conditions look suitable for plant and algae growth.';
       return `**Water Quality Summary:**\n\n${items.join('\n')}${advice}`;
     }
-    if (/energy|power|watt|solar|wind|generat|consum|electric/.test(lower)) {
+    if (/energy|power|watt|solar|wind|generat|consum|electric|backup|battery|cadangan|baterai/.test(lower)) {
       if (!hasSensors || (data.current_gen === undefined && data.current_cons === undefined)) return noData();
       const V = 220;
       const gen  = data.current_gen  !== undefined ? (data.current_gen  * V).toFixed(1) : '—';
@@ -114,7 +126,20 @@ Guidelines:
       const bal  = data.current_gen !== undefined && data.current_cons !== undefined
         ? ((data.current_gen - data.current_cons) * V).toFixed(1) : '—';
       const balInfo = bal !== '—' ? (parseFloat(bal) >= 0 ? '✅ Energy positive! Surplus can charge batteries.' : '⚠️ Energy deficit — system draws more than it generates.') : '';
-      return `**Energy Balance:**\n\n• 🌞 **Generated:** ${gen} W\n• ⚡ **Consumed:** ${cons} W\n• 📊 **Net Balance:** ${bal} W\n\n${balInfo}\n\nEnsure pumps run during peak solar hours (09:00–15:00) to maximize renewable energy utilization.`;
+      const e = ALHYDRA.energy?.getState?.();
+      const eLine = e ? `\n\n**Backup system:** mode **${e.mode}**, backup **${e.backup ? 'ENGAGED' : 'standby'}**, battery **${e.soc}%**. Open the **Energy Optimization** page to tune auto-backup & load scheduling.` : '';
+      return `**Energy Balance:**\n\n• 🌞 **Generated:** ${gen} W\n• ⚡ **Consumed:** ${cons} W\n• 📊 **Net Balance:** ${bal} W\n\n${balInfo}${eLine}\n\nEnsure pumps run during peak solar hours (09:00–15:00) to maximize renewable energy utilization.`;
+    }
+    if (/water level|level air|reservoir|tank|dry.?run/.test(lower)) {
+      if (data.water_level === undefined) return noData();
+      const wl = data.water_level;
+      const s = wl < 15 ? '🔴 CRITICAL' : wl < 30 ? '🟡 LOW' : '🟢 OK';
+      return `**Water Level: ${wl.toFixed(0)}%** ${s}\n\nBelow **30%** raises a caution and below **15%** a critical alert. Top up the reservoir to avoid pump **dry-run** damage. The level sensor also feeds the AI assistant and alerts.`;
+    }
+    if (/impact|co2|carbon|emission|dampak|lingkungan|jejak/.test(lower)) {
+      const b = ALHYDRA.algae?.getBiomassEstimate?.();
+      const bLine = b && b.byCulture.length ? ` Current active algae biomass ≈ **${b.kg.toFixed(2)} kg**.` : '';
+      return `**Environmental Impact:**\n\nThe **Environmental Impact** page estimates:\n• 🌫️ **CO₂ avoided** from renewable electricity (kWh × grid factor)\n• 🦠 **CO₂ captured** by microalgae biomass\n• 💧 **Water saved** vs conventional soil farming\n• 🌳 **Tree-year equivalents**\n\nInputs auto-fill from history & cultures; assumptions are editable for your region.${bLine}`;
     }
     if (/pump|relay|irrigat|valve/.test(lower)) {
       return `**Pump Status:**\n\n• 💧 **Pump 1:** ${data.pump1 ? '🟢 RUNNING' : '⭕ STOPPED'}\n• 💧 **Pump 2:** ${data.pump2 ? '🟢 RUNNING' : '⭕ STOPPED'}\n\nControl pumps from the **Control Panel** view. For NFT hydroponics, continuous pumping (24/7) is standard. For deep-water systems, intermittent cycles (15 min ON / 45 min OFF) reduce energy consumption.`;
@@ -169,8 +194,10 @@ Guidelines:
         ? `**Recommendations:**\n\n${recs.join('\n\n')}`
         : `✅ **All parameters look good!**\n\n• Monitor pH daily (optimal: 6.5–7.5)\n• Clean turbidity sensor weekly\n• Run pumps during peak solar hours\n• Log daily biomass estimates for algae growth tracking`;
     }
-    if (/algae|microalgae|chlorella|spirulina|biomass/.test(lower)) {
-      return `**Microalgae Tips for ALHYDRA:**\n\n• **pH:** 7.0–8.5 (slightly alkaline)\n• **Temp:** 20–28 °C\n• **CO₂:** 0.5–5% v/v supplementation boosts growth 3–5×\n• **Light:** 100–400 µmol photons/m²/s, 16:8 photoperiod\n• **Nutrients:** Needs N, P, K, micronutrients (Bold's Basal Medium)\n• **Mixing:** Maintain flow to prevent sedimentation\n\nTurbidity sensor can estimate biomass density — higher NTU = more cells.`;
+    if (/algae|microalgae|chlorella|spirulina|biomass|kultur|culture|harvest|panen/.test(lower)) {
+      const b = ALHYDRA.algae?.getBiomassEstimate?.();
+      const bLine = b && b.byCulture.length ? `\n\n📦 You have **${b.byCulture.length}** active culture(s), est. biomass **${b.kg.toFixed(2)} kg**. Manage them on the **Microalgae** page (density logging, growth phase, harvest prediction).` : '\n\nUse the **Microalgae** page to add cultures, log cell density, and track growth phase & harvest readiness.';
+      return `**Microalgae Tips for ALHYDRA:**\n\n• **pH:** 7.0–8.5 (slightly alkaline)\n• **Temp:** 20–28 °C\n• **CO₂:** 0.5–5% v/v supplementation boosts growth 3–5×\n• **Light:** 100–400 µmol photons/m²/s, 16:8 photoperiod\n• **Nutrients:** Needs N, P, K, micronutrients (Bold's Basal Medium)\n• **Mixing:** Maintain flow to prevent sedimentation${bLine}`;
     }
     if (/hydropon|nft|dwc|nutrient film|deep water/.test(lower)) {
       return `**Hydroponic Tips for ALHYDRA:**\n\n• **NFT:** Thin nutrient film over roots — ideal for leafy greens (lettuce, spinach, basil)\n• **EC (Electrical Conductivity):** 1.5–2.5 mS/cm for most crops\n• **pH:** 5.5–6.5 (slightly acidic for best nutrient uptake)\n• **Water Temp:** 18–22 °C (prevents *Pythium* root rot)\n• **Pump:** Continuous for NFT; 15 min ON / 45 min OFF for drip\n\nIntegration with algae creates mutual benefit — algae O₂ enriches nutrient solution while plants absorb CO₂.`;

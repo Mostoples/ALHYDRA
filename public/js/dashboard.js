@@ -26,6 +26,7 @@ ALHYDRA.dashboard = (() => {
     temp_ambient: { unit: '°C',  decimals: 1, min: 0,  max: 50,    label: '°C' },
     humidity:     { unit: '%',   decimals: 1, min: 0,  max: 100,   label: '%' },
     temp_water:   { unit: '°C',  decimals: 1, min: 0,  max: 50,    label: '°C' },
+    water_level:  { unit: '%',   decimals: 0, min: 0,  max: 100,   label: '%' },
     current_gen:  { unit: ' A',  decimals: 2, min: 0,  max: 20,    label: 'A' },
     current_cons: { unit: ' A',  decimals: 2, min: 0,  max: 20,    label: 'A' },
   };
@@ -56,6 +57,10 @@ ALHYDRA.dashboard = (() => {
       case 'temp_water':
         if (val < thr.temp_water.min || val > thr.temp_water.max) return 'danger';
         if (val > 28) return 'warning';
+        return 'good';
+      case 'water_level':
+        if (val < 15) return 'danger';
+        if (val < (thr.water_level?.min ?? 30)) return 'warning';
         return 'good';
       default:
         return 'good';
@@ -229,7 +234,7 @@ ALHYDRA.dashboard = (() => {
   function startSimulation() {
     let simPh = 7.2, simLight = 1800, simTurb = 12.5,
         simTempAmb = 28.3, simHum = 65.0, simTempW = 24.1,
-        simGen = 3.2, simCons = 2.5;
+        simWaterLvl = 78, simGen = 3.2, simCons = 2.5;
 
     simInterval = setInterval(() => {
       const rand = (v, d) => Math.max(0, v + (Math.random()-0.5)*2*d);
@@ -240,6 +245,7 @@ ALHYDRA.dashboard = (() => {
         temp_ambient: parseFloat(rand(simTempAmb, 0.4).toFixed(1)),
         humidity:     parseFloat(rand(simHum, 1.5).toFixed(1)),
         temp_water:   parseFloat(rand(simTempW, 0.3).toFixed(1)),
+        water_level:  parseFloat(Math.min(100, rand(simWaterLvl, 1.2)).toFixed(0)),
         current_gen:  parseFloat(rand(simGen, 0.2).toFixed(2)),
         current_cons: parseFloat(rand(simCons, 0.15).toFixed(2)),
         voltage: 220,
@@ -249,6 +255,7 @@ ALHYDRA.dashboard = (() => {
       simPh       = data.ph;       simLight    = data.light;
       simTurb     = data.turbidity; simTempAmb  = data.temp_ambient;
       simHum      = data.humidity;  simTempW    = data.temp_water;
+      simWaterLvl = data.water_level;
       simGen      = data.current_gen; simCons   = data.current_cons;
 
       renderData(data);

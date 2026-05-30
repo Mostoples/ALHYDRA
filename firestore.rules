@@ -38,6 +38,12 @@ service cloud.firestore {
       allow read, write: if isSignedIn();
     }
 
+    // Energy optimization config & automatic backup state
+    // (web writes; IoT device may read backup_state to switch source)
+    match /energy/{docId} {
+      allow read, write: if isSignedIn();
+    }
+
     // Per-user profile data
     match /users/{userId} {
       allow read, write: if isSignedIn() && request.auth.uid == userId;

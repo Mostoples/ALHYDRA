@@ -135,6 +135,22 @@ ALHYDRA.algae = (() => {
     return false;
   }
 
+  // Estimate dry biomass (kg) across active cultures.
+  // Conversion: ~0.1 g/L dry weight per (×10⁶ cells/mL). Editable concept.
+  const G_PER_DENSITY_L = 0.1;
+  function getBiomassEstimate() {
+    let kg = 0; const byCulture = [];
+    cultures.filter(c => c.status === 'active').forEach(c => {
+      const dens = latestDensity(c); const vol = parseFloat(c.volume_l) || 0;
+      if (dens && vol) {
+        const grams = dens * G_PER_DENSITY_L * vol; // density × g/L × L
+        kg += grams / 1000;
+        byCulture.push({ id: c.id, name: (SPECIES[c.species]?.name || c.species), kg: grams / 1000 });
+      }
+    });
+    return { kg, byCulture };
+  }
+
   // ── Live sensor snapshot from dashboard DOM ──
   function liveSensors() {
     const get = id => { const el = document.getElementById('val-' + id); if (!el) return null; const n = parseFloat(el.textContent); return isNaN(n) ? null : n; };
@@ -501,5 +517,5 @@ ALHYDRA.algae = (() => {
     window.addEventListener('alhydra:lang', () => { render(); if (openId) renderDetail(openId); });
   }
 
-  return { init, onEnter, openAdd, submitNew, openDetail, openLog, submitLog, fromTurbidity, harvest, remove, closeModal };
+  return { init, onEnter, openAdd, submitNew, openDetail, openLog, submitLog, fromTurbidity, harvest, remove, closeModal, getBiomassEstimate };
 })();

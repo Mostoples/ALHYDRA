@@ -210,6 +210,15 @@
         <i class="fa-solid fa-chart-bar"></i>
         <span>Analytics</span>
       </a>
+      <div class="nav-section-label">ENERGY &amp; IMPACT</div>
+      <a class="nav-item" data-view="energy" href="#energy">
+        <i class="fa-solid fa-bolt"></i>
+        <span>Energy Optimization</span>
+      </a>
+      <a class="nav-item" data-view="impact" href="#impact">
+        <i class="fa-solid fa-earth-asia"></i>
+        <span>Environmental Impact</span>
+      </a>
       <div class="nav-section-label">INTELLIGENCE</div>
       <a class="nav-item" data-view="ai" href="#ai">
         <i class="fa-solid fa-brain"></i>
@@ -412,6 +421,24 @@
             <div class="sc-bar-wrap">
               <div class="sc-bar-track"><div class="sc-bar-fill cyan" id="bar-temp_water" style="width:0%"></div></div>
               <span class="sc-bar-label" id="bar-temp_water-label"></span>
+            </div>
+          </div>
+
+          <!-- Water Level -->
+          <div class="sensor-card" id="card-water_level" data-key="water_level">
+            <div class="sc-header">
+              <div class="sc-icon" style="--c:#3B82F6"><i class="fa-solid fa-gauge"></i></div>
+              <div class="sc-info">
+                <span class="sc-label">Water Level</span>
+                <span class="sc-unit">%</span>
+              </div>
+              <div class="sc-status-dot" id="status-water_level"></div>
+            </div>
+            <div class="sc-value" id="val-water_level">—</div>
+            <div class="sc-range" id="range-water_level">Optimal: 30 – 100 %</div>
+            <div class="sc-bar-wrap">
+              <div class="sc-bar-track"><div class="sc-bar-fill" style="background:#3B82F6" id="bar-water_level"></div></div>
+              <span class="sc-bar-label" id="bar-water_level-label"></span>
             </div>
           </div>
 
@@ -938,6 +965,142 @@
         </div>
       </div><!-- /view-ai -->
 
+      <!-- ─── ENERGY OPTIMIZATION VIEW ─── -->
+      <div class="view hidden" id="view-energy">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Energy Optimization</h1>
+            <p class="view-subtitle">Dynamic energy management &amp; automatic backup system</p>
+          </div>
+        </div>
+
+        <div class="ai-grid">
+          <!-- Mode + backup -->
+          <div class="ai-card">
+            <div class="ai-card-head">
+              <div class="ai-ic" style="background:linear-gradient(135deg,#F59E0B,#EF4444)"><i class="fa-solid fa-plug-circle-bolt"></i></div>
+              <div><h3 id="en-mode-title">Energy mode</h3><span class="ai-sub" id="en-autonote">In Auto mode the system engages backup automatically on sustained deficit.</span></div>
+            </div>
+            <div class="en-mode-group" id="en-mode-group">
+              <button class="en-mode-btn" data-mode="auto" onclick="ALHYDRA.energy.setMode('auto')"><i class="fa-solid fa-robot"></i> <span id="en-lbl-auto">Auto</span></button>
+              <button class="en-mode-btn" data-mode="renewable" onclick="ALHYDRA.energy.setMode('renewable')"><i class="fa-solid fa-leaf"></i> <span id="en-lbl-renewable">Renewable only</span></button>
+              <button class="en-mode-btn" data-mode="backup" onclick="ALHYDRA.energy.setMode('backup')"><i class="fa-solid fa-car-battery"></i> <span id="en-lbl-backup">Backup</span></button>
+            </div>
+            <div class="en-backup-row">
+              <span id="en-lbl-backup-status">Backup source</span>
+              <span class="en-backup-badge off" id="en-backup-status">Standby</span>
+            </div>
+            <label class="en-manual">
+              <input type="checkbox" id="en-manual-backup" onchange="ALHYDRA.energy.toggleManualBackup(this.checked)" />
+              <span id="en-lbl-manual">Manual backup override</span>
+            </label>
+          </div>
+
+          <!-- Battery SOC -->
+          <div class="ai-card">
+            <div class="ai-card-head">
+              <div class="ai-ic" style="background:linear-gradient(135deg,#10B981,#06B6D4)"><i class="fa-solid fa-battery-three-quarters"></i></div>
+              <div><h3 id="en-lbl-soc">Battery (SOC)</h3><span class="ai-sub">Simulated from net balance</span></div>
+            </div>
+            <div class="en-soc-big" id="en-soc">—</div>
+            <div class="en-soc-track"><div class="en-soc-fill" id="en-soc-bar" style="width:0%"></div></div>
+            <div class="en-balance-row">
+              <div><span class="en-l" id="en-lbl-gen">Generated</span><span class="en-v" id="en-gen">— W</span></div>
+              <div><span class="en-l" id="en-lbl-cons">Consumed</span><span class="en-v" id="en-cons">— W</span></div>
+              <div><span class="en-l" id="en-lbl-balance">Net balance</span><span class="en-v" id="en-balance">— W</span><span class="en-tag" id="en-balance-tag"></span></div>
+            </div>
+          </div>
+
+          <!-- Power flow chart -->
+          <div class="ai-card span-2">
+            <div class="ai-card-head">
+              <div class="ai-ic" style="background:linear-gradient(135deg,#3B82F6,#06B6D4)"><i class="fa-solid fa-chart-area"></i></div>
+              <div><h3 id="en-lbl-flow">Power flow (W)</h3><span class="ai-sub">Generation vs consumption</span></div>
+            </div>
+            <div class="chart-container" style="height:220px"><canvas id="en-flow-chart"></canvas></div>
+          </div>
+
+          <!-- Recommendations -->
+          <div class="ai-card">
+            <div class="ai-card-head">
+              <div class="ai-ic" style="background:linear-gradient(135deg,#8B5CF6,#06B6D4)"><i class="fa-solid fa-lightbulb"></i></div>
+              <div><h3 id="en-lbl-recs">Optimization &amp; actions</h3><span class="ai-sub">Live recommendations</span></div>
+            </div>
+            <div class="ad-recs" id="en-recs"></div>
+          </div>
+
+          <!-- Advanced settings -->
+          <div class="ai-card">
+            <div class="ai-card-head">
+              <div class="ai-ic" style="background:linear-gradient(135deg,#64748B,#334155)"><i class="fa-solid fa-sliders"></i></div>
+              <div><h3>Advanced</h3><span class="ai-sub">Auto-backup tuning</span></div>
+            </div>
+            <div class="sf-group"><label id="en-lbl-threshold">Auto-backup deficit threshold (W)</label><input type="number" id="en-threshold" step="5" /></div>
+            <div class="sf-group"><label id="en-lbl-capacity">Battery capacity (Wh)</label><input type="number" id="en-capacity" step="50" /></div>
+            <button class="btn-primary" id="en-save-cfg" onclick="ALHYDRA.energy.saveAdvanced()"><i class="fa-solid fa-floppy-disk"></i> Save settings</button>
+          </div>
+        </div>
+      </div><!-- /view-energy -->
+
+      <!-- ─── ENVIRONMENTAL IMPACT VIEW ─── -->
+      <div class="view hidden" id="view-impact">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Environmental Impact</h1>
+            <p class="view-subtitle">Estimated CO₂ savings, carbon capture &amp; water conservation</p>
+          </div>
+          <div class="view-header-actions">
+            <div class="quick-range-btns" id="im-period">
+              <button class="qr-btn" data-days="1" onclick="ALHYDRA.impact.setPeriod(1)" id="im-d-today">Today</button>
+              <button class="qr-btn active" data-days="7" onclick="ALHYDRA.impact.setPeriod(7)" id="im-d-week">7 days</button>
+              <button class="qr-btn" data-days="30" onclick="ALHYDRA.impact.setPeriod(30)" id="im-d-month">30 days</button>
+              <button class="qr-btn" data-days="365" onclick="ALHYDRA.impact.setPeriod(365)" id="im-d-year">1 year</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="impact-kpis">
+          <div class="impact-kpi" style="--c:#10B981"><i class="fa-solid fa-cloud"></i><div><div class="ik-val" id="im-co2-energy">—</div><div class="ik-lbl" id="im-lbl-co2-energy">CO₂ avoided (energy)</div></div></div>
+          <div class="impact-kpi" style="--c:#06B6D4"><i class="fa-solid fa-bacterium"></i><div><div class="ik-val" id="im-co2-algae">—</div><div class="ik-lbl" id="im-lbl-co2-algae">CO₂ captured (algae)</div></div></div>
+          <div class="impact-kpi" style="--c:#8B5CF6"><i class="fa-solid fa-earth-asia"></i><div><div class="ik-val" id="im-co2-total">—</div><div class="ik-lbl" id="im-lbl-co2-total">Total CO₂ impact</div></div></div>
+          <div class="impact-kpi" style="--c:#22C55E"><i class="fa-solid fa-tree"></i><div><div class="ik-val" id="im-trees">—</div><div class="ik-lbl" id="im-lbl-trees">Tree-years equivalent</div></div></div>
+          <div class="impact-kpi" style="--c:#3B82F6"><i class="fa-solid fa-droplet"></i><div><div class="ik-val" id="im-water">—</div><div class="ik-lbl" id="im-lbl-water">Water saved</div></div></div>
+        </div>
+
+        <div class="ai-grid">
+          <div class="ai-card">
+            <div class="ai-card-head"><div class="ai-ic" style="background:linear-gradient(135deg,#10B981,#06B6D4)"><i class="fa-solid fa-keyboard"></i></div>
+              <div><h3 id="im-lbl-inputs">Inputs (auto-estimated, editable)</h3></div></div>
+            <div class="sf-group"><label id="im-lbl-energy">Renewable energy generated (kWh)</label><input type="number" id="im-energy" step="0.1" /></div>
+            <div class="sf-group"><label id="im-lbl-biomass">Algae biomass produced (kg dry)</label><input type="number" id="im-biomass" step="0.01" /></div>
+            <div class="sf-group"><label id="im-lbl-yield">Crop yield (kg)</label><input type="number" id="im-yield" step="0.1" placeholder="0" /></div>
+            <button class="btn-primary" id="im-recalc" onclick="ALHYDRA.impact.compute()"><i class="fa-solid fa-calculator"></i> Recalculate</button>
+          </div>
+
+          <div class="ai-card">
+            <div class="ai-card-head"><div class="ai-ic" style="background:linear-gradient(135deg,#8B5CF6,#06B6D4)"><i class="fa-solid fa-chart-pie"></i></div>
+              <div><h3 id="im-lbl-breakdown">CO₂ breakdown</h3></div></div>
+            <div class="chart-container" style="height:220px"><canvas id="im-chart"></canvas></div>
+          </div>
+
+          <div class="ai-card span-2">
+            <div class="ai-card-head"><div class="ai-ic" style="background:linear-gradient(135deg,#64748B,#334155)"><i class="fa-solid fa-flask"></i></div>
+              <div><h3 id="im-lbl-assum">Assumptions</h3></div></div>
+            <div class="impact-factors">
+              <div class="sf-group"><label id="im-lbl-f-grid">Grid emission factor (kg CO₂/kWh)</label><input type="number" id="im-f-grid" step="0.01" /></div>
+              <div class="sf-group"><label id="im-lbl-f-algae">Algae CO₂ fixation (kg/kg biomass)</label><input type="number" id="im-f-algae" step="0.01" /></div>
+              <div class="sf-group"><label id="im-lbl-f-tree">CO₂ per tree-year (kg)</label><input type="number" id="im-f-tree" step="1" /></div>
+              <div class="sf-group"><label id="im-lbl-f-hydro">Hydroponic water saving (%)</label><input type="number" id="im-f-hydro" step="1" /></div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
+              <button class="btn-primary" id="im-save-f" onclick="ALHYDRA.impact.saveFactors()"><i class="fa-solid fa-floppy-disk"></i> Save assumptions</button>
+              <button class="btn-secondary" id="im-reset-f" onclick="ALHYDRA.impact.resetFactors()">Reset</button>
+            </div>
+            <p class="sf-note" id="im-note" style="margin-top:10px">Figures are estimates for awareness/reporting, based on the editable factors above.</p>
+          </div>
+        </div>
+      </div><!-- /view-impact -->
+
       <!-- ─── SETTINGS VIEW ─── -->
       <div class="view hidden" id="view-settings">
         <div class="view-header">
@@ -1247,6 +1410,10 @@ Content-Type: application/json
 <!-- ═══════════════════════════════════════════
      AI CHAT FAB + PANEL
 ═══════════════════════════════════════════ -->
+<button id="help-fab" title="Quick Help / Bantuan Cepat" aria-label="Quick Help">
+  <i class="fa-solid fa-circle-question"></i>
+</button>
+
 <button id="chat-fab" title="ALHYDRA AI Assistant" aria-label="AI Assistant">
   <i class="fa-solid fa-robot"></i>
   <span class="chat-fab-badge">AI</span>
@@ -1326,6 +1493,9 @@ Content-Type: application/json
 <script src="js/encyclopedia.js"></script>
 <script src="js/calibration.js"></script>
 <script src="js/algae.js"></script>
+<script src="js/energy.js"></script>
+<script src="js/impact.js"></script>
+<script src="js/help.js"></script>
 <script src="js/ml.js"></script>
 <script src="js/chat.js"></script>
 

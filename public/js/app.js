@@ -9,7 +9,7 @@ window.ALHYDRA = window.ALHYDRA || {};
 
 ALHYDRA.app = (() => {
   // ── State ──────────────────────────────
-  const views = ['dashboard', 'monitoring', 'control', 'algae', 'analytics', 'ai', 'encyclopedia', 'settings', 'about'];
+  const views = ['dashboard', 'monitoring', 'control', 'algae', 'analytics', 'energy', 'impact', 'ai', 'encyclopedia', 'settings', 'about'];
   let currentView = 'dashboard';
   let notifications = [];
   let notifPanelOpen = false;
@@ -23,6 +23,7 @@ ALHYDRA.app = (() => {
     temp_ambient:{ min: 18, max: 35 },
     humidity:   { min: 40, max: 90 },
     temp_water: { min: 16, max: 32 },
+    water_level:{ min: 30, max: 100 },
   };
 
   // ── Chart.js global defaults ───────────
@@ -55,7 +56,8 @@ ALHYDRA.app = (() => {
     // Update breadcrumb
     const labels = {
       dashboard: 'Dashboard', monitoring: 'Monitoring', control: 'Control Panel',
-      algae: 'Microalgae', analytics: 'Analytics', ai: 'AI Insights', encyclopedia: 'Encyclopedia',
+      algae: 'Microalgae', analytics: 'Analytics', energy: 'Energy Optimization',
+      impact: 'Environmental Impact', ai: 'AI Insights', encyclopedia: 'Encyclopedia',
       settings: 'Settings', about: 'About'
     };
     const bc = document.getElementById('breadcrumb-current');
@@ -82,6 +84,8 @@ ALHYDRA.app = (() => {
     if (viewId === 'monitoring'  && ALHYDRA.monitoring) ALHYDRA.monitoring.resume();
     if (viewId === 'algae'        && ALHYDRA.algae)        ALHYDRA.algae.onEnter();
     if (viewId === 'analytics'    && ALHYDRA.analytics)    ALHYDRA.analytics.onEnter();
+    if (viewId === 'energy'       && ALHYDRA.energy)       ALHYDRA.energy.onEnter();
+    if (viewId === 'impact'       && ALHYDRA.impact)       ALHYDRA.impact.onEnter();
     if (viewId === 'ai'           && ALHYDRA.ml)           ALHYDRA.ml.onEnter();
     if (viewId === 'settings'     && ALHYDRA.settings)    ALHYDRA.settings.onEnter();
     if (viewId === 'encyclopedia' && ALHYDRA.encyclopedia) ALHYDRA.encyclopedia.onEnter();
@@ -290,6 +294,9 @@ ALHYDRA.app = (() => {
     ALHYDRA.encyclopedia?.init();
     ALHYDRA.calibration?.init();
     ALHYDRA.algae?.init();
+    ALHYDRA.energy?.init();
+    ALHYDRA.impact?.init();
+    ALHYDRA.help?.init();
     ALHYDRA.ml?.init();
     ALHYDRA.chat?.init();
 
