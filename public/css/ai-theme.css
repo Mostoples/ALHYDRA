@@ -100,6 +100,10 @@ body, #sidebar, #topbar, .sensor-card, .chart-card, .control-card,
 
 #aura-toggle.active { color: var(--purple); border-color: var(--purple); }
 
+/* Language toggle (app topbar) */
+#lang-toggle { display: inline-flex; align-items: center; gap: 5px; width: auto; padding: 0 10px; }
+#lang-toggle span { font-size: 11px; font-weight: 700; letter-spacing: .3px; }
+
 /* ─────────────────────────────────────────
    AURA — animated ambient glow orbs
 ───────────────────────────────────────── */

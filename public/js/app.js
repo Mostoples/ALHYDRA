@@ -59,7 +59,12 @@ ALHYDRA.app = (() => {
       settings: 'Settings', about: 'About'
     };
     const bc = document.getElementById('breadcrumb-current');
-    if (bc) bc.textContent = labels[viewId] || viewId;
+    if (bc) {
+      const en = labels[viewId] || viewId;
+      bc.textContent = en;
+      // keep breadcrumb in sync with the active language
+      if (ALHYDRA.i18n?.current?.() === 'id') ALHYDRA.i18n.apply();
+    }
 
     // Sync mobile bottom nav
     document.querySelectorAll('.mbn-item').forEach(n => {
@@ -272,6 +277,7 @@ ALHYDRA.app = (() => {
     initSidebar();
     initNotifPanel();
     initTheme();
+    ALHYDRA.i18n?.init();
     setupChartDefaults();
 
     // Init all modules

@@ -20,6 +20,16 @@
   <!-- Landing CSS -->
   <link rel="stylesheet" href="css/landing.css" />
   <link rel="stylesheet" href="css/icon-anim.css" />
+  <style>
+    .btn-lang {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.16);
+      color: #fff; border-radius: 10px; padding: 8px 12px; font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: all .2s;
+    }
+    .btn-lang:hover { border-color: #10B981; color: #10B981; }
+    .btn-lang i { font-size: 15px; }
+  </style>
 </head>
 <body>
 
@@ -40,6 +50,9 @@
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="nav-actions">
+      <button class="btn-lang" id="lang-toggle" data-lang-toggle title="Language / Bahasa" aria-label="Language">
+        <i class="fa-solid fa-language"></i> <span data-lang-label>EN</span>
+      </button>
       <a class="btn-nav-cta" href="/app">
         <i class="fa-solid fa-gauge-high"></i> Launch Dashboard
       </a>
@@ -58,6 +71,9 @@
   <a href="#how-it-works" onclick="closeMobileMenu()">How It Works</a>
   <a href="#contact"      onclick="closeMobileMenu()">Contact</a>
   <a href="/app" class="mobile-cta"><i class="fa-solid fa-gauge-high"></i> Launch Dashboard</a>
+  <button class="btn-lang" data-lang-toggle style="margin-top:10px;width:100%;justify-content:center">
+    <i class="fa-solid fa-language"></i> <span data-lang-label>EN</span>
+  </button>
 </div>
 
 <!-- ═══════════════════════════════════════════
@@ -641,5 +657,6 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   });
 });
 </script>
+<script src="js/i18n.js"></script>
 </body>
 </html>
