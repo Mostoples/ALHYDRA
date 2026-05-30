@@ -42,6 +42,8 @@ ALHYDRA.settings = (() => {
       await window.db.collection('settings').doc('thresholds').set(data);
       Object.assign(window.ALHYDRA_THRESHOLDS, data);
       ALHYDRA.app.toast('Thresholds saved!', 'success');
+      ALHYDRA.audit?.log('threshold_save', {});
+      ALHYDRA.onboarding?.refreshChecklist?.();
     } catch(e) {
       ALHYDRA.app.toast('Save failed: ' + e.message, 'error');
     }

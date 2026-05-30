@@ -6,6 +6,20 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // Bootstrap admin emails + users/{uid}.role == 'admin'
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email in ['cooxnime@gmail.com', 'mersif.storage1@gmail.com']
+        || (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid))
+          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+        )
+      );
+    }
+
+    function ownsNew() { return isSignedIn() && request.resource.data.uid == request.auth.uid; }
+    function ownsExisting() { return isSignedIn() && resource.data.uid == request.auth.uid; }
+
     // Latest sensor snapshot (written by IoT device via REST API)
     match /sensors/{docId} {
       allow read: if isSignedIn();
@@ -30,7 +44,8 @@ service cloud.firestore {
 
     // System & threshold settings
     match /settings/{docId} {
-      allow read, write: if isSignedIn();
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
     }
 
     // Microalgae cultures (culture/batch management)
@@ -39,14 +54,64 @@ service cloud.firestore {
     }
 
     // Energy optimization config & automatic backup state
-    // (web writes; IoT device may read backup_state to switch source)
     match /energy/{docId} {
       allow read, write: if isSignedIn();
     }
 
-    // Per-user profile data
+    // Activity / audit log — owner reads own; create own; immutable; admin reads all
+    match /activity_logs/{docId} {
+      allow create: if ownsNew();
+      allow read:   if ownsExisting() || isAdmin();
+      allow update: if false;
+      allow delete: if ownsExisting() || isAdmin();
+    }
+
+    // Per-user productivity collections (owner-scoped; admin read)
+    match /tasks/{docId} {
+      allow create: if ownsNew();
+      allow read, update, delete: if ownsExisting() || isAdmin();
+    }
+    match /notes/{docId} {
+      allow create: if ownsNew();
+      allow read, update, delete: if ownsExisting() || isAdmin();
+    }
+    match /harvest_log/{docId} {
+      allow create: if ownsNew();
+      allow read, update, delete: if ownsExisting() || isAdmin();
+    }
+    match /maintenance/{docId} {
+      allow create: if ownsNew();
+      allow read, update, delete: if ownsExisting() || isAdmin();
+    }
+    match /automation_rules/{docId} {
+      allow create: if ownsNew();
+      allow read, update, delete: if ownsExisting() || isAdmin();
+    }
+
+    // Announcements — admin writes; all signed-in read
+    match /announcements/{docId} {
+      allow read:  if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Feedback — any signed-in user submits; admin reads/manages
+    match /feedback/{docId} {
+      allow create: if isSignedIn();
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Admin audit trail — admin only
+    match /audit_admin/{docId} {
+      allow read, create: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    // Per-user profile data; admins may read/update (role management)
     match /users/{userId} {
-      allow read, write: if isSignedIn() && request.auth.uid == userId;
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow delete: if isSignedIn() && (request.auth.uid == userId || isAdmin());
     }
   }
 }

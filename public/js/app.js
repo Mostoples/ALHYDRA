@@ -9,7 +9,7 @@ window.ALHYDRA = window.ALHYDRA || {};
 
 ALHYDRA.app = (() => {
   // ── State ──────────────────────────────
-  const views = ['dashboard', 'monitoring', 'control', 'algae', 'analytics', 'energy', 'impact', 'ai', 'encyclopedia', 'settings', 'about'];
+  const views = ['dashboard', 'monitoring', 'control', 'algae', 'analytics', 'energy', 'impact', 'ai', 'encyclopedia', 'profile', 'privacy', 'terms', 'admin', 'settings', 'about'];
   let currentView = 'dashboard';
   let notifications = [];
   let notifPanelOpen = false;
@@ -58,7 +58,8 @@ ALHYDRA.app = (() => {
       dashboard: 'Dashboard', monitoring: 'Monitoring', control: 'Control Panel',
       algae: 'Microalgae', analytics: 'Analytics', energy: 'Energy Optimization',
       impact: 'Environmental Impact', ai: 'AI Insights', encyclopedia: 'Encyclopedia',
-      settings: 'Settings', about: 'About'
+      profile: 'My Profile', privacy: 'Privacy Policy', terms: 'Terms of Service',
+      admin: 'Admin Console', settings: 'Settings', about: 'About'
     };
     const bc = document.getElementById('breadcrumb-current');
     if (bc) {
@@ -87,6 +88,10 @@ ALHYDRA.app = (() => {
     if (viewId === 'energy'       && ALHYDRA.energy)       ALHYDRA.energy.onEnter();
     if (viewId === 'impact'       && ALHYDRA.impact)       ALHYDRA.impact.onEnter();
     if (viewId === 'ai'           && ALHYDRA.ml)           ALHYDRA.ml.onEnter();
+    if (viewId === 'profile'      && ALHYDRA.profile)     ALHYDRA.profile.onEnter();
+    if (viewId === 'privacy'      && ALHYDRA.privacy)     ALHYDRA.privacy.onEnterPrivacy();
+    if (viewId === 'terms'        && ALHYDRA.privacy)     ALHYDRA.privacy.onEnterTerms();
+    if (viewId === 'admin'        && ALHYDRA.admin)       ALHYDRA.admin.onEnter();
     if (viewId === 'settings'     && ALHYDRA.settings)    ALHYDRA.settings.onEnter();
     if (viewId === 'encyclopedia' && ALHYDRA.encyclopedia) ALHYDRA.encyclopedia.onEnter();
   }

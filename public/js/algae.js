@@ -196,6 +196,8 @@ ALHYDRA.algae = (() => {
         owner: window.auth.currentUser?.email || 'unknown',
       });
       ALHYDRA.app.toast(lang() === 'id' ? 'Kultur ditambahkan!' : 'Culture added!', 'success');
+      ALHYDRA.audit?.log('culture_add', { species: data.species });
+      ALHYDRA.onboarding?.refreshChecklist?.();
       closeModal();
     } catch (e) { ALHYDRA.app.toast('Save failed: ' + e.message, 'error'); }
   }

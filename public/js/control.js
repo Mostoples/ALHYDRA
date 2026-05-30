@@ -25,6 +25,7 @@ ALHYDRA.control = (() => {
       });
       ALHYDRA.app.toast(`Pump ${relayNum} turned ${state ? 'ON' : 'OFF'}`, state ? 'success' : 'info');
       addLog(relayNum, state, byName);
+      ALHYDRA.audit?.log('relay_toggle', { pump: relayNum, state });
     } catch(e) {
       ALHYDRA.app.toast('Failed to update relay: ' + e.message, 'error');
       // Revert UI

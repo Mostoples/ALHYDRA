@@ -234,6 +234,16 @@
         <i class="fa-solid fa-book-open"></i>
         <span>Encyclopedia</span>
       </a>
+      <div class="nav-section-label">ACCOUNT</div>
+      <a class="nav-item" data-view="profile" href="#profile">
+        <i class="fa-solid fa-user"></i>
+        <span>Profile</span>
+      </a>
+      <a class="nav-item admin-only" data-view="admin" href="#admin">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>Admin</span>
+        <span class="nav-badge" style="background:rgba(239,68,68,0.2);color:var(--red)">ADMIN</span>
+      </a>
       <div class="nav-section-label">SYSTEM</div>
       <a class="nav-item" data-view="settings" href="#settings">
         <i class="fa-solid fa-gear"></i>
@@ -1130,6 +1140,39 @@
         </div>
       </div><!-- /view-impact -->
 
+      <!-- ─── PROFILE VIEW ─── -->
+      <div class="view hidden" id="view-profile">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">My Profile</h1>
+            <p class="view-subtitle">Manage your identity, preferences and activity</p>
+          </div>
+        </div>
+        <div id="profile-body"></div>
+      </div><!-- /view-profile -->
+
+      <!-- ─── PRIVACY POLICY VIEW ─── -->
+      <div class="view hidden" id="view-privacy">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Privacy Policy</h1>
+            <p class="view-subtitle">How ALHYDRA handles your data</p>
+          </div>
+        </div>
+        <div id="privacy-body" class="legal-body" data-no-i18n></div>
+      </div><!-- /view-privacy -->
+
+      <!-- ─── TERMS VIEW ─── -->
+      <div class="view hidden" id="view-terms">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Terms of Service</h1>
+            <p class="view-subtitle">The agreement for using ALHYDRA</p>
+          </div>
+        </div>
+        <div id="terms-body" class="legal-body" data-no-i18n></div>
+      </div><!-- /view-terms -->
+
       <!-- ─── SETTINGS VIEW ─── -->
       <div class="view hidden" id="view-settings">
         <div class="view-header">
@@ -1528,6 +1571,9 @@ Content-Type: application/json
 <script src="js/help.js"></script>
 <script src="js/widgets.js"></script>
 <script src="js/onboarding.js"></script>
+<script src="js/profile.js"></script>
+<script src="js/account.js"></script>
+<script src="js/privacy.js"></script>
 <script src="js/ml.js"></script>
 <script src="js/chat.js"></script>
 
