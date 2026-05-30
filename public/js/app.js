@@ -9,7 +9,7 @@ window.ALHYDRA = window.ALHYDRA || {};
 
 ALHYDRA.app = (() => {
   // ── State ──────────────────────────────
-  const views = ['dashboard', 'monitoring', 'control', 'algae', 'analytics', 'energy', 'impact', 'ai', 'encyclopedia', 'profile', 'privacy', 'terms', 'admin', 'settings', 'about'];
+  const views = ['dashboard', 'monitoring', 'control', 'algae', 'analytics', 'energy', 'impact', 'ai', 'ops', 'alerts', 'encyclopedia', 'profile', 'privacy', 'terms', 'admin', 'settings', 'about'];
   let currentView = 'dashboard';
   let notifications = [];
   let notifPanelOpen = false;
@@ -57,7 +57,8 @@ ALHYDRA.app = (() => {
     const labels = {
       dashboard: 'Dashboard', monitoring: 'Monitoring', control: 'Control Panel',
       algae: 'Microalgae', analytics: 'Analytics', energy: 'Energy Optimization',
-      impact: 'Environmental Impact', ai: 'AI Insights', encyclopedia: 'Encyclopedia',
+      impact: 'Environmental Impact', ai: 'AI Insights', ops: 'Operations', alerts: 'Alert Center',
+      encyclopedia: 'Encyclopedia',
       profile: 'My Profile', privacy: 'Privacy Policy', terms: 'Terms of Service',
       admin: 'Admin Console', settings: 'Settings', about: 'About'
     };
@@ -88,6 +89,8 @@ ALHYDRA.app = (() => {
     if (viewId === 'energy'       && ALHYDRA.energy)       ALHYDRA.energy.onEnter();
     if (viewId === 'impact'       && ALHYDRA.impact)       ALHYDRA.impact.onEnter();
     if (viewId === 'ai'           && ALHYDRA.ml)           ALHYDRA.ml.onEnter();
+    if (viewId === 'ops'          && ALHYDRA.ops)          ALHYDRA.ops.onEnter();
+    if (viewId === 'alerts'       && ALHYDRA.alerts)       ALHYDRA.alerts.onEnter();
     if (viewId === 'profile'      && ALHYDRA.profile)     ALHYDRA.profile.onEnter();
     if (viewId === 'privacy'      && ALHYDRA.privacy)     ALHYDRA.privacy.onEnterPrivacy();
     if (viewId === 'terms'        && ALHYDRA.privacy)     ALHYDRA.privacy.onEnterTerms();
@@ -309,11 +312,8 @@ ALHYDRA.app = (() => {
     ALHYDRA.account?.init();
     ALHYDRA.privacy?.init();
     ALHYDRA.admin?.init();
-    ALHYDRA.tasks?.init();
-    ALHYDRA.notes?.init();
-    ALHYDRA.harvest?.init();
-    ALHYDRA.maintenance?.init();
-    ALHYDRA.automation?.init();
+    ALHYDRA.ops?.init();
+    ALHYDRA.alerts?.init();
     ALHYDRA.palette?.init();
     ALHYDRA.report?.init();
     ALHYDRA.ml?.init();

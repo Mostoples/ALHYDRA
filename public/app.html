@@ -229,6 +229,15 @@
         <span>AI Insights</span>
         <span class="nav-badge live" style="background:linear-gradient(135deg,#8B5CF6,#06B6D4)">ML</span>
       </a>
+      <div class="nav-section-label">OPERATIONS</div>
+      <a class="nav-item" data-view="ops" href="#ops">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Operations</span>
+      </a>
+      <a class="nav-item" data-view="alerts" href="#alerts">
+        <i class="fa-solid fa-bell"></i>
+        <span>Alert Center</span>
+      </a>
       <div class="nav-section-label">KNOWLEDGE</div>
       <a class="nav-item" data-view="encyclopedia" href="#encyclopedia">
         <i class="fa-solid fa-book-open"></i>
@@ -335,6 +344,9 @@
 
         <!-- Announcement banner (rendered by admin.js / app.js) -->
         <div id="announcement-banner" style="display:none"></div>
+
+        <!-- Upcoming tasks widget (rendered by ops.js) -->
+        <div id="ops-widget" style="display:none"></div>
 
         <!-- Sensor Cards Grid -->
         <div class="sensor-grid" id="sensor-grid">
@@ -1140,6 +1152,37 @@
         </div>
       </div><!-- /view-impact -->
 
+      <!-- ─── OPERATIONS VIEW ─── -->
+      <div class="view hidden" id="view-ops">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Operations</h1>
+            <p class="view-subtitle">Tasks, notes, harvest, maintenance &amp; automation</p>
+          </div>
+        </div>
+        <div id="ops-body"></div>
+      </div><!-- /view-ops -->
+
+      <!-- ─── ALERT CENTER VIEW ─── -->
+      <div class="view hidden" id="view-alerts">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Alert Center</h1>
+            <p class="view-subtitle">All threshold breaches, automation &amp; announcements</p>
+          </div>
+          <div class="view-header-actions">
+            <button class="btn-secondary sm" onclick="ALHYDRA.alerts.clear()"><i class="fa-solid fa-broom"></i> Clear</button>
+          </div>
+        </div>
+        <div class="tab-bar" id="alerts-filter">
+          <button class="tab-btn active" onclick="ALHYDRA.alerts.filter('all')">All</button>
+          <button class="tab-btn" onclick="ALHYDRA.alerts.filter('danger')">Critical</button>
+          <button class="tab-btn" onclick="ALHYDRA.alerts.filter('warning')">Warnings</button>
+          <button class="tab-btn" onclick="ALHYDRA.alerts.filter('info')">Info</button>
+        </div>
+        <div id="alerts-body"></div>
+      </div><!-- /view-alerts -->
+
       <!-- ─── ADMIN VIEW ─── -->
       <div class="view hidden" id="view-admin">
         <div class="view-header">
@@ -1586,6 +1629,8 @@ Content-Type: application/json
 <script src="js/account.js"></script>
 <script src="js/privacy.js"></script>
 <script src="js/admin.js"></script>
+<script src="js/ops.js"></script>
+<script src="js/alerts.js"></script>
 <script src="js/ml.js"></script>
 <script src="js/chat.js"></script>
 
