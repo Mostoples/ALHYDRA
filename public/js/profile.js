@@ -57,6 +57,7 @@ ALHYDRA.profile = (() => {
       name: data.name || u.displayName || u.email?.split('@')[0] || 'User',
       bio: data.bio || '', location: data.location || '',
       email: u.email || '', avatar: data.avatar || '',
+      photoURL: data.photoURL || u.photoURL || '',
       role: ALHYDRA.audit?.role?.() || data.role || 'operator',
       created: data.created_at?.toDate ? data.created_at.toDate() : null,
       prefs: data.preferences || {},
@@ -65,9 +66,8 @@ ALHYDRA.profile = (() => {
   }
 
   function avatarHtml() {
-    if (profile.avatar && profile.avatar.startsWith('data:')) return `<img src="${profile.avatar}" alt="avatar" />`;
-    if (profile.avatar) return `<span class="pf-emoji">${profile.avatar}</span>`;
-    return `<span>${(profile.name || '?').charAt(0).toUpperCase()}</span>`;
+    // Reuse the shared resolver: custom avatar → Google photoURL → initial.
+    return ALHYDRA.app.avatarMarkup({ avatar: profile.avatar, photoURL: profile.photoURL, name: profile.name });
   }
 
   async function onEnter() {
@@ -120,16 +120,16 @@ ALHYDRA.profile = (() => {
           <div class="settings-form">
             <div class="sf-group"><label>${L('landing')}</label>
               <select id="pf-landing">
-                ${['dashboard','monitoring','algae','energy','analytics','ai'].map(v => `<option value="${v}" ${profile.prefs.landing === v ? 'selected' : ''}>${v}</option>`).join('')}
+                ${['dashboard','monitoring','algae','energy','analytics','ai'].map(v => `<option value="${v}" ${profile.prefs?.landing === v ? 'selected' : ''}>${v}</option>`).join('')}
               </select>
             </div>
             <div class="sf-group"><label>${L('units')}</label>
               <select id="pf-units">
-                <option value="c" ${profile.prefs.units !== 'f' ? 'selected' : ''}>°C</option>
-                <option value="f" ${profile.prefs.units === 'f' ? 'selected' : ''}>°F</option>
+                <option value="c" ${profile.prefs?.units !== 'f' ? 'selected' : ''}>°C</option>
+                <option value="f" ${profile.prefs?.units === 'f' ? 'selected' : ''}>°F</option>
               </select>
             </div>
-            <label class="pf-check"><input type="checkbox" id="pf-notif" ${profile.prefs.notif !== false ? 'checked' : ''} /> ${L('notif')}</label>
+            <label class="pf-check"><input type="checkbox" id="pf-notif" ${profile.prefs?.notif !== false ? 'checked' : ''} /> ${L('notif')}</label>
             <button class="btn-primary" onclick="ALHYDRA.profile.savePrefs()"><i class="fa-solid fa-floppy-disk"></i> ${L('savePrefs')}</button>
           </div>
         </div>
@@ -180,10 +180,10 @@ ALHYDRA.profile = (() => {
       await window.db.collection('users').doc(u.uid).set(patch, { merge: true });
       if (name !== u.displayName) await u.updateProfile({ displayName: name }).catch(() => {});
       profile = { ...profile, ...patch };
-      // reflect in topbar
-      const setTxt = (id, t) => { const el = document.getElementById(id); if (el) el.textContent = t; };
-      setTxt('user-name-display', name);
-      document.getElementById('user-avatar') && (document.getElementById('user-avatar').innerHTML = profile.avatar ? (profile.avatar.startsWith('data:') ? `<img src="${profile.avatar}" style="width:100%;height:100%;border-radius:inherit;object-fit:cover">` : profile.avatar) : name.charAt(0).toUpperCase());
+      // reflect in topbar + settings avatar
+      const nameEl = document.getElementById('user-name-display');
+      if (nameEl) nameEl.textContent = name;
+      ALHYDRA.app.applyUserAvatar({ avatar: profile.avatar, photoURL: profile.photoURL, name });
       ALHYDRA.app.toast(L('saved'), 'success');
       ALHYDRA.audit?.log('profile_update', { fields: Object.keys(patch) });
       ALHYDRA.onboarding?.refreshChecklist?.();

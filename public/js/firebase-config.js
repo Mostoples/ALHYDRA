@@ -4,19 +4,31 @@
    NEVER put the service-account private key in client code.
 ───────────────────────────────────────── */
 const firebaseConfig = {
-  apiKey:            "AIzaSyCbiZ-2GRyFabEBr2hJNLkBLpsYqDNuErs",
-  authDomain:        "alhydra-id.firebaseapp.com",
-  projectId:         "alhydra-id",
-  storageBucket:     "alhydra-id.firebasestorage.app",
-  messagingSenderId: "1012214883931",
-  appId:             "1:1012214883931:web:3123064072c417dfbe817e"
+  apiKey:            "AIzaSyB3A2CkSIlAQFP0QShi1GFhT8ds3WA1bAA",
+  authDomain:        "alcura-id.firebaseapp.com",
+  projectId:         "alcura-id",
+  storageBucket:     "alcura-id.firebasestorage.app",
+  messagingSenderId: "978633752737",
+  appId:             "1:978633752737:web:3b7418f607a52c711270e0"
 };
 
 firebase.initializeApp(firebaseConfig);
 
 // Global DB and Auth references used by every module
-window.db   = firebase.firestore();
 window.auth = firebase.auth();
+window.db   = firebase.firestore();
 
-// Enable offline persistence (optional — helps when reconnecting)
-window.db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+// Offline persistence (helps when reconnecting).
+// The modular SDK exposes FirestoreSettings.cache / persistentLocalCache(); the
+// compat build does not, so we feature-detect: use the modern API if present,
+// otherwise fall back to the legacy method (logs a harmless deprecation notice).
+(() => {
+  const fs = firebase.firestore;
+  if (typeof fs.persistentLocalCache === 'function') {
+    window.db.settings({
+      cache: fs.persistentLocalCache({ tabManager: fs.persistentMultipleTabManager() })
+    });
+  } else {
+    window.db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+  }
+})();

@@ -191,17 +191,23 @@ ALHYDRA.dashboard = (() => {
 
     unsubRelay1?.();
     unsubRelay1 = window.db.collection('relays').doc('pump1')
-      .onSnapshot(snap => { if (snap.exists) setDashRelay(1, snap.data().state); });
+      .onSnapshot(snap => { if (snap.exists) setDashRelay(1, snap.data().state); },
+                  err => console.warn('[dashboard] relay1 listener', err));
 
     unsubRelay2?.();
     unsubRelay2 = window.db.collection('relays').doc('pump2')
-      .onSnapshot(snap => { if (snap.exists) setDashRelay(2, snap.data().state); });
+      .onSnapshot(snap => { if (snap.exists) setDashRelay(2, snap.data().state); },
+                  err => console.warn('[dashboard] relay2 listener', err));
   }
 
   // ── Energy Chart ───────────────────────
   function initEnergyChart() {
     const canvas = document.getElementById('dash-energy-chart');
     if (!canvas) return;
+    // Avoid "Canvas is already in use" if init() runs again (e.g. token refresh)
+    if (energyChart) { energyChart.destroy(); energyChart = null; }
+    const existing = Chart.getChart?.(canvas);
+    if (existing) existing.destroy();
     energyChart = new Chart(canvas, {
       type: 'line',
       data: {

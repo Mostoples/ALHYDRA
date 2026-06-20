@@ -25,6 +25,10 @@ ALHYDRA.monitoring = (() => {
   function buildChart(def) {
     const canvas = document.getElementById(def.id);
     if (!canvas) return;
+    // Avoid "Canvas is already in use" if init() runs again (e.g. token refresh)
+    if (charts[def.key]) { charts[def.key].destroy(); delete charts[def.key]; }
+    const existing = Chart.getChart?.(canvas);
+    if (existing) existing.destroy();
     charts[def.key] = new Chart(canvas, {
       type: 'line',
       data: {
@@ -73,6 +77,10 @@ ALHYDRA.monitoring = (() => {
   function buildEnergyChart() {
     const canvas = document.getElementById('chart-energy');
     if (!canvas) return;
+    // Avoid "Canvas is already in use" if init() runs again (e.g. token refresh)
+    if (charts['energy']) { charts['energy'].destroy(); delete charts['energy']; }
+    const existing = Chart.getChart?.(canvas);
+    if (existing) existing.destroy();
     charts['energy'] = new Chart(canvas, {
       type: 'line',
       data: {

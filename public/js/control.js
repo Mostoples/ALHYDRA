@@ -107,21 +107,27 @@ ALHYDRA.control = (() => {
     unsubRelay2?.();
 
     unsubRelay1 = window.db.collection('relays').doc('pump1')
-      .onSnapshot(snap => { if (snap.exists) applyState(1, snap.data()); });
+      .onSnapshot(snap => { if (snap.exists) applyState(1, snap.data()); },
+                  err => console.warn('[control] relay1 listener', err));
 
     unsubRelay2 = window.db.collection('relays').doc('pump2')
-      .onSnapshot(snap => { if (snap.exists) applyState(2, snap.data()); });
+      .onSnapshot(snap => { if (snap.exists) applyState(2, snap.data()); },
+                  err => console.warn('[control] relay2 listener', err));
   }
 
   // ── Ensure relay docs exist ────────────
+  // Swallows its own errors (offline / permission) so the init chain that
+  // calls .then(subscribeRelays) can never produce an uncaught rejection.
   async function ensureRelaydDocs() {
-    const batch = window.db.batch();
-    const p1 = window.db.collection('relays').doc('pump1');
-    const p2 = window.db.collection('relays').doc('pump2');
-    const [s1, s2] = await Promise.all([p1.get(), p2.get()]);
-    if (!s1.exists) batch.set(p1, { state: false, updated_at: firebase.firestore.FieldValue.serverTimestamp(), updated_by: 'system' });
-    if (!s2.exists) batch.set(p2, { state: false, updated_at: firebase.firestore.FieldValue.serverTimestamp(), updated_by: 'system' });
-    await batch.commit().catch(() => {});
+    try {
+      const batch = window.db.batch();
+      const p1 = window.db.collection('relays').doc('pump1');
+      const p2 = window.db.collection('relays').doc('pump2');
+      const [s1, s2] = await Promise.all([p1.get(), p2.get()]);
+      if (!s1.exists) batch.set(p1, { state: false, updated_at: firebase.firestore.FieldValue.serverTimestamp(), updated_by: 'system' });
+      if (!s2.exists) batch.set(p2, { state: false, updated_at: firebase.firestore.FieldValue.serverTimestamp(), updated_by: 'system' });
+      await batch.commit();
+    } catch (e) { console.warn('[control] ensureRelayDocs', e); }
   }
 
   function init() {

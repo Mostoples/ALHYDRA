@@ -3,35 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080D18" id="meta-theme-color" />
   <title>ALHYDRA — Hybrid Multi Tower Cultivation System</title>
   <meta name="description" content="Algae-Hydroponic Dual-Renewable Apparatus. Smart AIoT monitoring for sustainable agriculture powered by solar and wind energy." />
   <meta property="og:title"       content="ALHYDRA — Smart Agriculture System" />
   <meta property="og:description" content="Hybrid Multi Tower Cultivation powered by Solar & Wind with AIoT Monitoring." />
   <meta property="og:type"        content="website" />
+  <!-- Inline brand favicon (no external file → no /favicon.ico 404) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%2310B981'/%3E%3Cpath%20d='M44%2018c0%2014-9%2024-22%2024-2%200-4%200-4-2%200-13%2011-22%2026-22z'%20fill='%23ffffff'/%3E%3C/svg%3E" />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
-  <!-- Landing CSS -->
-  <link rel="stylesheet" href="css/landing.css" />
-  <link rel="stylesheet" href="css/icon-anim.css" />
-  <link rel="stylesheet" href="css/decor.css" />
-  <link rel="stylesheet" href="css/landing-startup.css" />
-  <style>
-    .btn-lang {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.16);
-      color: #fff; border-radius: 10px; padding: 8px 12px; font-size: 13px; font-weight: 700;
-      cursor: pointer; transition: all .2s;
-    }
-    .btn-lang:hover { border-color: #10B981; color: #10B981; }
-    .btn-lang i { font-size: 15px; }
-  </style>
+  <!-- Landing CSS (consolidated: landing + icon-anim + decor + landing-startup + redesign-landing + .btn-lang) -->
+  <link rel="stylesheet" href="css/index.css" />
+  <!-- Apply saved theme before paint to avoid flash -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('alhydra-theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        var mc = document.getElementById('meta-theme-color');
+        if (mc) mc.setAttribute('content', t === 'light' ? '#EEF2F8' : '#080D18');
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
 
@@ -53,11 +54,15 @@
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="nav-actions">
+      <button class="btn-theme" id="theme-toggle" title="Toggle light / dark" aria-label="Toggle theme">
+        <i class="fa-solid fa-moon ti-moon"></i>
+        <i class="fa-solid fa-sun ti-sun"></i>
+      </button>
       <button class="btn-lang" id="lang-toggle" data-lang-toggle title="Language / Bahasa" aria-label="Language">
         <i class="fa-solid fa-language"></i> <span data-lang-label>EN</span>
       </button>
-      <a class="btn-nav-cta" href="/app">
-        <i class="fa-solid fa-gauge-high"></i> Launch Dashboard
+      <a class="btn-nav-cta" href="app.html">
+        <i class="fa-solid fa-gauge-high"></i> <span>Launch Dashboard</span>
       </a>
       <button class="nav-hamburger" id="hamburger" aria-label="Toggle menu">
         <span></span><span></span><span></span>
@@ -74,7 +79,7 @@
   <a href="#how-it-works" onclick="closeMobileMenu()">How It Works</a>
   <a href="#faq"          onclick="closeMobileMenu()">FAQ</a>
   <a href="#contact"      onclick="closeMobileMenu()">Contact</a>
-  <a href="/app" class="mobile-cta"><i class="fa-solid fa-gauge-high"></i> Launch Dashboard</a>
+  <a href="app.html" class="mobile-cta"><i class="fa-solid fa-gauge-high"></i> Launch Dashboard</a>
   <button class="btn-lang" data-lang-toggle style="margin-top:10px;width:100%;justify-content:center">
     <i class="fa-solid fa-language"></i> <span data-lang-label>EN</span>
   </button>
@@ -117,7 +122,7 @@
       AIoT cloud platform.
     </p>
     <div class="hero-actions">
-      <a class="btn-hero-primary" href="/app">
+      <a class="btn-hero-primary" href="app.html">
         <i class="fa-solid fa-gauge-high"></i>
         Launch Dashboard
       </a>
@@ -697,7 +702,7 @@
         <h2>Ready to Monitor<br /><span class="gradient-text">Your System?</span></h2>
         <p>Access the ALHYDRA dashboard to view real-time sensor data, control irrigation pumps, and analyze historical trends — from any device, anywhere.</p>
         <div class="cta-actions">
-          <a class="btn-cta-primary" href="/app">
+          <a class="btn-cta-primary" href="app.html">
             <i class="fa-solid fa-gauge-high"></i> Open Dashboard
           </a>
           <a class="btn-cta-secondary" href="https://github.com/Mostoples/ALHYDRA" target="_blank" rel="noopener">
@@ -735,11 +740,11 @@
       <div class="footer-col">
         <h4>System</h4>
         <ul>
-          <li><a href="/app#dashboard">Dashboard</a></li>
-          <li><a href="/app#monitoring">Monitoring</a></li>
-          <li><a href="/app#control">Control Panel</a></li>
-          <li><a href="/app#analytics">Analytics</a></li>
-          <li><a href="/app#settings">Settings</a></li>
+          <li><a href="app.html#dashboard">Dashboard</a></li>
+          <li><a href="app.html#monitoring">Monitoring</a></li>
+          <li><a href="app.html#control">Control Panel</a></li>
+          <li><a href="app.html#analytics">Analytics</a></li>
+          <li><a href="app.html#settings">Settings</a></li>
         </ul>
       </div>
 
@@ -776,6 +781,21 @@
 <button id="to-top" aria-label="Back to top"><i class="fa-solid fa-arrow-up"></i></button>
 
 <script>
+/* ── Theme toggle (light / dark) ── */
+(function () {
+  const btn = document.getElementById('theme-toggle');
+  const mc  = document.getElementById('meta-theme-color');
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    try { localStorage.setItem('alhydra-theme', t); } catch (e) {}
+    if (mc) mc.setAttribute('content', t === 'light' ? '#EEF2F8' : '#080D18');
+  }
+  btn?.addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+    applyTheme(cur === 'dark' ? 'light' : 'dark');
+  });
+})();
+
 /* ── Navbar scroll effect + back-to-top ── */
 const toTop = document.getElementById('to-top');
 window.addEventListener('scroll', () => {

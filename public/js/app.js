@@ -168,6 +168,8 @@ ALHYDRA.app = (() => {
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     try { localStorage.setItem('alhydra-theme', theme); } catch (e) {}
+    const mc = document.getElementById('meta-theme-color');
+    if (mc) mc.setAttribute('content', theme === 'light' ? '#EEF2F8' : '#0A0F1E');
     // Re-tint Chart.js gridlines/text and repaint open charts
     setupChartDefaults();
     if (window.Chart?.instances) {
@@ -271,19 +273,57 @@ ALHYDRA.app = (() => {
     if (label) label.textContent = online ? 'Online' : 'Offline';
   }
 
+  // ── Avatar rendering (shared by topbar, settings & profile) ──
+  // Priority: custom avatar (emoji / uploaded data URI) → Google photoURL → initial.
+  function avatarMarkup({ avatar, photoURL, name } = {}) {
+    const letter = String(name || '?').charAt(0).toUpperCase().replace(/'/g, '?');
+    const a = String(avatar || '').trim();
+    const img = src => `<img src="${src}" alt="" referrerpolicy="no-referrer" onerror="this.onerror=null;this.parentElement&&(this.parentElement.textContent='${letter}')" />`;
+    if (a.startsWith('data:') || a.startsWith('http')) return img(a);
+    if (a) return a;                       // emoji
+    if (photoURL) return img(photoURL);    // Google profile photo
+    return letter;
+  }
+
+  function applyUserAvatar(opts) {
+    const html = avatarMarkup(opts);
+    ['user-avatar', 'settings-avatar'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = html;
+    });
+  }
+
   // ── Auth state → show/hide screens ────
+  let appBootstrapped = false;
+
   function onUserSignedIn(user) {
-    // Update topbar user info
+    // Update topbar user info (idempotent — safe on every auth event)
     const name  = user.displayName || user.email?.split('@')[0] || 'User';
     const email = user.email || '';
     document.getElementById('user-name-display').textContent  = name;
     document.getElementById('user-email-display').textContent = email;
-    document.getElementById('user-avatar').textContent        = name.charAt(0).toUpperCase();
-    document.getElementById('settings-avatar').textContent    = name.charAt(0).toUpperCase();
+
+    // Instant avatar from the Auth user (Google provides photoURL); then refine
+    // from Firestore so a custom-chosen avatar wins over the Google photo.
+    applyUserAvatar({ photoURL: user.photoURL, name });
+    window.db.collection('users').doc(user.uid).get()
+      .then(snap => {
+        if (!snap.exists) return;
+        const d = snap.data();
+        applyUserAvatar({ avatar: d.avatar, photoURL: d.photoURL || user.photoURL, name: d.name || name });
+      })
+      .catch(() => {});
 
     // Show app, hide auth
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
+
+    // The heavy bootstrap (router, listeners, intervals, module init,
+    // Firestore subscriptions) must run ONCE per page load. onAuthStateChanged
+    // also fires on token refresh / re-auth; re-running it would stack duplicate
+    // event listeners, intervals and onSnapshot subscriptions (leaks + double work).
+    if (appBootstrapped) return;
+    appBootstrapped = true;
 
     startClock();
     initRouter();
@@ -351,7 +391,7 @@ ALHYDRA.app = (() => {
     });
   }
 
-  return { init, navigateTo, toast, addNotification, clearNotifications, updateConnectionStatus };
+  return { init, navigateTo, toast, addNotification, clearNotifications, updateConnectionStatus, avatarMarkup, applyUserAvatar };
 })();
 
 // ── Utility helpers (global) ──────────────

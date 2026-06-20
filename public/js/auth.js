@@ -7,7 +7,7 @@ ALHYDRA.auth = (() => {
 
   function setLoading(btnId, loaderId, loading) {
     const btn    = document.getElementById(btnId);
-    const loader = document.getElementById(loaderId);
+    const loader = document.getElementById(loaderId) || btn?.querySelector('.btn-loader');
     if (!btn) return;
     btn.disabled = loading;
     btn.querySelector('.btn-text')?.classList.toggle('hidden', loading);
@@ -100,15 +100,22 @@ ALHYDRA.auth = (() => {
     try {
       const result = await window.auth.signInWithPopup(provider);
       const user   = result.user;
+      const photoURL = user.photoURL || '';
       // Create Firestore profile if first sign-in
       const userDoc = await window.db.collection('users').doc(user.uid).get();
       if (!userDoc.exists) {
         await window.db.collection('users').doc(user.uid).set({
           name:       user.displayName || '',
           email:      user.email || '',
+          photoURL,
           role:       'operator',
           created_at: firebase.firestore.FieldValue.serverTimestamp()
         });
+      } else {
+        // Keep the Google photo fresh on every sign-in (without clobbering
+        // a custom avatar the user may have chosen on the Profile page).
+        await window.db.collection('users').doc(user.uid)
+          .set({ photoURL }, { merge: true }).catch(() => {});
       }
       ALHYDRA.app.toast('Signed in with Google!', 'success');
     } catch(err) {
@@ -122,6 +129,9 @@ ALHYDRA.auth = (() => {
     try {
       await window.auth.signOut();
       ALHYDRA.app.toast('Signed out.', 'info');
+      // Reload to tear down all live listeners/intervals/subscriptions and
+      // start a clean session on next sign-in (app inits once per page load).
+      setTimeout(() => window.location.reload(), 600);
     } catch(err) {
       ALHYDRA.app.toast('Sign-out error: ' + err.message, 'error');
     }
