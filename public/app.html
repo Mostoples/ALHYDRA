@@ -353,7 +353,65 @@
         <!-- Upcoming tasks widget (rendered by ops.js) -->
         <div id="ops-widget" style="display:none"></div>
 
-        <!-- Sensor Cards Grid -->
+        <!-- ALHYDRA IoT Device — live data from Realtime Database -->
+        <div class="view-subtitle" style="margin:4px 0 10px;font-weight:600;color:var(--text-muted)">
+          <i class="fa-solid fa-satellite-dish"></i> Perangkat IoT (Live — Realtime Database)
+        </div>
+        <div class="sensor-grid" id="device-sensor-grid">
+
+          <!-- Kelembapan (humidity) -->
+          <div class="sensor-card" id="card-dev-kelembapan">
+            <div class="sc-header">
+              <div class="sc-icon" style="--c:#8B5CF6"><i class="fa-solid fa-wind"></i></div>
+              <div class="sc-info">
+                <span class="sc-label">Kelembapan</span>
+                <span class="sc-unit">%</span>
+              </div>
+            </div>
+            <div class="sc-value" id="dev-kelembapan">—</div>
+          </div>
+
+          <!-- Suhu (temperature) -->
+          <div class="sensor-card" id="card-dev-suhu">
+            <div class="sc-header">
+              <div class="sc-icon" style="--c:#EF4444"><i class="fa-solid fa-temperature-half"></i></div>
+              <div class="sc-info">
+                <span class="sc-label">Suhu</span>
+                <span class="sc-unit">°C</span>
+              </div>
+            </div>
+            <div class="sc-value" id="dev-suhu">—</div>
+          </div>
+
+          <!-- pH raw (ADC, not yet calibrated) -->
+          <div class="sensor-card" id="card-dev-ph_raw">
+            <div class="sc-header">
+              <div class="sc-icon" style="--c:#10B981"><i class="fa-solid fa-flask-vial"></i></div>
+              <div class="sc-info">
+                <span class="sc-label">pH (raw)</span>
+                <span class="sc-unit">ADC</span>
+              </div>
+            </div>
+            <div class="sc-value" id="dev-ph_raw">—</div>
+            <div class="sc-range">Nilai ADC mentah — belum dikalibrasi ke skala pH 0–14</div>
+          </div>
+
+          <!-- Device connection status -->
+          <div class="sensor-card" id="card-dev-status">
+            <div class="sc-header">
+              <div class="sc-icon" style="--c:#3B82F6"><i class="fa-solid fa-satellite-dish"></i></div>
+              <div class="sc-info">
+                <span class="sc-label">Status Perangkat</span>
+                <span class="sc-unit" id="dev-status-text">—</span>
+              </div>
+              <div class="sc-status-dot" id="dev-status-dot"></div>
+            </div>
+            <div class="sc-range">RSSI: <span id="dev-status-rssi">—</span></div>
+            <div class="sc-range">Terakhir online: <span id="dev-status-seen">—</span></div>
+          </div>
+        </div>
+
+        <!-- Sensor Cards Grid (demo/simulated — unrelated to the live device above) -->
         <div class="sensor-grid" id="sensor-grid">
 
           <!-- pH -->
@@ -705,6 +763,94 @@
         </div>
 
         <div class="control-grid">
+
+          <!-- ═══ Live device controls (Realtime Database) ═══ -->
+
+          <!-- Aerator -->
+          <div class="control-card" id="ctrl-dev-aerator">
+            <div class="ctrl-card-top">
+              <div class="ctrl-icon" id="ctrl-icon-dev-aerator"><i class="fa-solid fa-fan"></i></div>
+              <div class="ctrl-info">
+                <h2>Aerator</h2>
+                <span class="ctrl-subtitle">Perangkat IoT — live</span>
+              </div>
+              <div class="ctrl-state-badge" id="dev-kontrol-aerator-badge">OFF</div>
+            </div>
+            <div class="ctrl-toggle-wrap">
+              <label class="ctrl-toggle-switch">
+                <input type="checkbox" id="dev-kontrol-aerator" onchange="ALHYDRA.device.setKontrol('aerator', this.checked)" />
+                <span class="ctrl-toggle-slider">
+                  <span class="ctrl-toggle-label-off">OFF</span>
+                  <span class="ctrl-toggle-label-on">ON</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Embun (mist) -->
+          <div class="control-card" id="ctrl-dev-embun">
+            <div class="ctrl-card-top">
+              <div class="ctrl-icon" id="ctrl-icon-dev-embun"><i class="fa-solid fa-cloud"></i></div>
+              <div class="ctrl-info">
+                <h2>Embun</h2>
+                <span class="ctrl-subtitle">Perangkat IoT — live</span>
+              </div>
+              <div class="ctrl-state-badge" id="dev-kontrol-embun-badge">OFF</div>
+            </div>
+            <div class="ctrl-toggle-wrap">
+              <label class="ctrl-toggle-switch">
+                <input type="checkbox" id="dev-kontrol-embun" onchange="ALHYDRA.device.setKontrol('embun', this.checked)" />
+                <span class="ctrl-toggle-slider">
+                  <span class="ctrl-toggle-label-off">OFF</span>
+                  <span class="ctrl-toggle-label-on">ON</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- LED -->
+          <div class="control-card" id="ctrl-dev-led">
+            <div class="ctrl-card-top">
+              <div class="ctrl-icon" id="ctrl-icon-dev-led"><i class="fa-solid fa-lightbulb"></i></div>
+              <div class="ctrl-info">
+                <h2>LED</h2>
+                <span class="ctrl-subtitle">Perangkat IoT — live</span>
+              </div>
+              <div class="ctrl-state-badge" id="dev-kontrol-led-badge">OFF</div>
+            </div>
+            <div class="ctrl-toggle-wrap">
+              <label class="ctrl-toggle-switch">
+                <input type="checkbox" id="dev-kontrol-led" onchange="ALHYDRA.device.setKontrol('led', this.checked)" />
+                <span class="ctrl-toggle-slider">
+                  <span class="ctrl-toggle-label-off">OFF</span>
+                  <span class="ctrl-toggle-label-on">ON</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Pompa -->
+          <div class="control-card" id="ctrl-dev-pompa">
+            <div class="ctrl-card-top">
+              <div class="ctrl-icon" id="ctrl-icon-dev-pompa"><i class="fa-solid fa-pump-soap"></i></div>
+              <div class="ctrl-info">
+                <h2>Pompa</h2>
+                <span class="ctrl-subtitle">Perangkat IoT — live</span>
+              </div>
+              <div class="ctrl-state-badge" id="dev-kontrol-pompa-badge">OFF</div>
+            </div>
+            <div class="ctrl-toggle-wrap">
+              <label class="ctrl-toggle-switch">
+                <input type="checkbox" id="dev-kontrol-pompa" onchange="ALHYDRA.device.setKontrol('pompa', this.checked)" />
+                <span class="ctrl-toggle-slider">
+                  <span class="ctrl-toggle-label-off">OFF</span>
+                  <span class="ctrl-toggle-label-on">ON</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- ═══ Demo/simulated pumps (unrelated to the live device above) ═══ -->
 
           <!-- Pump 1 -->
           <div class="control-card" id="ctrl-pump1">
@@ -1509,7 +1655,48 @@ Content-Type: application/json
           <p>ALHYDRA Research Project &copy; 2024</p>
         </div>
       </div><!-- /view-about -->
+    <!-- AI ASSISTANT PAGE -->
+    <div class="view hidden" id="view-ai-assistant">
 
+      <!-- Header bar -->
+      <div class="aic-topbar">
+        <div class="aic-topbar-left">
+          <div class="aic-topbar-icon">
+            <i class="fa-solid fa-robot"></i>
+            <span class="aic-online-dot"></span>
+          </div>
+          <div class="aic-topbar-info">
+            <span class="aic-topbar-name">ALHYDRA AI</span>
+            <span class="aic-topbar-sub">Gemini &middot; sensor analysis &amp; system insights</span>
+          </div>
+        </div>
+        <button class="aic-clear-btn" id="ai-page-clear-btn" title="Clear conversation">
+          <i class="fa-solid fa-rotate-left"></i> Clear
+        </button>
+      </div>
+
+      <!-- Chat body -->
+      <div id="ai-chat-body">
+        <div id="ai-chat-messages" class="chat-messages"></div>
+
+        <!-- Quick prompts (hidden after first message) -->
+        <div class="aic-qp-row" id="ai-page-qp">
+          <button class="aic-qp" data-prompt="Give me a full system overview."><i class="fa-solid fa-gauge-high"></i> Overview</button>
+          <button class="aic-qp" data-prompt="What is the current pH level and water quality?"><i class="fa-solid fa-flask-vial"></i> pH &amp; Water</button>
+          <button class="aic-qp" data-prompt="What is the current energy balance?"><i class="fa-solid fa-bolt"></i> Energy</button>
+          <button class="aic-qp" data-prompt="How are the microalgae cultures doing?"><i class="fa-solid fa-leaf"></i> Algae</button>
+          <button class="aic-qp" data-prompt="Give me optimization recommendations for the system."><i class="fa-solid fa-lightbulb"></i> Tips</button>
+          <button class="aic-qp" data-prompt="Check pump and actuator status."><i class="fa-solid fa-gear"></i> Pumps</button>
+        </div>
+
+        <!-- Input bar -->
+        <div class="aic-input-bar">
+          <textarea id="ai-chat-input" placeholder="Ask about sensors, energy, system status…" rows="1"></textarea>
+          <button id="ai-chat-send-btn" title="Send message"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+      </div>
+
+    </div><!-- /view-ai-assistant -->
     </main>
   </div><!-- /main-wrapper -->
 </div><!-- /app -->
@@ -1524,19 +1711,81 @@ Content-Type: application/json
     <i class="fa-solid fa-chart-line"></i>
     <span>Monitor</span>
   </a>
-  <a class="mbn-item" data-view="control" href="#control">
-    <i class="fa-solid fa-sliders"></i>
-    <span>Control</span>
+  <a class="mbn-item" data-view="alerts" href="#alerts">
+    <i class="fa-solid fa-bell"></i>
+    <span>Alerts</span>
   </a>
-  <a class="mbn-item" data-view="analytics" href="#analytics">
-    <i class="fa-solid fa-chart-bar"></i>
-    <span>Analytics</span>
+  <a class="mbn-item" data-view="ai" href="#ai">
+    <i class="fa-solid fa-brain"></i>
+    <span>AI</span>
   </a>
-  <a class="mbn-item" data-view="settings" href="#settings">
-    <i class="fa-solid fa-gear"></i>
-    <span>Settings</span>
-  </a>
+  <button class="mbn-item" id="mbn-more-btn" type="button">
+    <i class="fa-solid fa-grip"></i>
+    <span>More</span>
+  </button>
 </nav>
+
+<!-- MORE MENU OVERLAY -->
+<div id="more-menu-overlay"></div>
+
+<!-- MORE MENU DRAWER -->
+<div id="more-menu" role="dialog" aria-label="More navigation">
+  <div class="more-handle-bar"><div class="more-handle-pill"></div></div>
+  <div class="more-grid">
+    <a class="more-cell" data-view="control" href="#control">
+      <span class="mc-icon" style="background:rgba(59,130,246,.18);color:#3B82F6"><i class="fa-solid fa-sliders"></i></span>
+      <span class="mc-label">Control</span>
+    </a>
+    <a class="more-cell" data-view="ai-assistant" href="#ai-assistant">
+      <span class="mc-icon" style="background:rgba(16,185,129,.18);color:#10B981"><i class="fa-solid fa-robot"></i></span>
+      <span class="mc-label">AI Chat</span>
+    </a>
+    <a class="more-cell" data-view="ai-assistant" href="#ai-assistant">
+      <span class="mc-icon" style="background:rgba(16,185,129,.18);color:#10B981"><i class="fa-solid fa-robot"></i></span>
+      <span class="mc-label">AI Chat</span>
+    </a>
+    <a class="more-cell" data-view="analytics" href="#analytics">
+      <span class="mc-icon" style="background:rgba(139,92,246,.18);color:#8B5CF6"><i class="fa-solid fa-chart-bar"></i></span>
+      <span class="mc-label">Analytics</span>
+    </a>
+    <a class="more-cell" data-view="algae" href="#algae">
+      <span class="mc-icon" style="background:rgba(16,185,129,.18);color:#10B981"><i class="fa-solid fa-bacterium"></i></span>
+      <span class="mc-label">Microalgae</span>
+    </a>
+    <a class="more-cell" data-view="energy" href="#energy">
+      <span class="mc-icon" style="background:rgba(245,158,11,.18);color:#F59E0B"><i class="fa-solid fa-bolt"></i></span>
+      <span class="mc-label">Energy</span>
+    </a>
+    <a class="more-cell" data-view="impact" href="#impact">
+      <span class="mc-icon" style="background:rgba(6,182,212,.18);color:#06B6D4"><i class="fa-solid fa-earth-asia"></i></span>
+      <span class="mc-label">Env. Impact</span>
+    </a>
+    <a class="more-cell" data-view="ops" href="#ops">
+      <span class="mc-icon" style="background:rgba(249,115,22,.18);color:#F97316"><i class="fa-solid fa-list-check"></i></span>
+      <span class="mc-label">Operations</span>
+    </a>
+    <a class="more-cell" data-view="encyclopedia" href="#encyclopedia">
+      <span class="mc-icon" style="background:rgba(6,182,212,.18);color:#06B6D4"><i class="fa-solid fa-book-open"></i></span>
+      <span class="mc-label">Encyclopedia</span>
+    </a>
+    <a class="more-cell" data-view="profile" href="#profile">
+      <span class="mc-icon" style="background:rgba(99,102,241,.18);color:#6366F1"><i class="fa-solid fa-user"></i></span>
+      <span class="mc-label">Profile</span>
+    </a>
+    <a class="more-cell" data-view="settings" href="#settings">
+      <span class="mc-icon" style="background:rgba(100,116,139,.18);color:#94A3B8"><i class="fa-solid fa-gear"></i></span>
+      <span class="mc-label">Settings</span>
+    </a>
+    <a class="more-cell" data-view="about" href="#about">
+      <span class="mc-icon" style="background:rgba(59,130,246,.18);color:#3B82F6"><i class="fa-solid fa-circle-info"></i></span>
+      <span class="mc-label">About</span>
+    </a>
+    <a class="more-cell admin-only" data-view="admin" href="#admin">
+      <span class="mc-icon" style="background:rgba(239,68,68,.18);color:#EF4444"><i class="fa-solid fa-shield-halved"></i></span>
+      <span class="mc-label">Admin</span>
+    </a>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════════════
      AI CHAT FAB + PANEL
@@ -1608,6 +1857,7 @@ Content-Type: application/json
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
 <!-- ═══════════════════════════════════════════
      APP SCRIPTS (order matters)
@@ -1617,6 +1867,7 @@ Content-Type: application/json
 <script src="js/audit.js"></script>
 <script src="js/app.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/device.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/monitoring.js"></script>
 <script src="js/control.js"></script>

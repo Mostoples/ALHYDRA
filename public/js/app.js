@@ -9,7 +9,7 @@ window.ALHYDRA = window.ALHYDRA || {};
 
 ALHYDRA.app = (() => {
   // ── State ──────────────────────────────
-  const views = ['dashboard', 'monitoring', 'control', 'algae', 'analytics', 'energy', 'impact', 'ai', 'ops', 'alerts', 'encyclopedia', 'profile', 'privacy', 'terms', 'admin', 'settings', 'about'];
+  const views = ['dashboard', 'monitoring', 'control', 'algae', 'analytics', 'energy', 'impact', 'ai', 'ops', 'alerts', 'encyclopedia', 'profile', 'privacy', 'terms', 'admin', 'settings', 'about', 'ai-assistant'];
   let currentView = 'dashboard';
   let notifications = [];
   let notifPanelOpen = false;
@@ -60,7 +60,8 @@ ALHYDRA.app = (() => {
       impact: 'Environmental Impact', ai: 'AI Insights', ops: 'Operations', alerts: 'Alert Center',
       encyclopedia: 'Encyclopedia',
       profile: 'My Profile', privacy: 'Privacy Policy', terms: 'Terms of Service',
-      admin: 'Admin Console', settings: 'Settings', about: 'About'
+      admin: 'Admin Console', settings: 'Settings', about: 'About',
+      'ai-assistant': 'AI Assistant'
     };
     const bc = document.getElementById('breadcrumb-current');
     if (bc) {
@@ -71,37 +72,50 @@ ALHYDRA.app = (() => {
     }
 
     // Sync mobile bottom nav
-    document.querySelectorAll('.mbn-item').forEach(n => {
+    const mbnMain = ['dashboard', 'monitoring', 'alerts', 'ai'];
+    document.querySelectorAll('.mbn-item[data-view]').forEach(n => {
+      n.classList.toggle('active', n.dataset.view === viewId);
+    });
+    const moreBtn = document.getElementById('mbn-more-btn');
+    if (moreBtn) moreBtn.classList.toggle('active', !mbnMain.includes(viewId));
+
+    // Sync more-menu items
+    document.querySelectorAll('.more-cell').forEach(n => {
       n.classList.toggle('active', n.dataset.view === viewId);
     });
 
-    // Close mobile sidebar
+    // Close mobile sidebar + more menu
     closeMobileSidebar();
+    closeMoreMenu();
 
     // Lifecycle hooks
     const prev = currentView;
     currentView = viewId;
+    document.getElementById('content')?.classList.toggle('chat-mode', viewId === 'ai-assistant');
 
     if (prev === 'monitoring' && ALHYDRA.monitoring) ALHYDRA.monitoring.pause();
+    else if (prev === 'ai-assistant' && ALHYDRA.chat) ALHYDRA.chat.closeFullPage();
+
     if (viewId === 'monitoring'  && ALHYDRA.monitoring) ALHYDRA.monitoring.resume();
-    if (viewId === 'algae'        && ALHYDRA.algae)        ALHYDRA.algae.onEnter();
-    if (viewId === 'analytics'    && ALHYDRA.analytics)    ALHYDRA.analytics.onEnter();
-    if (viewId === 'energy'       && ALHYDRA.energy)       ALHYDRA.energy.onEnter();
-    if (viewId === 'impact'       && ALHYDRA.impact)       ALHYDRA.impact.onEnter();
-    if (viewId === 'ai'           && ALHYDRA.ml)           ALHYDRA.ml.onEnter();
-    if (viewId === 'ops'          && ALHYDRA.ops)          ALHYDRA.ops.onEnter();
-    if (viewId === 'alerts'       && ALHYDRA.alerts)       ALHYDRA.alerts.onEnter();
-    if (viewId === 'profile'      && ALHYDRA.profile)     ALHYDRA.profile.onEnter();
-    if (viewId === 'privacy'      && ALHYDRA.privacy)     ALHYDRA.privacy.onEnterPrivacy();
-    if (viewId === 'terms'        && ALHYDRA.privacy)     ALHYDRA.privacy.onEnterTerms();
-    if (viewId === 'admin'        && ALHYDRA.admin)       ALHYDRA.admin.onEnter();
-    if (viewId === 'settings'     && ALHYDRA.settings)    ALHYDRA.settings.onEnter();
-    if (viewId === 'encyclopedia' && ALHYDRA.encyclopedia) ALHYDRA.encyclopedia.onEnter();
+    else if (viewId === 'algae'        && ALHYDRA.algae)        ALHYDRA.algae.onEnter();
+    else if (viewId === 'analytics'    && ALHYDRA.analytics)    ALHYDRA.analytics.onEnter();
+    else if (viewId === 'energy'       && ALHYDRA.energy)       ALHYDRA.energy.onEnter();
+    else if (viewId === 'impact'       && ALHYDRA.impact)       ALHYDRA.impact.onEnter();
+    else if (viewId === 'ai'           && ALHYDRA.ml)           ALHYDRA.ml.onEnter();
+    else if (viewId === 'ops'          && ALHYDRA.ops)          ALHYDRA.ops.onEnter();
+    else if (viewId === 'alerts'       && ALHYDRA.alerts)       ALHYDRA.alerts.onEnter();
+    else if (viewId === 'profile'      && ALHYDRA.profile)     ALHYDRA.profile.onEnter();
+    else if (viewId === 'privacy'      && ALHYDRA.privacy)     ALHYDRA.privacy.onEnterPrivacy();
+    else if (viewId === 'terms'        && ALHYDRA.privacy)     ALHYDRA.privacy.onEnterTerms();
+    else if (viewId === 'admin'        && ALHYDRA.admin)       ALHYDRA.admin.onEnter();
+    else if (viewId === 'settings'      && ALHYDRA.settings)    ALHYDRA.settings.onEnter();
+    else if (viewId === 'encyclopedia'  && ALHYDRA.encyclopedia) ALHYDRA.encyclopedia.onEnter();
+    else if (viewId === 'ai-assistant' && ALHYDRA.chat) ALHYDRA.chat.openFullPage();
   }
 
   function initRouter() {
-    // Sidebar nav + mobile bottom nav clicks
-    document.querySelectorAll('.nav-item, .mbn-item').forEach(link => {
+    // Sidebar nav + mobile bottom nav clicks (skip the More button — it has no data-view)
+    document.querySelectorAll('.nav-item, .mbn-item[data-view]').forEach(link => {
       link.addEventListener('click', e => {
         e.preventDefault();
         const v = link.dataset.view;
@@ -139,7 +153,7 @@ ALHYDRA.app = (() => {
     const colBtn   = document.getElementById('sidebar-collapse');
     const menuBtn  = document.getElementById('menu-toggle');
 
-    // Create mobile overlay if not exists
+    // Desktop: sidebar overlay
     let overlay = document.getElementById('sidebar-overlay');
     if (!overlay) {
       overlay = document.createElement('div');
@@ -148,20 +162,63 @@ ALHYDRA.app = (() => {
     }
     overlay.addEventListener('click', closeMobileSidebar);
 
-    colBtn?.addEventListener('click', () => sidebar.classList.toggle('collapsed'));
+    colBtn?.addEventListener('click', () => sidebar?.classList.toggle('collapsed'));
     menuBtn?.addEventListener('click', () => {
-      if (window.innerWidth <= 768) {
-        sidebar.classList.toggle('mobile-open');
-        overlay.classList.toggle('active');
-      } else {
-        sidebar.classList.toggle('collapsed');
-      }
+      sidebar?.classList.toggle('collapsed');
     });
+
+    // More menu (mobile)
+    initMoreMenu();
   }
 
   function closeMobileSidebar() {
     document.getElementById('sidebar')?.classList.remove('mobile-open');
     document.getElementById('sidebar-overlay')?.classList.remove('active');
+  }
+
+  // ── More Menu (mobile bottom drawer) ───
+  let moreMenuOpen = false;
+
+  function openMoreMenu() {
+    moreMenuOpen = true;
+    document.getElementById('more-menu')?.classList.add('open');
+    document.getElementById('more-menu-overlay')?.classList.add('active');
+    document.getElementById('mbn-more-btn')?.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeMoreMenu() {
+    if (!moreMenuOpen) return;
+    moreMenuOpen = false;
+    document.getElementById('more-menu')?.classList.remove('open');
+    document.getElementById('more-menu-overlay')?.classList.remove('active');
+    document.getElementById('mbn-more-btn')?.setAttribute('aria-expanded', 'false');
+  }
+
+  function initMoreMenu() {
+    const moreBtn    = document.getElementById('mbn-more-btn');
+    const moreMenu   = document.getElementById('more-menu');
+    const moreOverlay = document.getElementById('more-menu-overlay');
+
+    moreBtn?.addEventListener('click', () => {
+      moreMenuOpen ? closeMoreMenu() : openMoreMenu();
+    });
+
+    moreOverlay?.addEventListener('click', closeMoreMenu);
+
+    // Nav items inside more menu
+    document.querySelectorAll('.more-cell').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const v = link.dataset.view;
+        closeMoreMenu();
+        if (v) { window.location.hash = v; navigateTo(v); }
+      });
+    });
+
+    // Close on escape
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && moreMenuOpen) closeMoreMenu();
+    });
   }
 
   // ── Theme (dark / light) + Aura toggle ──
@@ -335,6 +392,7 @@ ALHYDRA.app = (() => {
     setupChartDefaults();
 
     // Init all modules
+    ALHYDRA.device?.init();
     ALHYDRA.dashboard?.init();
     ALHYDRA.monitoring?.init();
     ALHYDRA.control?.init();
@@ -391,7 +449,7 @@ ALHYDRA.app = (() => {
     });
   }
 
-  return { init, navigateTo, toast, addNotification, clearNotifications, updateConnectionStatus, avatarMarkup, applyUserAvatar };
+  return { init, navigateTo, toast, addNotification, clearNotifications, updateConnectionStatus, avatarMarkup, applyUserAvatar, applyTheme };
 })();
 
 // ── Utility helpers (global) ──────────────

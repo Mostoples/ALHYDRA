@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "alcura-id"
-  }
+    "default": "alhydra-id"
+  },
+  "targets": {},
+  "etags": {}
 }

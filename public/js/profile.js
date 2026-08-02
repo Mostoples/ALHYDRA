@@ -1,7 +1,5 @@
 /* ─────────────────────────────────────────
-   profile.js — Profile view: avatar, identity, role badge,
-   preferences, and activity/audit timeline.
-   Renders into #profile-body. Bilingual.
+   profile.js — Profile view: identity, stats, preferences, security.
 ───────────────────────────────────────── */
 'use strict';
 
@@ -10,227 +8,432 @@ window.ALHYDRA = window.ALHYDRA || {};
 ALHYDRA.profile = (() => {
 
   function lang() { return ALHYDRA.i18n?.current?.() || 'en'; }
+
   const T = {
-    title:    { en: 'My Profile', id: 'Profil Saya' },
-    sub:      { en: 'Manage your identity, preferences and activity', id: 'Kelola identitas, preferensi, dan aktivitas Anda' },
-    identity: { en: 'Identity', id: 'Identitas' },
-    displayName: { en: 'Display name', id: 'Nama tampilan' },
-    bio:      { en: 'Bio', id: 'Bio' },
-    location: { en: 'Location', id: 'Lokasi' },
-    email:    { en: 'Email', id: 'Email' },
-    role:     { en: 'Role', id: 'Peran' },
-    member:   { en: 'Member since', id: 'Anggota sejak' },
-    avatar:   { en: 'Avatar', id: 'Avatar' },
-    avatarHint:{ en: 'Pick an emoji or upload a small image', id: 'Pilih emoji atau unggah gambar kecil' },
-    upload:   { en: 'Upload', id: 'Unggah' },
-    save:     { en: 'Save profile', id: 'Simpan profil' },
-    prefs:    { en: 'Preferences', id: 'Preferensi' },
-    landing:  { en: 'Default landing page', id: 'Halaman awal default' },
-    units:    { en: 'Temperature units', id: 'Satuan suhu' },
-    notif:    { en: 'Enable alert notifications', id: 'Aktifkan notifikasi peringatan' },
-    savePrefs:{ en: 'Save preferences', id: 'Simpan preferensi' },
-    activity: { en: 'Recent activity', id: 'Aktivitas terbaru' },
-    noActivity:{ en: 'No activity recorded yet.', id: 'Belum ada aktivitas tercatat.' },
-    dataPriv: { en: 'Data & Privacy', id: 'Data & Privasi' },
-    exportJson:{ en: 'Export my data (JSON)', id: 'Ekspor data saya (JSON)' },
-    exportCsv:{ en: 'Export sensor history (CSV)', id: 'Ekspor riwayat sensor (CSV)' },
-    viewPrivacy:{ en: 'Privacy Policy', id: 'Kebijakan Privasi' },
-    viewTerms:{ en: 'Terms of Service', id: 'Ketentuan Layanan' },
-    danger:   { en: 'Danger zone', id: 'Zona berbahaya' },
-    deleteAcc:{ en: 'Delete my account', id: 'Hapus akun saya' },
-    deleteHint:{ en: 'Permanently removes your profile and data. This cannot be undone.', id: 'Menghapus permanen profil & data Anda. Tidak dapat dibatalkan.' },
-    saved:    { en: 'Profile saved!', id: 'Profil tersimpan!' },
-    prefsSaved:{ en: 'Preferences saved!', id: 'Preferensi tersimpan!' },
-    roles:    { admin: { en: 'Administrator', id: 'Administrator' }, operator: { en: 'Operator', id: 'Operator' }, viewer: { en: 'Viewer', id: 'Pengamat' } },
+    /* identity */
+    displayName:  { en: 'Display Name',     id: 'Nama Tampilan' },
+    bio:          { en: 'Bio',              id: 'Bio' },
+    location:     { en: 'Location',         id: 'Lokasi' },
+    email:        { en: 'Email',            id: 'Email' },
+    member:       { en: 'Member since',     id: 'Anggota sejak' },
+    upload:       { en: 'Upload photo',     id: 'Unggah foto' },
+    edit:         { en: 'Edit Profile',     id: 'Edit Profil' },
+    save:         { en: 'Save',             id: 'Simpan' },
+    cancel:       { en: 'Cancel',           id: 'Batal' },
+    saved:        { en: 'Profile saved!',   id: 'Profil tersimpan!' },
+    /* stats */
+    daysActive:   { en: 'Days Active',      id: 'Hari Aktif' },
+    lastLogin:    { en: 'Last Login',       id: 'Login Terakhir' },
+    emailStatus:  { en: 'Email',            id: 'Email' },
+    verified:     { en: 'Verified',         id: 'Terverifikasi' },
+    unverified:   { en: 'Unverified',       id: 'Belum Verifikasi' },
+    accountType:  { en: 'Account Type',     id: 'Tipe Akun' },
+    /* preferences */
+    preferences:  { en: 'Preferences',      id: 'Preferensi' },
+    theme:        { en: 'Theme',            id: 'Tema' },
+    darkMode:     { en: 'Dark',             id: 'Gelap' },
+    lightMode:    { en: 'Light',            id: 'Terang' },
+    language:     { en: 'Language',         id: 'Bahasa' },
+    /* security */
+    security:     { en: 'Security',         id: 'Keamanan' },
+    uid:          { en: 'User ID',          id: 'ID Pengguna' },
+    provider:     { en: 'Sign-in Method',   id: 'Metode Masuk' },
+    lastSignIn:   { en: 'Last Sign-in',     id: 'Masuk Terakhir' },
+    changePass:   { en: 'Change Password',  id: 'Ganti Password' },
+    copied:       { en: 'Copied!',          id: 'Tersalin!' },
+    /* legal */
+    legal:        { en: 'Legal',                                    id: 'Legal' },
+    viewPrivacy:  { en: 'Privacy Policy',                           id: 'Kebijakan Privasi' },
+    privacyDesc:  { en: 'How we collect, use, and protect your personal data', id: 'Bagaimana kami mengumpulkan, menggunakan, dan melindungi data Anda' },
+    viewTerms:    { en: 'Terms of Service',                         id: 'Ketentuan Layanan' },
+    termsDesc:    { en: 'Rules and guidelines for using ALHYDRA',   id: 'Aturan dan panduan penggunaan ALHYDRA' },
+    /* roles */
+    roles: {
+      admin:    { en: 'Administrator', id: 'Administrator' },
+      operator: { en: 'Operator',      id: 'Operator' },
+      viewer:   { en: 'Viewer',        id: 'Pengamat' },
+    },
   };
   function L(k) { const s = T[k]; return s ? (s[lang()] || s.en) : k; }
 
-  const EMOJIS = ['🌱', '🌿', '🍃', '🦠', '☀️', '💧', '⚡', '🔬', '🧪', '🌍', '🐟', '🌊'];
+  const EMOJIS = ['🌱','🌿','🍃','🦠','☀️','💧','⚡','🔬','🧪','🌍','🐟','🌊'];
   let profile = {};
+  let editMode = false;
 
-  async function loadProfile() {
-    const u = window.auth?.currentUser;
-    if (!u) return {};
-    let data = {};
-    try { const s = await window.db.collection('users').doc(u.uid).get(); if (s.exists) data = s.data(); } catch (e) {}
-    profile = {
-      name: data.name || u.displayName || u.email?.split('@')[0] || 'User',
-      bio: data.bio || '', location: data.location || '',
-      email: u.email || '', avatar: data.avatar || '',
-      photoURL: data.photoURL || u.photoURL || '',
-      role: ALHYDRA.audit?.role?.() || data.role || 'operator',
-      created: data.created_at?.toDate ? data.created_at.toDate() : null,
-      prefs: data.preferences || {},
-    };
-    return profile;
+  /* ── Helpers ──────────────────────────── */
+  function escapeHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
   function avatarHtml() {
-    // Reuse the shared resolver: custom avatar → Google photoURL → initial.
     return ALHYDRA.app.avatarMarkup({ avatar: profile.avatar, photoURL: profile.photoURL, name: profile.name });
   }
 
+  function relativeTime(dateStr) {
+    if (!dateStr) return '—';
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const m = Math.floor(diff / 60000);
+    const h = Math.floor(diff / 3600000);
+    const d = Math.floor(diff / 86400000);
+    if (m < 2)  return lang() === 'id' ? 'Baru saja' : 'Just now';
+    if (m < 60) return lang() === 'id' ? `${m} mnt lalu` : `${m}m ago`;
+    if (h < 24) return lang() === 'id' ? `${h} jam lalu` : `${h}h ago`;
+    if (d < 30) return lang() === 'id' ? `${d} hari lalu` : `${d}d ago`;
+    return new Date(dateStr).toLocaleDateString();
+  }
+
+  function daysActive(dateStr) {
+    if (!dateStr) return '—';
+    return Math.max(1, Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000));
+  }
+
+  /* ── Load ─────────────────────────────── */
+  async function loadProfile() {
+    const u = window.auth?.currentUser;
+    if (!u) return;
+    let data = {};
+    try {
+      const s = await window.db.collection('users').doc(u.uid).get();
+      if (s.exists) data = s.data();
+    } catch (e) {}
+    profile = {
+      name:         data.name      || u.displayName || u.email?.split('@')[0] || 'User',
+      bio:          data.bio       || '',
+      location:     data.location  || '',
+      email:        u.email        || '',
+      avatar:       data.avatar    || '',
+      photoURL:     data.photoURL  || u.photoURL || '',
+      role:         ALHYDRA.audit?.role?.() || data.role || 'operator',
+      created:      data.created_at?.toDate ? data.created_at.toDate() : null,
+      uid:          u.uid,
+      emailVerified:u.emailVerified,
+      creationTime: u.metadata?.creationTime || null,
+      lastSignInTime:u.metadata?.lastSignInTime || null,
+      providerId:   u.providerData?.[0]?.providerId || 'password',
+    };
+  }
+
   async function onEnter() {
+    editMode = false;
     const host = document.getElementById('profile-body');
     if (!host) return;
     host.innerHTML = `<div class="empty-state"><i class="fa-solid fa-circle-notch fa-spin"></i></div>`;
     await loadProfile();
     render();
-    loadActivity();
+  }
+
+  /* ── VIEW mode ─────────────────────────── */
+  function renderView() {
+    const isAdmin     = ALHYDRA.audit?.isAdmin?.();
+    const roleLabel   = (T.roles[profile.role] || T.roles.operator)[lang()];
+    const memberDate  = profile.created ? profile.created.toLocaleDateString() : null;
+    const days        = daysActive(profile.creationTime);
+    const isDark      = document.documentElement.getAttribute('data-theme') !== 'light';
+    const isEN        = lang() === 'en';
+    const providerIcon = profile.providerId === 'google.com' ? 'fa-brands fa-google' : 'fa-solid fa-envelope';
+    const providerName = profile.providerId === 'google.com' ? 'Google' : (lang() === 'id' ? 'Email & Password' : 'Email & Password');
+
+    return `
+      <div class="pf-stack">
+
+        <!-- ① Identity Card -->
+        <div class="pf-card pf-identity">
+          <button class="pf-edit-icon" onclick="ALHYDRA.profile.startEdit()" title="${L('edit')}">
+            <i class="fa-solid fa-pen"></i>
+          </button>
+          <div class="pf-identity-top">
+            <div class="pf-avatar-lg">${avatarHtml()}</div>
+            <div class="pf-identity-info">
+              <div class="pf-name">${escapeHtml(profile.name)}</div>
+              <div class="pf-email-row">
+                <i class="fa-solid fa-at"></i>
+                <span>${escapeHtml(profile.email)}</span>
+              </div>
+              <div class="pf-badges">
+                <span class="pf-role ${isAdmin ? 'admin' : ''}">
+                  <i class="fa-solid ${isAdmin ? 'fa-shield-halved' : 'fa-user'}"></i> ${roleLabel}
+                </span>
+                <span class="pf-badge-verify ${profile.emailVerified ? 'ok' : 'warn'}">
+                  <i class="fa-solid ${profile.emailVerified ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i>
+                  ${L(profile.emailVerified ? 'verified' : 'unverified')}
+                </span>
+              </div>
+            </div>
+          </div>
+          ${(profile.bio || profile.location) ? `
+          <div class="pf-identity-meta">
+            ${profile.bio      ? `<div class="pf-meta-item"><i class="fa-solid fa-quote-left"></i><span>${escapeHtml(profile.bio)}</span></div>` : ''}
+            ${profile.location ? `<div class="pf-meta-item"><i class="fa-solid fa-location-dot"></i><span>${escapeHtml(profile.location)}</span></div>` : ''}
+            ${memberDate ? `<div class="pf-meta-item"><i class="fa-regular fa-calendar"></i><span>${L('member')} ${memberDate}</span></div>` : ''}
+          </div>` : memberDate ? `
+          <div class="pf-identity-meta">
+            <div class="pf-meta-item"><i class="fa-regular fa-calendar"></i><span>${L('member')} ${memberDate}</span></div>
+          </div>` : ''}
+        </div>
+
+        <!-- ② Stats Grid -->
+        <div class="pf-stats-grid">
+          <div class="pf-stat-card">
+            <div class="pf-stat-icon" style="--sc:#10B981"><i class="fa-solid fa-calendar-days"></i></div>
+            <div class="pf-stat-val">${days}</div>
+            <div class="pf-stat-lbl">${L('daysActive')}</div>
+          </div>
+          <div class="pf-stat-card">
+            <div class="pf-stat-icon" style="--sc:#06B6D4"><i class="fa-solid fa-clock"></i></div>
+            <div class="pf-stat-val pf-stat-sm">${relativeTime(profile.lastSignInTime)}</div>
+            <div class="pf-stat-lbl">${L('lastLogin')}</div>
+          </div>
+          <div class="pf-stat-card">
+            <div class="pf-stat-icon" style="--sc:${profile.emailVerified ? '#10B981' : '#F59E0B'}">
+              <i class="fa-solid fa-${profile.emailVerified ? 'shield-halved' : 'triangle-exclamation'}"></i>
+            </div>
+            <div class="pf-stat-val pf-stat-sm">${L(profile.emailVerified ? 'verified' : 'unverified')}</div>
+            <div class="pf-stat-lbl">${L('emailStatus')}</div>
+          </div>
+          <div class="pf-stat-card">
+            <div class="pf-stat-icon" style="--sc:#8B5CF6"><i class="fa-solid ${isAdmin ? 'fa-shield-halved' : 'fa-user-gear'}"></i></div>
+            <div class="pf-stat-val pf-stat-sm">${roleLabel}</div>
+            <div class="pf-stat-lbl">${L('accountType')}</div>
+          </div>
+        </div>
+
+        <!-- ③ Preferences + Security (2-col on desktop) -->
+        <div class="pf-two-col">
+
+          <!-- Preferences -->
+          <div class="pf-card">
+            <div class="pf-section-title">
+              <i class="fa-solid fa-sliders"></i> ${L('preferences')}
+            </div>
+            <div class="pf-pref-list">
+              <div class="pf-pref-row">
+                <div class="pf-pref-label">
+                  <i class="fa-solid ${isDark ? 'fa-moon' : 'fa-sun'}"></i>
+                  <span>${L('theme')}</span>
+                </div>
+                <button class="pf-theme-pill ${isDark ? 'dark' : 'light'}" onclick="ALHYDRA.profile.toggleTheme()">
+                  <span class="pf-pill-knob"></span>
+                  <span class="pf-pill-txt dark-lbl">${L('darkMode')}</span>
+                  <span class="pf-pill-txt light-lbl">${L('lightMode')}</span>
+                </button>
+              </div>
+              <div class="pf-pref-row">
+                <div class="pf-pref-label">
+                  <i class="fa-solid fa-language"></i>
+                  <span>${L('language')}</span>
+                </div>
+                <div class="pf-lang-toggle">
+                  <button class="pf-lang-btn ${isEN ? 'active' : ''}" onclick="ALHYDRA.profile.setLang('en')">EN</button>
+                  <button class="pf-lang-btn ${!isEN ? 'active' : ''}" onclick="ALHYDRA.profile.setLang('id')">ID</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Security -->
+          <div class="pf-card">
+            <div class="pf-section-title">
+              <i class="fa-solid fa-lock"></i> ${L('security')}
+            </div>
+            <div class="pf-sec-list">
+              <div class="pf-sec-row">
+                <span class="pf-sec-key">${L('provider')}</span>
+                <span class="pf-sec-val">
+                  <i class="${providerIcon}"></i> ${providerName}
+                </span>
+              </div>
+              <div class="pf-sec-row">
+                <span class="pf-sec-key">${L('lastSignIn')}</span>
+                <span class="pf-sec-val">${profile.lastSignInTime ? new Date(profile.lastSignInTime).toLocaleString() : '—'}</span>
+              </div>
+              <div class="pf-sec-row pf-uid-row">
+                <span class="pf-sec-key">${L('uid')}</span>
+                <span class="pf-uid-val">${profile.uid || '—'}</span>
+                <button class="pf-copy-btn" onclick="ALHYDRA.profile.copyUid()" title="Copy">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+              </div>
+              ${profile.providerId === 'password' ? `
+              <button class="pf-change-pass-btn" onclick="ALHYDRA.app.navigateTo('settings')">
+                <i class="fa-solid fa-key"></i> ${L('changePass')}
+              </button>` : ''}
+            </div>
+          </div>
+
+        </div><!-- /pf-two-col -->
+
+        <!-- ④ Legal -->
+        <div class="pf-legal-section">
+          <div class="pf-section-title">
+            <i class="fa-solid fa-scale-balanced"></i> ${L('legal')}
+          </div>
+          <div class="pf-legal-cards">
+            <button class="pf-legal-item" onclick="ALHYDRA.app.navigateTo('privacy')">
+              <div class="pf-legal-item-icon" style="--lc:#10B981">
+                <i class="fa-solid fa-shield-halved"></i>
+              </div>
+              <div class="pf-legal-item-body">
+                <div class="pf-legal-item-title">${L('viewPrivacy')}</div>
+                <div class="pf-legal-item-desc">${L('privacyDesc')}</div>
+              </div>
+              <i class="fa-solid fa-chevron-right pf-legal-item-arrow"></i>
+            </button>
+            <button class="pf-legal-item" onclick="ALHYDRA.app.navigateTo('terms')">
+              <div class="pf-legal-item-icon" style="--lc:#06B6D4">
+                <i class="fa-solid fa-file-contract"></i>
+              </div>
+              <div class="pf-legal-item-body">
+                <div class="pf-legal-item-title">${L('viewTerms')}</div>
+                <div class="pf-legal-item-desc">${L('termsDesc')}</div>
+              </div>
+              <i class="fa-solid fa-chevron-right pf-legal-item-arrow"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>`;
+  }
+
+  /* ── EDIT mode ─────────────────────────── */
+  function renderEdit() {
+    return `
+      <div class="pf-card pf-edit-card">
+        <div class="pf-avatar-col">
+          <div class="pf-avatar pf-avatar-lg" id="pf-avatar">${avatarHtml()}</div>
+          <div class="pf-emoji-row">${EMOJIS.map(e =>
+            `<button class="pf-emoji-btn" type="button" onclick="ALHYDRA.profile.pickEmoji('${e}')">${e}</button>`
+          ).join('')}</div>
+          <label class="pf-upload-label">
+            <i class="fa-solid fa-upload"></i> ${L('upload')}
+            <input type="file" accept="image/*" onchange="ALHYDRA.profile.onFile(event)" hidden />
+          </label>
+        </div>
+        <div class="pf-form-col">
+          <div class="sf-group">
+            <label>${L('displayName')}</label>
+            <input type="text" id="pf-name" value="${escapeHtml(profile.name)}" />
+          </div>
+          <div class="sf-group">
+            <label>${L('bio')}</label>
+            <input type="text" id="pf-bio" value="${escapeHtml(profile.bio)}" placeholder="Algae researcher…" />
+          </div>
+          <div class="sf-group">
+            <label>${L('location')}</label>
+            <input type="text" id="pf-loc" value="${escapeHtml(profile.location)}" placeholder="Jakarta, ID" />
+          </div>
+          <div class="pf-form-actions">
+            <button class="btn-primary" onclick="ALHYDRA.profile.save()">
+              <i class="fa-solid fa-floppy-disk"></i> ${L('save')}
+            </button>
+            <button class="btn-secondary" onclick="ALHYDRA.profile.cancelEdit()">
+              ${L('cancel')}
+            </button>
+          </div>
+        </div>
+      </div>`;
   }
 
   function render() {
     const host = document.getElementById('profile-body');
     if (!host) return;
-    const roleLabel = (T.roles[profile.role] || T.roles.operator)[lang()];
-    const isAdmin = ALHYDRA.audit?.isAdmin?.();
-    host.innerHTML = `
-      <div class="pf-grid">
-        <!-- Identity card -->
-        <div class="settings-card pf-identity">
-          <div class="pf-avatar-wrap">
-            <div class="pf-avatar" id="pf-avatar">${avatarHtml()}</div>
-            <div class="pf-id-meta">
-              <div class="pf-name">${profile.name}</div>
-              <div class="pf-email">${profile.email}</div>
-              <span class="pf-role ${isAdmin ? 'admin' : ''}"><i class="fa-solid ${isAdmin ? 'fa-shield-halved' : 'fa-user'}"></i> ${roleLabel}</span>
-              ${profile.created ? `<div class="pf-since">${L('member')} ${profile.created.toLocaleDateString()}</div>` : ''}
-            </div>
-          </div>
-          <div class="pf-emoji-row">${EMOJIS.map(e => `<button class="pf-emoji-btn" onclick="ALHYDRA.profile.pickEmoji('${e}')">${e}</button>`).join('')}</div>
-          <label class="pf-upload"><i class="fa-solid fa-upload"></i> ${L('upload')}
-            <input type="file" accept="image/*" id="pf-file" onchange="ALHYDRA.profile.onFile(event)" hidden />
-          </label>
-        </div>
-
-        <!-- Edit form -->
-        <div class="settings-card">
-          <h3 class="settings-card-title"><i class="fa-solid fa-id-card"></i> ${L('identity')}</h3>
-          <div class="settings-form">
-            <div class="sf-group"><label>${L('displayName')}</label><input type="text" id="pf-name" value="${escapeAttr(profile.name)}" /></div>
-            <div class="sf-group"><label>${L('bio')}</label><input type="text" id="pf-bio" value="${escapeAttr(profile.bio)}" placeholder="Algae researcher…" /></div>
-            <div class="sf-group"><label>${L('location')}</label><input type="text" id="pf-loc" value="${escapeAttr(profile.location)}" placeholder="Jakarta, ID" /></div>
-            <button class="btn-primary" onclick="ALHYDRA.profile.save()"><i class="fa-solid fa-floppy-disk"></i> ${L('save')}</button>
-          </div>
-        </div>
-
-        <!-- Preferences -->
-        <div class="settings-card">
-          <h3 class="settings-card-title"><i class="fa-solid fa-sliders"></i> ${L('prefs')}</h3>
-          <div class="settings-form">
-            <div class="sf-group"><label>${L('landing')}</label>
-              <select id="pf-landing">
-                ${['dashboard','monitoring','algae','energy','analytics','ai'].map(v => `<option value="${v}" ${profile.prefs?.landing === v ? 'selected' : ''}>${v}</option>`).join('')}
-              </select>
-            </div>
-            <div class="sf-group"><label>${L('units')}</label>
-              <select id="pf-units">
-                <option value="c" ${profile.prefs?.units !== 'f' ? 'selected' : ''}>°C</option>
-                <option value="f" ${profile.prefs?.units === 'f' ? 'selected' : ''}>°F</option>
-              </select>
-            </div>
-            <label class="pf-check"><input type="checkbox" id="pf-notif" ${profile.prefs?.notif !== false ? 'checked' : ''} /> ${L('notif')}</label>
-            <button class="btn-primary" onclick="ALHYDRA.profile.savePrefs()"><i class="fa-solid fa-floppy-disk"></i> ${L('savePrefs')}</button>
-          </div>
-        </div>
-
-        <!-- Data & Privacy -->
-        <div class="settings-card">
-          <h3 class="settings-card-title"><i class="fa-solid fa-shield-halved"></i> ${L('dataPriv')}</h3>
-          <div class="settings-form">
-            <button class="btn-secondary" onclick="ALHYDRA.account.exportJson()"><i class="fa-solid fa-file-arrow-down"></i> ${L('exportJson')}</button>
-            <button class="btn-secondary" onclick="ALHYDRA.account.exportCsv()"><i class="fa-solid fa-file-csv"></i> ${L('exportCsv')}</button>
-            <button class="btn-secondary" onclick="ALHYDRA.app.navigateTo('privacy')"><i class="fa-solid fa-lock"></i> ${L('viewPrivacy')}</button>
-            <button class="btn-secondary" onclick="ALHYDRA.app.navigateTo('terms')"><i class="fa-solid fa-file-contract"></i> ${L('viewTerms')}</button>
-            <hr class="sf-divider" />
-            <h4 style="color:var(--red)">${L('danger')}</h4>
-            <p class="sf-note">${L('deleteHint')}</p>
-            <button class="btn-danger" onclick="ALHYDRA.account.deleteAccount()"><i class="fa-solid fa-trash"></i> ${L('deleteAcc')}</button>
-          </div>
-        </div>
-
-        <!-- Activity timeline -->
-        <div class="settings-card" style="grid-column:1/-1">
-          <h3 class="settings-card-title"><i class="fa-solid fa-clock-rotate-left"></i> ${L('activity')}</h3>
-          <div id="pf-activity" class="pf-activity"><div class="empty-state" style="padding:20px"><i class="fa-solid fa-circle-notch fa-spin"></i></div></div>
-        </div>
-      </div>`;
+    host.innerHTML = editMode ? renderEdit() : renderView();
   }
 
-  function escapeAttr(s) { return String(s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+  function startEdit()  { editMode = true;  render(); }
+  function cancelEdit() { editMode = false; render(); }
 
-  function pickEmoji(e) { profile.avatar = e; const el = document.getElementById('pf-avatar'); if (el) el.innerHTML = `<span class="pf-emoji">${e}</span>`; }
+  /* ── Avatar helpers ──────────────────────── */
+  function pickEmoji(e) {
+    profile.avatar = e;
+    const el = document.getElementById('pf-avatar');
+    if (el) el.innerHTML = `<span class="pf-emoji">${e}</span>`;
+  }
+
   function onFile(ev) {
-    const f = ev.target.files?.[0]; if (!f) return;
-    if (f.size > 600 * 1024) { ALHYDRA.app.toast(lang() === 'id' ? 'Gambar terlalu besar (maks 600KB)' : 'Image too large (max 600KB)', 'warning'); return; }
+    const f = ev.target.files?.[0];
+    if (!f) return;
+    if (f.size > 600 * 1024) {
+      ALHYDRA.app.toast(lang() === 'id' ? 'Gambar terlalu besar (maks 600KB)' : 'Image too large (max 600KB)', 'warning');
+      return;
+    }
     const r = new FileReader();
-    r.onload = () => { profile.avatar = r.result; const el = document.getElementById('pf-avatar'); if (el) el.innerHTML = `<img src="${r.result}" alt="avatar" />`; };
+    r.onload = () => {
+      profile.avatar = r.result;
+      const el = document.getElementById('pf-avatar');
+      if (el) el.innerHTML = `<img src="${r.result}" alt="avatar" />`;
+    };
     r.readAsDataURL(f);
   }
 
+  /* ── Preferences actions ──────────────── */
+  function toggleTheme() {
+    // Delegate to app.js theme system if available
+    if (ALHYDRA.app?.applyTheme) {
+      const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+      ALHYDRA.app.applyTheme(cur === 'dark' ? 'light' : 'dark');
+    } else {
+      const cur  = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('alhydra-theme', next); } catch (e) {}
+      const mc = document.getElementById('meta-theme-color');
+      if (mc) mc.setAttribute('content', next === 'light' ? '#EEF2F8' : '#0A0F1E');
+      if (window.Chart?.instances) {
+        try {
+          if (typeof setupChartDefaults === 'function') setupChartDefaults();
+        } catch (e) {}
+        Object.values(Chart.instances).forEach(c => { try { c.update('none'); } catch (e) {} });
+      }
+    }
+    render();
+  }
+
+  function setLang(code) {
+    ALHYDRA.i18n?.set?.(code);
+    render();
+  }
+
+  function copyUid() {
+    const uid = profile.uid;
+    if (!uid) return;
+    navigator.clipboard?.writeText(uid)
+      .then(() => ALHYDRA.app.toast(L('copied'), 'success', 1500))
+      .catch(() => ALHYDRA.app.toast(uid, 'info', 4000));
+  }
+
+  /* ── Save ──────────────────────────────── */
   async function save() {
-    const u = window.auth?.currentUser; if (!u) return;
-    const name = document.getElementById('pf-name')?.value.trim() || profile.name;
+    const u = window.auth?.currentUser;
+    if (!u) return;
     const patch = {
-      name, bio: document.getElementById('pf-bio')?.value.trim() || '',
-      location: document.getElementById('pf-loc')?.value.trim() || '',
-      avatar: profile.avatar || '',
+      name:     document.getElementById('pf-name')?.value.trim() || profile.name,
+      bio:      document.getElementById('pf-bio')?.value.trim()  || '',
+      location: document.getElementById('pf-loc')?.value.trim()  || '',
+      avatar:   profile.avatar || '',
     };
     try {
       await window.db.collection('users').doc(u.uid).set(patch, { merge: true });
-      if (name !== u.displayName) await u.updateProfile({ displayName: name }).catch(() => {});
+      if (patch.name !== u.displayName) await u.updateProfile({ displayName: patch.name }).catch(() => {});
       profile = { ...profile, ...patch };
-      // reflect in topbar + settings avatar
+      ALHYDRA.app.applyUserAvatar({ avatar: profile.avatar, photoURL: profile.photoURL, name: patch.name });
       const nameEl = document.getElementById('user-name-display');
-      if (nameEl) nameEl.textContent = name;
-      ALHYDRA.app.applyUserAvatar({ avatar: profile.avatar, photoURL: profile.photoURL, name });
+      if (nameEl) nameEl.textContent = patch.name;
       ALHYDRA.app.toast(L('saved'), 'success');
       ALHYDRA.audit?.log('profile_update', { fields: Object.keys(patch) });
       ALHYDRA.onboarding?.refreshChecklist?.();
-    } catch (e) { ALHYDRA.app.toast('Save failed: ' + e.message, 'error'); }
-  }
-
-  async function savePrefs() {
-    const u = window.auth?.currentUser; if (!u) return;
-    const prefs = {
-      landing: document.getElementById('pf-landing')?.value || 'dashboard',
-      units: document.getElementById('pf-units')?.value || 'c',
-      notif: document.getElementById('pf-notif')?.checked !== false,
-    };
-    try {
-      await window.db.collection('users').doc(u.uid).set({ preferences: prefs }, { merge: true });
-      profile.prefs = prefs;
-      try { localStorage.setItem('alhydra_prefs', JSON.stringify(prefs)); } catch (e) {}
-      ALHYDRA.app.toast(L('prefsSaved'), 'success');
-      ALHYDRA.audit?.log('prefs_update', prefs);
-    } catch (e) { ALHYDRA.app.toast('Save failed: ' + e.message, 'error'); }
-  }
-
-  async function loadActivity() {
-    const host = document.getElementById('pf-activity');
-    if (!host) return;
-    const u = window.auth?.currentUser; if (!u) return;
-    let rows = [];
-    try {
-      const s = await window.db.collection('activity_logs').where('uid', '==', u.uid).limit(50).get();
-      s.forEach(d => rows.push(d.data()));
-      rows.sort((a, b) => (b.ts?.toMillis?.() || 0) - (a.ts?.toMillis?.() || 0));
-    } catch (e) { /* index may be building */ }
-    if (!rows.length) { host.innerHTML = `<div class="pf-act-empty">${L('noActivity')}</div>`; return; }
-    const icons = { login: 'fa-right-to-bracket', profile_update: 'fa-id-card', prefs_update: 'fa-sliders', relay_toggle: 'fa-plug', threshold_save: 'fa-sliders', culture_add: 'fa-bacterium', harvest: 'fa-wheat-awn', onboarding_complete: 'fa-flag-checkered', tour_start: 'fa-route', data_export: 'fa-file-arrow-down' };
-    host.innerHTML = rows.slice(0, 40).map(r => {
-      const t = r.ts?.toDate ? r.ts.toDate() : null;
-      return `<div class="pf-act-row"><span class="pf-act-ic"><i class="fa-solid ${icons[r.action] || 'fa-circle-dot'}"></i></span>
-        <span class="pf-act-name">${r.action.replace(/_/g, ' ')}</span>
-        <span class="pf-act-time">${t ? t.toLocaleString() : ''}</span></div>`;
-    }).join('');
+      editMode = false;
+      render();
+    } catch (e) {
+      ALHYDRA.app.toast('Save failed: ' + e.message, 'error');
+    }
   }
 
   function init() {
     window.addEventListener('alhydra:lang', () => {
-      if (document.getElementById('view-profile')?.classList.contains('active')) { render(); loadActivity(); }
+      if (document.getElementById('view-profile')?.classList.contains('active')) render();
     });
   }
 
-  return { init, onEnter, pickEmoji, onFile, save, savePrefs };
+  return { init, onEnter, startEdit, cancelEdit, pickEmoji, onFile, save, toggleTheme, setLang, copyUid };
 })();

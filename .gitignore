@@ -64,3 +64,6 @@ node_modules/
 
 # dotenv environment variables file
 .env
+
+# App config with secrets (API keys)
+public/js/config.js

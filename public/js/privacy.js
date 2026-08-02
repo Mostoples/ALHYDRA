@@ -38,9 +38,9 @@ ALHYDRA.privacy = (() => {
       see aggregate system metrics and account roles, not your private API keys.</p>
       <h3>5. Your rights & controls</h3>
       <ul>
-        <li><b>Access & export:</b> download all your data anytime from Profile → Data & Privacy (JSON/CSV).</li>
+        <li><b>Access:</b> all data you create is visible in your dashboard at any time.</li>
         <li><b>Correction:</b> edit your profile and settings directly in the app.</li>
-        <li><b>Deletion:</b> delete your account and associated data from Profile → Danger zone.</li>
+        <li><b>Deletion:</b> contact the project maintainers via GitHub to request account and data removal.</li>
       </ul>
       <h3>6. Data retention</h3>
       <p>We keep your data while your account is active. When you delete your account, your profile and
@@ -78,9 +78,9 @@ ALHYDRA.privacy = (() => {
       agregat dan peran akun, bukan kunci API pribadi Anda.</p>
       <h3>5. Hak & kontrol Anda</h3>
       <ul>
-        <li><b>Akses & ekspor:</b> unduh semua data Anda kapan saja dari Profil → Data & Privasi (JSON/CSV).</li>
+        <li><b>Akses:</b> semua data yang Anda buat terlihat di dasbor Anda kapan saja.</li>
         <li><b>Koreksi:</b> ubah profil dan pengaturan langsung di aplikasi.</li>
-        <li><b>Penghapusan:</b> hapus akun & data terkait dari Profil → Zona berbahaya.</li>
+        <li><b>Penghapusan:</b> hubungi pengelola proyek melalui GitHub untuk meminta penghapusan akun dan data.</li>
       </ul>
       <h3>6. Retensi data</h3>
       <p>Data disimpan selama akun aktif. Saat Anda menghapus akun, profil & catatan milik Anda dihapus;
@@ -156,8 +156,11 @@ ALHYDRA.privacy = (() => {
       <p>Proyek & sumber: <a href="https://github.com/Mostoples/ALHYDRA" target="_blank" rel="noopener">github.com/Mostoples/ALHYDRA</a>.</p>`,
   };
 
-  function renderPrivacy() { const el = document.getElementById('privacy-body'); if (el) el.innerHTML = PRIVACY[lang()] || PRIVACY.en; }
-  function renderTerms() { const el = document.getElementById('terms-body'); if (el) el.innerHTML = TERMS[lang()] || TERMS.en; }
+  function wrap(html) {
+    return `<div class="legal-card">${html}</div>`;
+  }
+  function renderPrivacy() { const el = document.getElementById('privacy-body'); if (el) el.innerHTML = wrap(PRIVACY[lang()] || PRIVACY.en); }
+  function renderTerms()   { const el = document.getElementById('terms-body');   if (el) el.innerHTML = wrap(TERMS[lang()]   || TERMS.en);   }
 
   function onEnterPrivacy() { renderPrivacy(); }
   function onEnterTerms() { renderTerms(); }
