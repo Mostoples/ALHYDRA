@@ -396,6 +396,18 @@
             <div class="sc-range">Nilai ADC mentah — belum dikalibrasi ke skala pH 0–14</div>
           </div>
 
+          <!-- pH value (calibrated) -->
+          <div class="sensor-card" id="card-dev-ph_value">
+            <div class="sc-header">
+              <div class="sc-icon" style="--c:#059669"><i class="fa-solid fa-vial-circle-check"></i></div>
+              <div class="sc-info">
+                <span class="sc-label">pH (kalibrasi)</span>
+                <span class="sc-unit">pH</span>
+              </div>
+            </div>
+            <div class="sc-value" id="dev-ph_value">—</div>
+          </div>
+
           <!-- Device connection status -->
           <div class="sensor-card" id="card-dev-status">
             <div class="sc-header">
@@ -407,6 +419,7 @@
               <div class="sc-status-dot" id="dev-status-dot"></div>
             </div>
             <div class="sc-range">RSSI: <span id="dev-status-rssi">—</span></div>
+            <div class="sc-range">IP: <span id="dev-status-ip">—</span></div>
             <div class="sc-range">Terakhir online: <span id="dev-status-seen">—</span></div>
           </div>
         </div>

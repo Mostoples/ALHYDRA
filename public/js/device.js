@@ -3,9 +3,9 @@
    physical ALHYDRA device via Realtime Database.
 
    RTDB shape:
-     kontrol/ { aerator, embun, led, pompa }   (bool)
-     sensor/  { kelembapan, ph_raw, suhu }     (number)
-     status/  { online, rssi, last_seen }
+     kontrol/ { aerator, embun, led, pompa }            (bool)
+     sensor/  { kelembapan, ph_raw, ph_value, suhu }    (number)
+     status/  { online, rssi, last_seen, ip }
 ───────────────────────────────────────── */
 'use strict';
 
@@ -26,6 +26,7 @@ ALHYDRA.device = (() => {
     if (data.kelembapan !== undefined) setText('dev-kelembapan', parseFloat(data.kelembapan).toFixed(1) + ' %');
     if (data.suhu       !== undefined) setText('dev-suhu',       parseFloat(data.suhu).toFixed(1) + ' °C');
     if (data.ph_raw     !== undefined) setText('dev-ph_raw',     data.ph_raw);
+    if (data.ph_value   !== undefined) setText('dev-ph_value',   parseFloat(data.ph_value).toFixed(2));
   }
 
   function renderKontrol(data) {
@@ -49,6 +50,7 @@ ALHYDRA.device = (() => {
     if (dot)  dot.className = 'sc-status-dot ' + (online ? 'good' : 'danger');
     if (text) text.textContent = online ? 'Online' : 'Offline';
     setText('dev-status-rssi', data.rssi       !== undefined ? data.rssi + ' dBm' : '—');
+    setText('dev-status-ip',   data.ip         || '—');
     setText('dev-status-seen', data.last_seen  ? new Date(data.last_seen).toLocaleString() : '—');
   }
 
