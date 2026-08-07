@@ -8,6 +8,8 @@ ALHYDRA.monitoring = (() => {
   const MAX_POINTS = 40;
   const charts = {};
   let paused = false;
+  let lastPush = 0;
+  const PUSH_INTERVAL = 2000;
 
   // ── Chart definitions ──────────────────
   const CHART_DEFS = [
@@ -124,6 +126,10 @@ ALHYDRA.monitoring = (() => {
   // ── Push new data to charts ────────────
   function pushData(data) {
     if (paused) return;
+    // RTDB re-renders whenever any branch changes; sample at a fixed cadence so
+    // the 40-point windows still span a useful stretch of time.
+    if (Date.now() - lastPush < PUSH_INTERVAL) return;
+    lastPush = Date.now();
     const now = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const voltage = parseFloat(data.voltage || 220);
 
@@ -153,8 +159,9 @@ ALHYDRA.monitoring = (() => {
     // Energy overlay chart
     const ec = charts['energy'];
     if (ec) {
-      const wGen  = (parseFloat(data.current_gen  || 0) * voltage).toFixed(0);
-      const wCons = (parseFloat(data.current_cons || 0) * voltage).toFixed(0);
+      // Device reports power directly (energy/power_gen|power_cons); I × V is the fallback.
+      const wGen  = (data.power_gen  !== undefined ? parseFloat(data.power_gen)  : parseFloat(data.current_gen  || 0) * voltage).toFixed(1);
+      const wCons = (data.power_cons !== undefined ? parseFloat(data.power_cons) : parseFloat(data.current_cons || 0) * voltage).toFixed(1);
       ec.data.labels.push(now);
       ec.data.datasets[0].data.push(parseFloat(wGen));
       ec.data.datasets[1].data.push(parseFloat(wCons));

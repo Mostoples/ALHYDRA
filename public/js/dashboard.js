@@ -1,13 +1,13 @@
 /* ─────────────────────────────────────────
    dashboard.js — Real-time sensor cards +
-   energy mini-chart + relay quick controls
+   energy mini-chart + device quick controls
+
+   Data source: Firebase Realtime Database, pushed in by
+   device.js via renderData(). No Firestore sensor polling.
 ───────────────────────────────────────── */
 'use strict';
 
 ALHYDRA.dashboard = (() => {
-  let unsubscribe = null;
-  let unsubRelay1 = null;
-  let unsubRelay2 = null;
   let energyChart = null;
   let simInterval = null;
   let simActive   = false;
@@ -29,7 +29,19 @@ ALHYDRA.dashboard = (() => {
     water_level:  { unit: '%',   decimals: 0, min: 0,  max: 100,   label: '%' },
     current_gen:  { unit: ' A',  decimals: 2, min: 0,  max: 20,    label: 'A' },
     current_cons: { unit: ' A',  decimals: 2, min: 0,  max: 20,    label: 'A' },
+    battery_soc:  { unit: '%',   decimals: 0, min: 0,  max: 100,   label: '%' },
   };
+
+  // Keys that are rendered by updateEnergy(), not by the generic card loop
+  const ENERGY_KEYS = ['current_gen', 'current_cons', 'battery_soc'];
+
+  // Alert throttling — see updateCard()
+  const prevStatus = {}, lastAlertAt = {};
+  const ALERT_COOLDOWN = 5 * 60 * 1000;
+
+  // Chart-append throttling — see updateEnergy()
+  let lastChartPush = 0;
+  const CHART_INTERVAL = 2000;
 
   // ── Status logic ───────────────────────
   function getStatus(key, val) {
@@ -62,6 +74,10 @@ ALHYDRA.dashboard = (() => {
         if (val < 15) return 'danger';
         if (val < (thr.water_level?.min ?? 30)) return 'warning';
         return 'good';
+      case 'battery_soc':
+        if (val < 15) return 'danger';
+        if (val < 35) return 'warning';
+        return 'good';
       default:
         return 'good';
     }
@@ -87,24 +103,33 @@ ALHYDRA.dashboard = (() => {
     const status = getStatus(key, num);
     if (dotEl) { dotEl.className = 'sc-status-dot ' + status; }
 
-    // Alert if danger or warning
+    // Alert on entering danger. RTDB pushes several times per second, so a
+    // stuck out-of-range reading must not refill the notification list —
+    // notify on the transition, then at most once every ALERT_COOLDOWN.
     if (status === 'danger') {
-      ALHYDRA.app.addNotification(
-        `⚠ ${key.toUpperCase()} Alert`,
-        `Value ${num.toFixed(cfg.decimals)}${cfg.unit} is out of safe range`,
-        'danger'
-      );
+      const last = lastAlertAt[key] || 0;
+      if (prevStatus[key] !== 'danger' || Date.now() - last > ALERT_COOLDOWN) {
+        lastAlertAt[key] = Date.now();
+        ALHYDRA.app.addNotification(
+          `⚠ ${key.toUpperCase()} Alert`,
+          `Value ${num.toFixed(cfg.decimals)}${cfg.unit} is out of safe range`,
+          'danger'
+        );
+      }
     }
+    prevStatus[key] = status;
   }
 
   // ── Update energy cards ────────────────
+  // The device publishes power (W) directly under energy/. Only fall back to
+  // I × V when a firmware build reports current without power.
   function updateEnergy(data) {
     const voltage = parseFloat(data.voltage || 220);
     const gen  = parseFloat(data.current_gen  || 0);
     const cons = parseFloat(data.current_cons || 0);
-    const wGen  = (gen  * voltage).toFixed(0);
-    const wCons = (cons * voltage).toFixed(0);
-    const wBal  = (gen - cons) * voltage;
+    const wGen  = (data.power_gen  !== undefined ? parseFloat(data.power_gen)  : gen  * voltage).toFixed(1);
+    const wCons = (data.power_cons !== undefined ? parseFloat(data.power_cons) : cons * voltage).toFixed(1);
+    const wBal  = parseFloat(wGen) - parseFloat(wCons);
 
     const setEl = (id, txt) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
 
@@ -115,13 +140,27 @@ ALHYDRA.dashboard = (() => {
     setEl('eb-gen',   wGen  + ' W');
     setEl('eb-cons',  wCons + ' W');
 
+    // Battery (RTDB energy/battery_soc + battery_capacity_wh)
+    if (data.battery_soc !== undefined) {
+      const soc = parseFloat(data.battery_soc);
+      updateCard('battery_soc', soc);
+      const capEl = document.getElementById('range-battery_soc');
+      if (capEl && data.battery_capacity_wh !== undefined) {
+        const cap = parseFloat(data.battery_capacity_wh);
+        capEl.textContent = `${cap} Wh · tersisa ≈ ${(cap * soc / 100).toFixed(0)} Wh`;
+      }
+    }
+
     const balEl = document.getElementById('eb-balance');
     if (balEl) {
       balEl.textContent = (wBal >= 0 ? '+' : '') + wBal.toFixed(0) + ' W';
       balEl.style.color = wBal >= 0 ? 'var(--green)' : 'var(--red)';
     }
 
-    // Push to energy chart buffer
+    // Push to energy chart buffer — throttled, since RTDB fires a render for
+    // every branch that changes and would otherwise stack duplicate points.
+    if (Date.now() - lastChartPush < CHART_INTERVAL) return;
+    lastChartPush = Date.now();
     const now = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
     energyLabels.push(now);
     energyGenData.push(parseFloat(wGen));
@@ -137,21 +176,21 @@ ALHYDRA.dashboard = (() => {
     }
   }
 
-  // ── Render data from Firestore doc ─────
+  // ── Render one telemetry payload (from device.js / RTDB) ─────
   function renderData(data) {
     if (!data) return;
 
     Object.keys(SENSORS).forEach(key => {
-      if (key !== 'current_gen' && key !== 'current_cons') {
-        updateCard(key, data[key]);
-      }
+      if (!ENERGY_KEYS.includes(key)) updateCard(key, data[key]);
     });
     updateEnergy(data);
 
-    // Last update time
+    // Last update time — prefer the device's own status/last_seen
     const lastUpEl = document.getElementById('dash-last-update');
     if (lastUpEl) {
-      if (data.timestamp?.toDate) {
+      if (data.last_seen) {
+        lastUpEl.textContent = new Date(data.last_seen).toLocaleTimeString();
+      } else if (data.timestamp?.toDate) {
         lastUpEl.textContent = data.timestamp.toDate().toLocaleTimeString();
       } else {
         lastUpEl.textContent = new Date().toLocaleTimeString();
@@ -165,40 +204,9 @@ ALHYDRA.dashboard = (() => {
     ALHYDRA.widgets?.refresh();
   }
 
-  // ── Subscribe to Firestore ─────────────
-  function subscribe() {
-    unsubscribe?.();
-    unsubscribe = window.db.collection('sensors').doc('latest')
-      .onSnapshot(snap => {
-        if (snap.exists) {
-          renderData(snap.data());
-          ALHYDRA.app.updateConnectionStatus(true);
-        }
-      }, err => {
-        console.warn('Sensor listener error:', err);
-        ALHYDRA.app.updateConnectionStatus(false);
-      });
-  }
-
-  // ── Relay listeners ────────────────────
-  function subscribeRelays() {
-    const setDashRelay = (relayNum, state) => {
-      const chk = document.getElementById(`dash-relay${relayNum}`);
-      const lbl = document.getElementById(`dash-relay${relayNum}-label`);
-      if (chk) chk.checked = state;
-      if (lbl) { lbl.textContent = state ? 'ON' : 'OFF'; lbl.style.color = state ? 'var(--green)' : 'var(--text-muted)'; }
-    };
-
-    unsubRelay1?.();
-    unsubRelay1 = window.db.collection('relays').doc('pump1')
-      .onSnapshot(snap => { if (snap.exists) setDashRelay(1, snap.data().state); },
-                  err => console.warn('[dashboard] relay1 listener', err));
-
-    unsubRelay2?.();
-    unsubRelay2 = window.db.collection('relays').doc('pump2')
-      .onSnapshot(snap => { if (snap.exists) setDashRelay(2, snap.data().state); },
-                  err => console.warn('[dashboard] relay2 listener', err));
-  }
+  // Live telemetry arrives via renderData(), pushed by device.js from the
+  // Realtime Database. Quick controls on this page write straight to
+  // rtdb kontrol/* through ALHYDRA.device.setKontrol.
 
   // ── Energy Chart ───────────────────────
   function initEnergyChart() {
@@ -240,10 +248,16 @@ ALHYDRA.dashboard = (() => {
   }
 
   // ── Demo / Simulation Mode ─────────────
+  // Seeded from the last real RTDB reading so demo mode drifts away from
+  // reality instead of jumping to invented numbers.
   function startSimulation() {
-    let simPh = 7.2, simLight = 1800, simTurb = 12.5,
-        simTempAmb = 28.3, simHum = 65.0, simTempW = 24.1,
-        simWaterLvl = 78, simGen = 3.2, simCons = 2.5;
+    const live = ALHYDRA.device?.getState?.().telemetry || {};
+    let simPh = live.ph ?? 7.2, simLight = live.light ?? 1800, simTurb = live.turbidity ?? 12.5,
+        simTempAmb = live.temp_ambient ?? 28.3, simHum = live.humidity ?? 65.0,
+        simTempW = live.temp_water ?? 24.1, simWaterLvl = live.water_level ?? 78,
+        simGen = live.current_gen ?? 3.2, simCons = live.current_cons ?? 2.5,
+        simSoc = live.battery_soc ?? 60;
+    const capWh = live.battery_capacity_wh;
 
     simInterval = setInterval(() => {
       const rand = (v, d) => Math.max(0, v + (Math.random()-0.5)*2*d);
@@ -257,15 +271,19 @@ ALHYDRA.dashboard = (() => {
         water_level:  parseFloat(Math.min(100, rand(simWaterLvl, 1.2)).toFixed(0)),
         current_gen:  parseFloat(rand(simGen, 0.2).toFixed(2)),
         current_cons: parseFloat(rand(simCons, 0.15).toFixed(2)),
+        battery_soc:  parseFloat(Math.min(100, rand(simSoc, 0.4)).toFixed(0)),
         voltage: 220,
-        timestamp: null
       };
+      data.power_gen  = parseFloat((data.current_gen  * 12).toFixed(1));
+      data.power_cons = parseFloat((data.current_cons * 12).toFixed(1));
+      if (capWh !== undefined) data.battery_capacity_wh = capWh;
+
       // drift
-      simPh       = data.ph;       simLight    = data.light;
+      simPh       = data.ph;        simLight    = data.light;
       simTurb     = data.turbidity; simTempAmb  = data.temp_ambient;
       simHum      = data.humidity;  simTempW    = data.temp_water;
-      simWaterLvl = data.water_level;
-      simGen      = data.current_gen; simCons   = data.current_cons;
+      simWaterLvl = data.water_level; simSoc     = data.battery_soc;
+      simGen      = data.current_gen; simCons    = data.current_cons;
 
       renderData(data);
       const lastUpEl = document.getElementById('dash-last-update');
@@ -282,24 +300,28 @@ ALHYDRA.dashboard = (() => {
     const btn = document.getElementById('dash-simulate-btn');
     if (simActive) {
       stopSimulation();
-      unsubscribe?.();
       startSimulation();
       if (btn) { btn.style.background = 'rgba(245,158,11,0.2)'; btn.style.borderColor = 'var(--amber)'; btn.style.color = 'var(--amber)'; }
       ALHYDRA.app.toast('Demo mode ON — showing simulated data', 'warning');
     } else {
       stopSimulation();
-      subscribe();
+      // Repaint immediately from the last real RTDB snapshot
+      const live = ALHYDRA.device?.getState?.().telemetry;
+      if (live) renderData(live);
       if (btn) { btn.removeAttribute('style'); }
-      ALHYDRA.app.toast('Demo mode OFF — connected to Firestore', 'info');
+      ALHYDRA.app.toast('Demo mode OFF — connected to Realtime Database', 'info');
     }
   }
+
+  function isDemo() { return simActive; }
 
   // ── Init ───────────────────────────────
   function init() {
     initEnergyChart();
-    subscribe();
-    subscribeRelays();
+    // Repaint from whatever device.js has already received (init order safety)
+    const live = ALHYDRA.device?.getState?.().telemetry;
+    if (live && Object.keys(live).length > 1) renderData(live);
   }
 
-  return { init, toggleSimulate, renderData };
+  return { init, toggleSimulate, renderData, isDemo };
 })();

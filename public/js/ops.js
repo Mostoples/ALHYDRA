@@ -34,8 +34,12 @@ ALHYDRA.ops = (() => {
     autoHint:{en:'Rules run automatically against live sensor data while the app is open.',id:'Aturan berjalan otomatis terhadap data sensor langsung saat aplikasi terbuka.'},
     when:{en:'When',id:'Jika'}, then:{en:'then',id:'maka'},
     sensor:{en:'Sensor',id:'Sensor'}, op:{en:'is',id:''}, value:{en:'Value',id:'Nilai'},
-    actNotify:{en:'Send notification',id:'Kirim notifikasi'}, actPump1Off:{en:'Turn Pump 1 OFF',id:'Matikan Pompa 1'},
-    actPump2Off:{en:'Turn Pump 2 OFF',id:'Matikan Pompa 2'}, actBackup:{en:'Engage energy backup',id:'Aktifkan cadangan energi'},
+    actNotify:{en:'Send notification',id:'Kirim notifikasi'},
+    actPompaOff:{en:'Turn Pompa OFF',id:'Matikan Pompa'},
+    actAeratorOff:{en:'Turn Aerator OFF',id:'Matikan Aerator'},
+    actLedOff:{en:'Turn LED OFF',id:'Matikan LED'},
+    actEmbunOff:{en:'Turn Embun OFF',id:'Matikan Embun'},
+    actBackup:{en:'Engage energy backup',id:'Aktifkan cadangan energi'},
     enable:{en:'Enabled',id:'Aktif'}, addRule:{en:'Add rule',id:'Tambah aturan'},
     saved:{en:'Saved',id:'Tersimpan'}, deleted:{en:'Deleted',id:'Dihapus'},
   };
@@ -214,7 +218,7 @@ ALHYDRA.ops = (() => {
         <select id="a-op"><option value="lt">&lt;</option><option value="gt">&gt;</option></select>
         <input type="number" step="0.1" id="a-val" placeholder="${L('value')}" style="max-width:110px" />
         <span class="ops-lbl">${L('then')}</span>
-        <select id="a-act"><option value="notify">${L('actNotify')}</option><option value="pump1off">${L('actPump1Off')}</option><option value="pump2off">${L('actPump2Off')}</option><option value="backup">${L('actBackup')}</option></select>
+        <select id="a-act"><option value="notify">${L('actNotify')}</option>${KONTROL_ACTS.map(k=>`<option value="off_${k}">${L(ACT_LABEL[k])}</option>`).join('')}<option value="backup">${L('actBackup')}</option></select>
         <button class="btn-primary sm" onclick="ALHYDRA.ops.addRule()"><i class="fa-solid fa-plus"></i> ${L('addRule')}</button>
       </div>
       <div class="ops-list">${rows.length?rows.map(r=>`
@@ -225,7 +229,13 @@ ALHYDRA.ops = (() => {
           <button class="ops-del" onclick="ALHYDRA.ops.del('automation_rules','${r.id}')"><i class="fa-solid fa-trash"></i></button>
         </div>`).join(''):emptyMsg()}</div>`;
   }
-  function actLabel(a){return a==='pump1off'?L('actPump1Off'):a==='pump2off'?L('actPump2Off'):a==='backup'?L('actBackup'):L('actNotify');}
+  // Automation actions that switch an rtdb kontrol/* channel off.
+  // Legacy rules stored as pump1off/pump2off still resolve to real channels.
+  const KONTROL_ACTS = ['pompa','aerator','led','embun'];
+  const ACT_LABEL = { pompa:'actPompaOff', aerator:'actAeratorOff', led:'actLedOff', embun:'actEmbunOff' };
+  const LEGACY_ACT = { pump1off:'pompa', pump2off:'aerator' };
+  function actChannel(a){ return LEGACY_ACT[a] || (a.startsWith('off_') && KONTROL_ACTS.includes(a.slice(4)) ? a.slice(4) : null); }
+  function actLabel(a){ const ch=actChannel(a); if(ch) return L(ACT_LABEL[ch]); return a==='backup'?L('actBackup'):L('actNotify'); }
   async function addRule(){
     const sensor=document.getElementById('a-sensor')?.value; const op=document.getElementById('a-op')?.value;
     const val=parseFloat(document.getElementById('a-val')?.value); const act=document.getElementById('a-act')?.value;
@@ -254,9 +264,9 @@ ALHYDRA.ops = (() => {
   }
   function runAction(r,v){
     const msg=`${r.sensor} ${r.op==='lt'?'<':'>'} ${r.val} (now ${v})`;
+    const ch = actChannel(r.act);
     if(r.act==='notify'){ ALHYDRA.app.addNotification?.('⚙ Automation', msg,'warning'); ALHYDRA.app.toast('⚙ '+msg,'warning'); }
-    else if(r.act==='pump1off'){ ALHYDRA.control?.setRelay?.(1,false); ALHYDRA.app.addNotification?.('⚙ Automation','Pump 1 OFF — '+msg,'warning'); }
-    else if(r.act==='pump2off'){ ALHYDRA.control?.setRelay?.(2,false); ALHYDRA.app.addNotification?.('⚙ Automation','Pump 2 OFF — '+msg,'warning'); }
+    else if(ch){ ALHYDRA.device?.setKontrol?.(ch,false); ALHYDRA.app.addNotification?.('⚙ Automation',`${ch} OFF — `+msg,'warning'); }
     else if(r.act==='backup'){ ALHYDRA.energy?.setMode?.('backup'); ALHYDRA.app.addNotification?.('⚙ Automation','Backup engaged — '+msg,'warning'); }
     ALHYDRA.audit?.log('automation_fire',{rule:r.sensor+r.op+r.val,act:r.act});
   }

@@ -325,10 +325,11 @@ ALHYDRA.calibration = (() => {
         if (!isNaN(n)) data[k] = n;
       }
     });
-    const r1 = document.getElementById('dash-relay1');
-    const r2 = document.getElementById('dash-relay2');
-    if (r1) data.pump1 = r1.checked;
-    if (r2) data.pump2 = r2.checked;
+    const kontrol = ALHYDRA.device?.getState?.().kontrol;
+    if (kontrol) Object.assign(data, {
+      pompa: !!kontrol.pompa, aerator: !!kontrol.aerator,
+      led: !!kontrol.led, embun: !!kontrol.embun,
+    });
     return data;
   }
 

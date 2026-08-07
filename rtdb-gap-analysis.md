@@ -1,49 +1,70 @@
-# Gap Analysis — Firebase Realtime Database vs App ALHYDRA
+# Realtime Database ↔ App ALHYDRA
 
 RTDB: `https://alhydra-id-default-rtdb.firebaseio.com/`
 
-## 1. Struktur RTDB saat ini (live, dari device fisik)
+## 1. Struktur RTDB (live, dari device fisik)
 
 ```
-kontrol/ { aerator, embun, led, pompa }             (bool)
-sensor/  { kelembapan, ph_raw, ph_value, suhu }     (number)
+energy/  { battery_capacity_wh, battery_soc,
+           current_cons, current_gen, power_cons, power_gen }
+kontrol/ { aerator, embun, led, pompa }                       (bool)
+sensor/  { kelembapan, light, ph_raw, ph_value, suhu,
+           suhu_air, temp_water, turbidity, water_level }
 status/  { ip, last_seen, online, rssi }
 ```
 
-Semua field di atas **sudah terhubung penuh** ke app (`public/js/device.js` + `public/app.html`, kartu "Perangkat IoT (Live)"):
+## 2. Pemetaan RTDB → kunci sensor aplikasi
 
-| Path | Status di app |
-|---|---|
-| `kontrol.aerator/embun/led/pompa` | ✅ Baca + tulis (toggle di halaman Control) |
-| `sensor.kelembapan` | ✅ Ditampilkan |
-| `sensor.suhu` | ✅ Ditampilkan |
-| `sensor.ph_raw` | ✅ Ditampilkan |
-| `sensor.ph_value` | ✅ Ditampilkan *(baru ditambahkan)* |
-| `status.online` | ✅ Ditampilkan |
-| `status.rssi` | ✅ Ditampilkan |
-| `status.last_seen` | ✅ Ditampilkan |
-| `status.ip` | ✅ Ditampilkan *(baru ditambahkan)* |
+`public/js/device.js` adalah **satu-satunya sumber data live**. Ia berlangganan ke
+empat branch RTDB, memetakan nama field perangkat ke kunci kanonik aplikasi, lalu
+mendorongnya ke `dashboard.renderData()`. Seluruh modul lain (monitoring, widgets,
+energy, ml, algae, ops, report, calibration, chat) membaca hasilnya — jadi tidak ada
+lagi yang perlu tahu soal RTDB.
 
-**Tidak ada field RTDB yang tersisa belum dipakai** — semua sudah tersambung.
+| Path RTDB | Kunci aplikasi | Tampil di |
+|---|---|---|
+| `sensor.ph_value` | `ph` | kartu pH, chart pH, ML, kalibrasi |
+| `sensor.ph_raw` | `ph_raw` | kartu diagnostik perangkat |
+| `sensor.light` | `light` | kartu Light Intensity, chart |
+| `sensor.turbidity` | `turbidity` | kartu Turbidity, chart, algae |
+| `sensor.suhu` | `temp_ambient` | kartu Temp. Ambient, chart |
+| `sensor.kelembapan` | `humidity` | kartu Humidity, chart |
+| `sensor.suhu_air` (fallback `temp_water`) | `temp_water` | kartu Water Temp., chart |
+| `sensor.water_level` | `water_level` | kartu Water Level, KPI hero |
+| `energy.current_gen` / `power_gen` | `current_gen` / `power_gen` | kartu energi, chart, Impact |
+| `energy.current_cons` / `power_cons` | `current_cons` / `power_cons` | kartu energi, chart |
+| `energy.battery_soc` | `battery_soc` | kartu Battery, SOC halaman Energy, KPI hero |
+| `energy.battery_capacity_wh` | `battery_capacity_wh` | sisa Wh, dasar hitung SOC |
+| `kontrol.*` | — | toggle Control Panel + quick control Dashboard (baca **dan** tulis) |
+| `status.online` | — | indikator koneksi topbar, badge status |
+| `status.rssi` / `ip` / `last_seen` | — | kartu diagnostik, waktu update terakhir, panel Admin |
 
-## 2. Fitur di app yang BELUM punya data di RTDB (masih dummy/Firestore)
+`sensor.suhu_air` dipakai sebagai suhu air utama (nilainya berkelipatan 0,0625 °C —
+ciri khas DS18B20 12-bit); `sensor.temp_water` disimpan sebagai fallback firmware lama.
 
-Ini bagian yang sebenarnya "kurang dari realtime database" — UI/fitur berikut sudah ada di app, tapi datanya **bukan dari RTDB**, melainkan simulasi, Firestore, atau localStorage. Supaya jadi live sepenuhnya, field-field ini perlu ditambahkan ke RTDB oleh firmware device:
+Daya dibaca langsung dari `energy.power_gen` / `power_cons`. Perkalian arus × 220 V
+hanya dipakai jika firmware mengirim arus tanpa daya.
 
-| Fitur di app | Lokasi | Sumber data saat ini | Field RTDB yang perlu ditambahkan |
-|---|---|---|---|
+## 3. Yang bukan (dan tidak perlu) dari RTDB
 
+| Data | Sumber | Alasan |
+|---|---|---|
+| Ambang batas, kalibrasi, mode energi | Firestore | konfigurasi aplikasi, bukan telemetri |
+| Kultur alga, tugas, aturan otomasi, audit | Firestore | data operasional pengguna |
+| Riwayat sensor (`sensor_history`) | Firestore | RTDB hanya menyimpan nilai *saat ini* |
 
-## 3. Ringkasan
+**Arsip riwayat:** RTDB tidak punya histori, sedangkan Analytics, AI Insights dan
+Environmental Impact membacanya. `device.js` menulis satu sampel telemetri ke
+`sensor_history` setiap 5 menit, dengan id dokumen berbasis *time bucket* supaya
+beberapa tab yang terbuka bersamaan menimpa dokumen yang sama, bukan menggandakan baris.
 
-- **RTDB → App**: 0 field kosong (semua field RTDB sudah dipakai).
-- **App → RTDB**: field yang **paling relevan untuk ditambahkan device fisik ke RTDB** (karena ini telemetry sensor real, bukan config) adalah:
-  1. `sensor/light`
-  2. `sensor/turbidity`
-  3. `sensor/temp_water`
-  4. `sensor/water_level`
-  5. `energy/current_gen`, `energy/power_gen`
-  6. `energy/current_cons`, `energy/power_cons`
-  7. Split `kontrol/pompa` → `kontrol/pompa1` + `kontrol/pompa2` jika device punya 2 pompa fisik.
+## 4. Yang dihapus
 
-Field seperti threshold, kalibrasi, dan alert sifatnya konfigurasi aplikasi, bukan data dari device — jadi wajar tetap di Firestore/localStorage, bukan RTDB.
+- Langganan Firestore `sensors/latest` di dashboard — digantikan RTDB.
+- Relay demo Firestore `relays/pump1|pump2` beserta dua kartu "Pump 1 / Pump 2"
+  di Control Panel dan quick control dashboard — digantikan empat kanal
+  `kontrol/*` yang nyata.
+- Ping konektivitas Firestore `_health/ping` — indikator topbar sekarang
+  mengikuti `status.online` milik perangkat.
+- Aksi otomasi `pump1off` / `pump2off` → sekarang `off_pompa`, `off_aerator`,
+  `off_led`, `off_embun` (aturan lama tetap jalan lewat pemetaan legacy).

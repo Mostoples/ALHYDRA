@@ -62,13 +62,13 @@ ALHYDRA.help = (() => {
 
   const GENERAL = {
     en:[
-      ['How do I connect my IoT device?','Send sensor data via the Firebase REST API to <code>sensors/latest</code>. See Settings → IoT Integration for the exact payload.'],
+      ['How do I connect my IoT device?','Push telemetry to the Realtime Database branches <code>sensor/</code>, <code>energy/</code> and <code>status/</code>. See Settings → IoT Integration for the exact payload.'],
       ['No data showing?','Enable <b>Demo Mode</b> on the Dashboard to preview the app with simulated readings.'],
       ['Change language / theme?','Use the 🌐 language and 🌙 theme buttons in the top bar.'],
       ['Smarter AI answers?','Add a free Gemini API key in Settings → AI Assistant.'],
     ],
     id:[
-      ['Bagaimana menghubungkan perangkat IoT?','Kirim data sensor via Firebase REST API ke <code>sensors/latest</code>. Lihat Pengaturan → Integrasi IoT untuk format payload.'],
+      ['Bagaimana menghubungkan perangkat IoT?','Kirim telemetri ke Realtime Database pada branch <code>sensor/</code>, <code>energy/</code>, dan <code>status/</code>. Lihat Pengaturan → Integrasi IoT untuk format payload.'],
       ['Data tidak muncul?','Aktifkan <b>Mode Demo</b> di Dasbor untuk pratinjau dengan data simulasi.'],
       ['Ganti bahasa / tema?','Gunakan tombol 🌐 bahasa dan 🌙 tema di bilah atas.'],
       ['Jawaban AI lebih pintar?','Tambahkan kunci API Gemini gratis di Pengaturan → Asisten AI.'],

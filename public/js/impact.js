@@ -65,16 +65,21 @@ ALHYDRA.impact = (() => {
         .where('timestamp','>=',from).orderBy('timestamp','asc').limit(1000).get();
       const rows=[]; snap.forEach(d=>rows.push(d.data()));
       if (rows.length>=2){
-        // average generation power (W), × hours in period
-        const gs = rows.map(r=>(parseFloat(r.current_gen)||0)*(parseFloat(r.voltage)||220)).filter(v=>!isNaN(v));
+        // average generation power (W), × hours in period.
+        // Prefer the device's measured power_gen; fall back to I × V.
+        const gs = rows.map(r => r.power_gen !== undefined
+          ? parseFloat(r.power_gen)
+          : (parseFloat(r.current_gen)||0)*(parseFloat(r.voltage)||220)).filter(v=>!isNaN(v));
         const avgW = gs.reduce((a,b)=>a+b,0)/gs.length;
         return (avgW * days*24) / 1000; // kWh
       }
     } catch(e){ /* fall through */ }
-    // fallback: live reading
-    const el=document.getElementById('val-current_gen');
-    const gA = el ? (parseFloat(el.textContent)||0) : 0;
-    return (gA*220 * days*24)/1000;
+    // fallback: live reading from the Realtime Database
+    const live = ALHYDRA.device?.getState?.().telemetry || {};
+    const W = live.power_gen !== undefined
+      ? parseFloat(live.power_gen)
+      : (parseFloat(document.getElementById('val-current_gen')?.textContent)||0)*220;
+    return (W * days*24)/1000;
   }
   function estimateBiomass(){
     const b = ALHYDRA.algae?.getBiomassEstimate?.();

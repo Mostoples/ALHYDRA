@@ -61,10 +61,28 @@ ALHYDRA.energy = (() => {
   };
   function L(k){ const s=T[k]; return s ? (s[lang()]||s.en) : k; }
 
-  // ── Live sensor reads (from dashboard DOM) ──
+  // ── Live telemetry (pushed by device.js from the Realtime Database) ──
+  let live = {};
+  function onTelemetry(d){
+    if (!d) return;
+    live = d;
+    if (d.battery_soc !== undefined) soc = parseFloat(d.battery_soc);
+    if (d.battery_capacity_wh !== undefined) cfg.battery_capacity_wh = parseFloat(d.battery_capacity_wh);
+    render();
+  }
+  // True when the device itself reports state of charge — then we display it
+  // instead of integrating a simulated one.
+  function socIsLive(){ return live.battery_soc !== undefined; }
+
   function num(id){ const el=document.getElementById(id); if(!el) return null; const n=parseFloat(el.textContent); return isNaN(n)?null:n; }
   function watts(){
-    const v = 220; // reference voltage
+    // Prefer the power the device measures directly (energy/power_gen|power_cons).
+    if (live.power_gen !== undefined || live.power_cons !== undefined){
+      const g = parseFloat(live.power_gen  ?? 0);
+      const c = parseFloat(live.power_cons ?? 0);
+      return { gen:g, cons:c, bal:g-c };
+    }
+    const v = 220; // reference voltage — legacy fallback
     const gA = num('val-current_gen') ?? 0;
     const cA = num('val-current_cons') ?? 0;
     return { gen: gA*v, cons: cA*v, bal: (gA-cA)*v };
@@ -116,8 +134,9 @@ ALHYDRA.energy = (() => {
     const dt = lastTick ? (now-lastTick)/1000 : 0;
     lastTick = now;
 
-    // Simulate SOC from net energy (charge on surplus, discharge on deficit/backup use)
-    if (dt>0 && dt<30){
+    // SOC comes from the device (energy/battery_soc) when available; only
+    // integrate a simulated one when the device does not report it.
+    if (!socIsLive() && dt>0 && dt<30){
       const netWh = w.bal * dt/3600;
       const dPct  = (netWh / (cfg.battery_capacity_wh||1000)) * 100;
       soc = Math.max(0, Math.min(100, soc + dPct));
@@ -175,7 +194,7 @@ ALHYDRA.energy = (() => {
     if (balEl){ balEl.textContent=(w.bal>=0?'+':'')+Math.round(w.bal)+' W'; balEl.style.color=w.bal>=0?'var(--green)':'var(--red)'; }
     set('en-balance-tag', w.bal>=0?L('surplus'):L('deficit'));
 
-    set('en-soc', Math.round(soc)+'%');
+    set('en-soc', Math.round(soc)+'%'+(socIsLive()?'':' ~'));
     const socBar=document.getElementById('en-soc-bar');
     if (socBar){ socBar.style.width=soc+'%'; socBar.style.background = soc>50?'var(--green)':soc>20?'var(--amber)':'var(--red)'; }
 
@@ -225,7 +244,9 @@ ALHYDRA.energy = (() => {
   function onEnter(){
     if (!started){
       started=true;
-      try { soc = parseFloat(localStorage.getItem('alhydra_soc')); if(isNaN(soc)) soc=60; } catch(e){ soc=60; }
+      if (!socIsLive()){
+        try { soc = parseFloat(localStorage.getItem('alhydra_soc')); if(isNaN(soc)) soc=60; } catch(e){ soc=60; }
+      }
       subscribe(); buildChart(); evaluate();
       timer = setInterval(evaluate, 3000);
     } else { buildChart(); render(); }
@@ -233,5 +254,5 @@ ALHYDRA.energy = (() => {
   function getState(){ const w=watts(); return { mode:cfg.mode, backup:cfg.backup_state, soc:Math.round(soc), balanceW:Math.round(w.bal) }; }
   function init(){ window.addEventListener('alhydra:lang', render); }
 
-  return { init, onEnter, setMode, toggleManualBackup, saveAdvanced, getState };
+  return { init, onEnter, setMode, toggleManualBackup, saveAdvanced, getState, onTelemetry };
 })();

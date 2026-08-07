@@ -44,10 +44,8 @@ Encyclopedia, and Settings.`;
       const el = document.getElementById('val-' + k);
       if (el && el.textContent !== '—') { const n = parseFloat(el.textContent); if (!isNaN(n)) data[k] = n; }
     });
-    const r1 = document.getElementById('dash-relay1');
-    const r2 = document.getElementById('dash-relay2');
-    if (r1) data.pump1 = r1.checked;
-    if (r2) data.pump2 = r2.checked;
+    const kontrol = ALHYDRA.device?.getState?.().kontrol;
+    if (kontrol) data.kontrol = kontrol; // aerator / embun / led / pompa (rtdb)
     data.thresholds = window.ALHYDRA_THRESHOLDS || {};
     return data;
   }
@@ -55,7 +53,8 @@ Encyclopedia, and Settings.`;
   function buildSensorContext(data) {
     if (!data || Object.keys(data).filter(k => k !== 'thresholds').length === 0)
       return 'No live sensor data available right now.';
-    const V = 220, lines = [];
+    const telem = ALHYDRA.device?.getState?.().telemetry || {};
+    const lines = [];
     if (data.ph           !== undefined) lines.push(`pH: ${data.ph.toFixed(2)}`);
     if (data.turbidity    !== undefined) lines.push(`Turbidity: ${data.turbidity.toFixed(1)} NTU`);
     if (data.temp_water   !== undefined) lines.push(`Water Temp: ${data.temp_water.toFixed(1)} °C`);
@@ -63,10 +62,13 @@ Encyclopedia, and Settings.`;
     if (data.humidity     !== undefined) lines.push(`Humidity: ${data.humidity.toFixed(1)} %`);
     if (data.light        !== undefined) lines.push(`Light: ${data.light.toFixed(0)} lux`);
     if (data.water_level  !== undefined) lines.push(`Water Level: ${data.water_level.toFixed(0)} %`);
-    if (data.current_gen  !== undefined) lines.push(`Generation: ${data.current_gen.toFixed(2)} A (${(data.current_gen*V).toFixed(1)} W)`);
-    if (data.current_cons !== undefined) lines.push(`Consumption: ${data.current_cons.toFixed(2)} A (${(data.current_cons*V).toFixed(1)} W)`);
-    if (data.pump1        !== undefined) lines.push(`Pump 1: ${data.pump1 ? 'ON' : 'OFF'}`);
-    if (data.pump2        !== undefined) lines.push(`Pump 2: ${data.pump2 ? 'ON' : 'OFF'}`);
+    if (data.current_gen  !== undefined) lines.push(`Generation: ${data.current_gen.toFixed(2)} A${telem.power_gen !== undefined ? ` (${telem.power_gen} W)` : ''}`);
+    if (data.current_cons !== undefined) lines.push(`Consumption: ${data.current_cons.toFixed(2)} A${telem.power_cons !== undefined ? ` (${telem.power_cons} W)` : ''}`);
+    if (data.kontrol) {
+      lines.push('Actuators: ' + ['pompa','aerator','led','embun']
+        .filter(k => data.kontrol[k] !== undefined)
+        .map(k => `${k}=${data.kontrol[k] ? 'ON' : 'OFF'}`).join(', '));
+    }
     const e = ALHYDRA.energy?.getState?.();
     if (e) lines.push(`Energy mode: ${e.mode}, battery ${e.soc}%, net ${e.balanceW} W`);
     const b = ALHYDRA.algae?.getBiomassEstimate?.();

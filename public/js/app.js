@@ -418,9 +418,8 @@ ALHYDRA.app = (() => {
     ALHYDRA.chat?.init();
     ALHYDRA.audit?.log('login');
 
-    // Monitor Firestore connectivity via known doc
-    window.db.collection('_health').doc('ping')
-      .onSnapshot(() => updateConnectionStatus(true), () => updateConnectionStatus(false));
+    // The topbar indicator tracks the physical device, not Firestore:
+    // device.js calls updateConnectionStatus() from rtdb status/online.
   }
 
   function onUserSignedOut() {

@@ -101,7 +101,12 @@ ALHYDRA.admin = (() => {
     const cultures = await count('algae_cultures');
     const sensorDocs = await count('sensor_history');
     let lastIoT = '—';
-    try { const s = await window.db.collection('sensors').doc('latest').get(); const t = s.data()?.timestamp; lastIoT = t?.toDate ? t.toDate().toLocaleString() : (typeof t === 'string' ? t : '—'); } catch (e) {}
+    // Last contact comes from the device itself (rtdb status/last_seen)
+    try {
+      const t = ALHYDRA.device?.getState?.().status?.last_seen
+        ?? (await window.rtdb.ref('status/last_seen').get()).val();
+      if (t) lastIoT = new Date(t).toLocaleString();
+    } catch (e) {}
     const e = ALHYDRA.energy?.getState?.();
     const tile = (icon, color, val, label) => `<div class="ai-card" style="padding:16px"><div class="ai-card-head" style="margin-bottom:8px"><div class="ai-ic" style="background:${color}"><i class="fa-solid ${icon}"></i></div><div><div class="kpi-val" style="font-size:22px">${val}</div><div class="kpi-label">${label}</div></div></div></div>`;
     c.innerHTML = `<div class="ai-grid">

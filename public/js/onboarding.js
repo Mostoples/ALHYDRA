@@ -251,9 +251,12 @@ ALHYDRA.onboarding = (() => {
     // profile completed?
     let prof = false;
     try { const id = window.auth?.currentUser?.uid; if (id) { const s = await window.db.collection('users').doc(id).get(); prof = !!(s.exists && (s.data().bio || s.data().location || s.data().avatar)); } } catch (e) {}
-    // IoT/demo: sensors/latest exists OR demo on
+    // IoT: the device has checked in to the Realtime Database
     let iot = false;
-    try { const s = await window.db.collection('sensors').doc('latest').get(); iot = s.exists; } catch (e) {}
+    try {
+      iot = !!(ALHYDRA.device?.getState?.().status?.last_seen
+        ?? (await window.rtdb.ref('status/last_seen').get()).val());
+    } catch (e) {}
     items.push({ k: 'clThresholds', done: thr, view: 'settings' });
     items.push({ k: 'clCulture', done: cult, view: 'algae' });
     items.push({ k: 'clProfile', done: prof, view: 'profile' });

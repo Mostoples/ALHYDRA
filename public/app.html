@@ -353,60 +353,12 @@
         <!-- Upcoming tasks widget (rendered by ops.js) -->
         <div id="ops-widget" style="display:none"></div>
 
-        <!-- ALHYDRA IoT Device — live data from Realtime Database -->
+        <!-- ALHYDRA IoT Device — diagnostics straight from the Realtime Database.
+             Sensor readings themselves are shown in the live grid below. -->
         <div class="view-subtitle" style="margin:4px 0 10px;font-weight:600;color:var(--text-muted)">
-          <i class="fa-solid fa-satellite-dish"></i> Perangkat IoT (Live — Realtime Database)
+          <i class="fa-solid fa-satellite-dish"></i> Perangkat IoT — diagnostik (Realtime Database)
         </div>
         <div class="sensor-grid" id="device-sensor-grid">
-
-          <!-- Kelembapan (humidity) -->
-          <div class="sensor-card" id="card-dev-kelembapan">
-            <div class="sc-header">
-              <div class="sc-icon" style="--c:#8B5CF6"><i class="fa-solid fa-wind"></i></div>
-              <div class="sc-info">
-                <span class="sc-label">Kelembapan</span>
-                <span class="sc-unit">%</span>
-              </div>
-            </div>
-            <div class="sc-value" id="dev-kelembapan">—</div>
-          </div>
-
-          <!-- Suhu (temperature) -->
-          <div class="sensor-card" id="card-dev-suhu">
-            <div class="sc-header">
-              <div class="sc-icon" style="--c:#EF4444"><i class="fa-solid fa-temperature-half"></i></div>
-              <div class="sc-info">
-                <span class="sc-label">Suhu</span>
-                <span class="sc-unit">°C</span>
-              </div>
-            </div>
-            <div class="sc-value" id="dev-suhu">—</div>
-          </div>
-
-          <!-- pH raw (ADC, not yet calibrated) -->
-          <div class="sensor-card" id="card-dev-ph_raw">
-            <div class="sc-header">
-              <div class="sc-icon" style="--c:#10B981"><i class="fa-solid fa-flask-vial"></i></div>
-              <div class="sc-info">
-                <span class="sc-label">pH (raw)</span>
-                <span class="sc-unit">ADC</span>
-              </div>
-            </div>
-            <div class="sc-value" id="dev-ph_raw">—</div>
-            <div class="sc-range">Nilai ADC mentah — belum dikalibrasi ke skala pH 0–14</div>
-          </div>
-
-          <!-- pH value (calibrated) -->
-          <div class="sensor-card" id="card-dev-ph_value">
-            <div class="sc-header">
-              <div class="sc-icon" style="--c:#059669"><i class="fa-solid fa-vial-circle-check"></i></div>
-              <div class="sc-info">
-                <span class="sc-label">pH (kalibrasi)</span>
-                <span class="sc-unit">pH</span>
-              </div>
-            </div>
-            <div class="sc-value" id="dev-ph_value">—</div>
-          </div>
 
           <!-- Device connection status -->
           <div class="sensor-card" id="card-dev-status">
@@ -422,9 +374,35 @@
             <div class="sc-range">IP: <span id="dev-status-ip">—</span></div>
             <div class="sc-range">Terakhir online: <span id="dev-status-seen">—</span></div>
           </div>
+
+          <!-- pH raw (ADC, not yet calibrated) -->
+          <div class="sensor-card" id="card-dev-ph_raw">
+            <div class="sc-header">
+              <div class="sc-icon" style="--c:#10B981"><i class="fa-solid fa-flask-vial"></i></div>
+              <div class="sc-info">
+                <span class="sc-label">pH (raw)</span>
+                <span class="sc-unit">ADC</span>
+              </div>
+            </div>
+            <div class="sc-value" id="dev-ph_raw">—</div>
+            <div class="sc-range">Nilai ADC mentah — dikalibrasi menjadi <strong id="dev-ph_value">—</strong> pada kartu pH</div>
+          </div>
+
+          <!-- Battery pack (energy/battery_*) -->
+          <div class="sensor-card" id="card-dev-battery">
+            <div class="sc-header">
+              <div class="sc-icon" style="--c:#3B82F6"><i class="fa-solid fa-car-battery"></i></div>
+              <div class="sc-info">
+                <span class="sc-label">Paket Baterai</span>
+                <span class="sc-unit">SOC</span>
+              </div>
+            </div>
+            <div class="sc-value" id="dev-battery">—</div>
+            <div class="sc-range">Kapasitas: <span id="dev-battery-cap">—</span></div>
+          </div>
         </div>
 
-        <!-- Sensor Cards Grid (demo/simulated — unrelated to the live device above) -->
+        <!-- Sensor Cards Grid — live values mapped from the Realtime Database -->
         <div class="sensor-grid" id="sensor-grid">
 
           <!-- pH -->
@@ -583,36 +561,76 @@
             <div class="sc-range">System load</div>
           </div>
 
+          <!-- Battery State of Charge -->
+          <div class="sensor-card" id="card-battery_soc" data-key="battery_soc">
+            <div class="sc-header">
+              <div class="sc-icon" style="--c:#3B82F6"><i class="fa-solid fa-battery-three-quarters"></i></div>
+              <div class="sc-info">
+                <span class="sc-label">Battery (SOC)</span>
+                <span class="sc-unit">%</span>
+              </div>
+              <div class="sc-status-dot" id="status-battery_soc"></div>
+            </div>
+            <div class="sc-value" id="val-battery_soc">—</div>
+            <div class="sc-range" id="range-battery_soc">—</div>
+            <div class="sc-bar-wrap">
+              <div class="sc-bar-track"><div class="sc-bar-fill" style="background:#3B82F6" id="bar-battery_soc"></div></div>
+              <span class="sc-bar-label" id="bar-battery_soc-label"></span>
+            </div>
+          </div>
+
         </div><!-- /sensor-grid -->
 
         <!-- Bottom Row: Relay + Energy Chart -->
         <div class="dash-bottom-row">
 
-          <!-- Relay Quick Controls -->
+          <!-- Device Quick Controls — writes straight to rtdb kontrol/* -->
           <div class="dash-relay-card">
-            <h3 class="card-section-title"><i class="fa-solid fa-rotate"></i> Pump Control</h3>
+            <h3 class="card-section-title"><i class="fa-solid fa-rotate"></i> Kontrol Perangkat (Live)</h3>
             <div class="relay-row">
               <div class="relay-item">
                 <div class="relay-label">
                   <i class="fa-solid fa-pump-soap"></i>
-                  <span>Pump 1</span>
+                  <span>Pompa</span>
                 </div>
                 <label class="toggle-switch">
-                  <input type="checkbox" id="dash-relay1" onchange="ALHYDRA.control.setRelay(1,this.checked)" />
+                  <input type="checkbox" id="dash-kontrol-pompa" onchange="ALHYDRA.device.setKontrol('pompa',this.checked)" />
                   <span class="toggle-slider"></span>
                 </label>
-                <span class="relay-state-text" id="dash-relay1-label">OFF</span>
+                <span class="relay-state-text" id="dash-kontrol-pompa-label">OFF</span>
               </div>
               <div class="relay-item">
                 <div class="relay-label">
-                  <i class="fa-solid fa-pump-soap"></i>
-                  <span>Pump 2</span>
+                  <i class="fa-solid fa-fan"></i>
+                  <span>Aerator</span>
                 </div>
                 <label class="toggle-switch">
-                  <input type="checkbox" id="dash-relay2" onchange="ALHYDRA.control.setRelay(2,this.checked)" />
+                  <input type="checkbox" id="dash-kontrol-aerator" onchange="ALHYDRA.device.setKontrol('aerator',this.checked)" />
                   <span class="toggle-slider"></span>
                 </label>
-                <span class="relay-state-text" id="dash-relay2-label">OFF</span>
+                <span class="relay-state-text" id="dash-kontrol-aerator-label">OFF</span>
+              </div>
+              <div class="relay-item">
+                <div class="relay-label">
+                  <i class="fa-solid fa-lightbulb"></i>
+                  <span>LED</span>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="dash-kontrol-led" onchange="ALHYDRA.device.setKontrol('led',this.checked)" />
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="relay-state-text" id="dash-kontrol-led-label">OFF</span>
+              </div>
+              <div class="relay-item">
+                <div class="relay-label">
+                  <i class="fa-solid fa-cloud"></i>
+                  <span>Embun</span>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="dash-kontrol-embun" onchange="ALHYDRA.device.setKontrol('embun',this.checked)" />
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="relay-state-text" id="dash-kontrol-embun-label">OFF</span>
               </div>
             </div>
             <!-- Energy Balance -->
@@ -771,7 +789,7 @@
         <div class="view-header">
           <div>
             <h1 class="view-title">Control Panel</h1>
-            <p class="view-subtitle">Manual relay control for irrigation pumps</p>
+            <p class="view-subtitle">Kontrol aktuator perangkat — langsung ke Realtime Database</p>
           </div>
         </div>
 
@@ -860,74 +878,6 @@
                   <span class="ctrl-toggle-label-on">ON</span>
                 </span>
               </label>
-            </div>
-          </div>
-
-          <!-- ═══ Demo/simulated pumps (unrelated to the live device above) ═══ -->
-
-          <!-- Pump 1 -->
-          <div class="control-card" id="ctrl-pump1">
-            <div class="ctrl-card-top">
-              <div class="ctrl-icon" id="ctrl-icon-1"><i class="fa-solid fa-pump-soap"></i></div>
-              <div class="ctrl-info">
-                <h2>Pump 1</h2>
-                <span class="ctrl-subtitle">Primary irrigation pump</span>
-              </div>
-              <div class="ctrl-state-badge" id="ctrl-badge-1">OFF</div>
-            </div>
-            <div class="ctrl-toggle-wrap">
-              <label class="ctrl-toggle-switch">
-                <input type="checkbox" id="ctrl-relay1" onchange="ALHYDRA.control.setRelay(1,this.checked)" />
-                <span class="ctrl-toggle-slider">
-                  <span class="ctrl-toggle-label-off">OFF</span>
-                  <span class="ctrl-toggle-label-on">ON</span>
-                </span>
-              </label>
-            </div>
-            <div class="ctrl-stats">
-              <div class="ctrl-stat">
-                <i class="fa-solid fa-clock"></i>
-                <span>Last changed</span>
-                <strong id="ctrl-relay1-time">—</strong>
-              </div>
-              <div class="ctrl-stat">
-                <i class="fa-solid fa-user"></i>
-                <span>By</span>
-                <strong id="ctrl-relay1-by">—</strong>
-              </div>
-            </div>
-          </div>
-
-          <!-- Pump 2 -->
-          <div class="control-card" id="ctrl-pump2">
-            <div class="ctrl-card-top">
-              <div class="ctrl-icon" id="ctrl-icon-2"><i class="fa-solid fa-pump-soap"></i></div>
-              <div class="ctrl-info">
-                <h2>Pump 2</h2>
-                <span class="ctrl-subtitle">Secondary irrigation pump</span>
-              </div>
-              <div class="ctrl-state-badge" id="ctrl-badge-2">OFF</div>
-            </div>
-            <div class="ctrl-toggle-wrap">
-              <label class="ctrl-toggle-switch">
-                <input type="checkbox" id="ctrl-relay2" onchange="ALHYDRA.control.setRelay(2,this.checked)" />
-                <span class="ctrl-toggle-slider">
-                  <span class="ctrl-toggle-label-off">OFF</span>
-                  <span class="ctrl-toggle-label-on">ON</span>
-                </span>
-              </label>
-            </div>
-            <div class="ctrl-stats">
-              <div class="ctrl-stat">
-                <i class="fa-solid fa-clock"></i>
-                <span>Last changed</span>
-                <strong id="ctrl-relay2-time">—</strong>
-              </div>
-              <div class="ctrl-stat">
-                <i class="fa-solid fa-user"></i>
-                <span>By</span>
-                <strong id="ctrl-relay2-by">—</strong>
-              </div>
             </div>
           </div>
 
@@ -1535,25 +1485,30 @@
           <div class="settings-card">
             <h3 class="settings-card-title"><i class="fa-solid fa-microchip"></i> IoT Integration (ESP32/Arduino)</h3>
             <div class="iot-guide">
-              <p>Send sensor data to Firestore via REST API. Write to <code>sensors/latest</code>:</p>
-              <pre class="code-block"><code>POST https://firestore.googleapis.com/v1/projects/alhydra-id/databases/(default)/documents/sensors/latest
-Content-Type: application/json
-
+              <p>Kirim telemetri ke <strong>Realtime Database</strong>. Satu PATCH per branch:</p>
+              <pre class="code-block"><code>PATCH https://alhydra-id-default-rtdb.firebaseio.com/sensor.json?auth=&lt;TOKEN&gt;
 {
-  "fields": {
-    "ph":              { "doubleValue": 7.2 },
-    "light":           { "doubleValue": 820 },
-    "turbidity":       { "doubleValue": 12.5 },
-    "temp_ambient":    { "doubleValue": 28.3 },
-    "humidity":        { "doubleValue": 65.0 },
-    "temp_water":      { "doubleValue": 24.1 },
-    "current_gen":     { "doubleValue": 3.2 },
-    "current_cons":    { "doubleValue": 2.5 },
-    "voltage":         { "doubleValue": 220 },
-    "timestamp":       { "stringValue": "ISO8601" }
-  }
-}</code></pre>
-              <p>Read relay state from <code>relays/pump1</code> field <code>state</code> (boolean).</p>
+  "kelembapan":  53.7,     // %      → Humidity
+  "suhu":        31.6,     // °C     → Temp. Ambient
+  "suhu_air":    32.625,   // °C     → Water Temp.
+  "light":       650,      // lux    → Light Intensity
+  "turbidity":   3.8,      // NTU    → Turbidity
+  "water_level": 78.5,     // %      → Water Level
+  "ph_raw":      0,        // ADC    → diagnostik
+  "ph_value":    7.11      // pH     → kartu pH
+}
+
+PATCH https://alhydra-id-default-rtdb.firebaseio.com/energy.json?auth=&lt;TOKEN&gt;
+{
+  "current_gen": 2.1, "power_gen": 25.2,     // A / W
+  "current_cons": 1.3, "power_cons": 15.6,   // A / W
+  "battery_soc": 62, "battery_capacity_wh": 200
+}
+
+PATCH https://alhydra-id-default-rtdb.firebaseio.com/status.json?auth=&lt;TOKEN&gt;
+{ "online": true, "ip": "192.168.137.202", "rssi": -49, "last_seen": 1786099015504 }</code></pre>
+              <p>Aktuator dibaca perangkat dari <code>kontrol/</code> — <code>aerator</code>, <code>embun</code>,
+                 <code>led</code>, <code>pompa</code> (boolean). Web menulis ke path yang sama saat toggle ditekan.</p>
             </div>
           </div>
 
