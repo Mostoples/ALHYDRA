@@ -1,0 +1,664 @@
+/* ═══════════════════════════════════════════════════════════
+   ALHYDRA — motion.css
+   Page/route transitions, video decor, the showreel player,
+   the SVG art layer and the scroll-motion system.
+   Loaded LAST on both the landing page and the SPA.
+   Everything here degrades to "no movement" under
+   prefers-reduced-motion (see the block at the bottom).
+═══════════════════════════════════════════════════════════ */
+
+:root {
+  --mo-ease:      cubic-bezier(.22,.61,.36,1);
+  --mo-ease-out:  cubic-bezier(.16,1,.3,1);
+  --mo-ease-in:   cubic-bezier(.55,0,.68,.19);
+  --mo-accent:    #10B981;
+  --mo-accent-2:  #06B6D4;
+}
+
+/* ───────────────────────────────────────────────────────────
+   1. PAGE TRANSITION CURTAIN  (landing ⇄ /app)
+   Four vertical blades sweep in, the mark pulses, then the
+   browser navigates. The destination plays the reverse.
+─────────────────────────────────────────────────────────── */
+#page-curtain {
+  position: fixed; inset: 0; z-index: 99999;
+  pointer-events: none; display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+#page-curtain.is-idle { visibility: hidden; }
+#page-curtain .pc-blade {
+  background: linear-gradient(180deg, #06121C, #0A1F2A 55%, #04121A);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  will-change: transform;
+}
+#page-curtain .pc-blade + .pc-blade { box-shadow: -1px 0 0 rgba(255,255,255,.035); }
+
+#page-curtain .pc-mark {
+  position: absolute; inset: 0; margin: auto;
+  width: 132px; height: 132px;
+  display: grid; place-items: center;
+  opacity: 0; transform: scale(.86);
+}
+#page-curtain .pc-mark svg { width: 100%; height: 100%; }
+#page-curtain .pc-label {
+  position: absolute; left: 0; right: 0; bottom: 22%;
+  text-align: center; opacity: 0;
+  font: 700 11px/1 'Inter', system-ui, sans-serif;
+  letter-spacing: .34em; text-transform: uppercase; color: #5EEAD4;
+}
+
+/* leaving: blades rise bottom → top */
+#page-curtain.is-leaving { pointer-events: all; visibility: visible; }
+#page-curtain.is-leaving .pc-blade {
+  animation: pc-in .52s var(--mo-ease-out) forwards;
+}
+#page-curtain.is-leaving .pc-blade:nth-child(2) { animation-delay: .06s; }
+#page-curtain.is-leaving .pc-blade:nth-child(3) { animation-delay: .12s; }
+#page-curtain.is-leaving .pc-blade:nth-child(4) { animation-delay: .18s; }
+#page-curtain.is-leaving .pc-mark  { animation: pc-mark-in .5s .26s var(--mo-ease-out) forwards; }
+#page-curtain.is-leaving .pc-label { animation: pc-mark-in .5s .34s var(--mo-ease-out) forwards; }
+
+/* arriving: blades retract top → bottom, revealing the new page */
+#page-curtain.is-arriving { visibility: visible; }
+#page-curtain.is-arriving .pc-blade {
+  transform: scaleY(1); transform-origin: top;
+  animation: pc-out .62s var(--mo-ease-out) forwards;
+}
+#page-curtain.is-arriving .pc-blade:nth-child(2) { animation-delay: .07s; }
+#page-curtain.is-arriving .pc-blade:nth-child(3) { animation-delay: .14s; }
+#page-curtain.is-arriving .pc-blade:nth-child(4) { animation-delay: .21s; }
+#page-curtain.is-arriving .pc-mark,
+#page-curtain.is-arriving .pc-label { animation: pc-mark-out .34s var(--mo-ease-in) forwards; }
+
+@keyframes pc-in       { to { transform: scaleY(1); } }
+@keyframes pc-out      { to { transform: scaleY(0); } }
+@keyframes pc-mark-in  { to { opacity: 1; transform: scale(1); } }
+@keyframes pc-mark-out { to { opacity: 0; transform: scale(1.12); } }
+
+/* the mark's own drawing animation */
+.pc-mark .pcm-ring   { stroke-dasharray: 176; stroke-dashoffset: 176; animation: pcm-draw 1s .1s var(--mo-ease-out) forwards; }
+.pc-mark .pcm-ring-2 { stroke-dasharray: 132; stroke-dashoffset: 132; animation: pcm-draw .9s .22s var(--mo-ease-out) forwards; }
+.pc-mark .pcm-stem   { stroke-dasharray: 60;  stroke-dashoffset: 60;  animation: pcm-draw .6s .3s var(--mo-ease-out) forwards; }
+.pc-mark .pcm-leaf   { opacity: 0; animation: pcm-pop .5s .5s var(--mo-ease-out) forwards; }
+@keyframes pcm-draw { to { stroke-dashoffset: 0; } }
+@keyframes pcm-pop  { from { opacity:0; transform: scale(.5); } to { opacity:1; transform: scale(1); } }
+
+/* ───────────────────────────────────────────────────────────
+   2. SPA VIEW TRANSITIONS  (dashboard ⇄ monitoring ⇄ …)
+─────────────────────────────────────────────────────────── */
+/* Chromium: the native View Transitions API drives this. */
+@supports (view-transition-name: none) {
+  ::view-transition-old(root) { animation: vt-out .22s var(--mo-ease-in)  both; }
+  ::view-transition-new(root) { animation: vt-in  .34s var(--mo-ease-out) both; }
+}
+@keyframes vt-out { to   { opacity: 0; transform: translateY(-10px) scale(.994); } }
+@keyframes vt-in  { from { opacity: 0; transform: translateY(14px)  scale(.994); } }
+
+/* Everywhere else: a JS-applied class on the incoming view. */
+.view.view-enter { animation: view-enter .40s var(--mo-ease-out) both; }
+@keyframes view-enter {
+  from { opacity: 0; transform: translateY(16px); filter: blur(4px); }
+  to   { opacity: 1; transform: none;             filter: none; }
+}
+
+/* Cards inside a freshly entered view cascade in. */
+.view.view-enter > * > .sensor-card,
+.view.view-enter > * > .chart-card,
+.view.view-enter .stagger > * {
+  animation: card-rise .5s var(--mo-ease-out) both;
+}
+.view.view-enter .stagger > *:nth-child(1) { animation-delay: .02s; }
+.view.view-enter .stagger > *:nth-child(2) { animation-delay: .06s; }
+.view.view-enter .stagger > *:nth-child(3) { animation-delay: .10s; }
+.view.view-enter .stagger > *:nth-child(4) { animation-delay: .14s; }
+.view.view-enter .stagger > *:nth-child(5) { animation-delay: .18s; }
+.view.view-enter .stagger > *:nth-child(6) { animation-delay: .22s; }
+.view.view-enter .stagger > *:nth-child(7) { animation-delay: .26s; }
+.view.view-enter .stagger > *:nth-child(8) { animation-delay: .30s; }
+@keyframes card-rise { from { opacity: 0; transform: translateY(18px); } }
+
+/* Route progress bar under the topbar. */
+#route-progress {
+  position: fixed; top: 0; left: 0; height: 2px; width: 0;
+  z-index: 9998; pointer-events: none;
+  background: linear-gradient(90deg, var(--mo-accent), var(--mo-accent-2));
+  box-shadow: 0 0 12px rgba(16,185,129,.7);
+  opacity: 0; transition: width .3s var(--mo-ease-out), opacity .25s;
+}
+#route-progress.is-running { opacity: 1; }
+
+/* ───────────────────────────────────────────────────────────
+   3. HERO MEDIA STACK  (video · three.js · SVG art)
+─────────────────────────────────────────────────────────── */
+.media-layer {
+  position: absolute; inset: 0; overflow: hidden;
+  pointer-events: none; z-index: 0;
+}
+.media-layer video {
+  position: absolute; top: 50%; left: 50%;
+  min-width: 100%; min-height: 100%;
+  width: auto; height: auto;
+  transform: translate(-50%, -50%) scale(1.06);
+  object-fit: cover; opacity: 0;
+  transition: opacity 1.4s var(--mo-ease-out);
+}
+.media-layer video.is-ready { opacity: .30; }
+/* Wash the footage toward the brand palette and keep text legible. */
+.media-layer::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(120% 80% at 50% 0%,   rgba(8,13,24,.15), rgba(8,13,24,.86) 72%),
+    linear-gradient(180deg, rgba(8,13,24,.55), rgba(8,13,24,.35) 40%, var(--bg, #080D18));
+}
+.media-layer::before {
+  content: ''; position: absolute; inset: 0; z-index: 1;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,.024) 0 1px, transparent 1px 3px);
+  mix-blend-mode: overlay; opacity: .5;
+}
+
+#three-hero {
+  position: absolute; inset: 0; z-index: 1;
+  pointer-events: none; opacity: 0;
+  transition: opacity 1.6s var(--mo-ease-out);
+}
+#three-hero.is-ready { opacity: 1; }
+
+/* The product illustration sitting beside the hero copy. */
+.hero-figure {
+  position: relative; z-index: 2;
+  display: grid; place-items: center;
+  filter: drop-shadow(0 30px 60px rgba(0,0,0,.55));
+  animation: hover-idle 9s ease-in-out infinite;
+}
+.hero-figure img { width: min(100%, 420px); height: auto; display: block; }
+@keyframes hover-idle { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+
+/* Concentric rings behind the illustration. */
+.figure-orbit { position: absolute; inset: -6% -6%; z-index: -1; pointer-events: none; }
+.figure-orbit circle { fill: none; stroke: rgba(94,234,212,.16); stroke-dasharray: 3 9; }
+.figure-orbit .fo-1 { animation: spin 44s linear infinite; transform-origin: 50% 50%; }
+.figure-orbit .fo-2 { animation: spin 66s linear reverse infinite; transform-origin: 50% 50%; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ───────────────────────────────────────────────────────────
+   4. SHOWREEL
+─────────────────────────────────────────────────────────── */
+.reel-section { position: relative; overflow: hidden; }
+.reel-shell {
+  position: relative; max-width: 1000px; margin: 0 auto;
+  border-radius: 20px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,.10);
+  background: #05101A;
+  box-shadow: 0 40px 90px rgba(0,0,0,.6), 0 0 0 1px rgba(16,185,129,.06);
+}
+.reel-shell::after { /* inner hairline */
+  content: ''; position: absolute; inset: 0; border-radius: 20px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.09);
+  pointer-events: none;
+}
+.reel-video { display: block; width: 100%; aspect-ratio: 16/9; background: #05101A; object-fit: cover; }
+
+.reel-overlay {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  background: radial-gradient(60% 60% at 50% 50%, rgba(5,16,26,.15), rgba(5,16,26,.72));
+  transition: opacity .45s var(--mo-ease-out), visibility .45s;
+}
+.reel-shell.is-playing .reel-overlay { opacity: 0; visibility: hidden; }
+
+.reel-play {
+  width: 92px; height: 92px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(16,185,129,.16);
+  border: 1.5px solid rgba(16,185,129,.55);
+  backdrop-filter: blur(8px);
+  color: #fff; font-size: 26px;
+  transition: transform .3s var(--mo-ease-out), background .3s, box-shadow .3s;
+}
+.reel-play::before {
+  content: ''; position: absolute;
+  width: 92px; height: 92px; border-radius: 50%;
+  border: 1.5px solid rgba(16,185,129,.5);
+  animation: reel-ping 2.6s var(--mo-ease-out) infinite;
+}
+@keyframes reel-ping { 0% { transform: scale(1); opacity: .8; } 100% { transform: scale(1.9); opacity: 0; } }
+.reel-play:hover { transform: scale(1.08); background: rgba(16,185,129,.3); box-shadow: 0 0 40px rgba(16,185,129,.4); }
+.reel-play i { margin-left: 5px; }
+
+.reel-hint {
+  position: absolute; bottom: 26px; left: 0; right: 0; text-align: center;
+  font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
+  color: rgba(226,232,240,.7);
+}
+
+/* transport */
+.reel-bar {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 30px 18px 14px;
+  background: linear-gradient(180deg, transparent, rgba(3,10,16,.9));
+  display: flex; align-items: center; gap: 12px;
+  opacity: 0; transform: translateY(8px);
+  transition: opacity .3s, transform .3s var(--mo-ease-out);
+}
+.reel-shell:hover .reel-bar,
+.reel-shell.is-paused .reel-bar { opacity: 1; transform: none; }
+.reel-btn {
+  width: 34px; height: 34px; border-radius: 9px; flex: none;
+  display: grid; place-items: center; color: #E2E8F0;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+  transition: background .2s, color .2s;
+}
+.reel-btn:hover { background: rgba(16,185,129,.22); color: #fff; }
+.reel-track {
+  position: relative; flex: 1; height: 5px; border-radius: 3px;
+  background: rgba(255,255,255,.14); cursor: pointer;
+}
+.reel-fill {
+  position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 3px;
+  background: linear-gradient(90deg, var(--mo-accent), var(--mo-accent-2));
+}
+.reel-fill::after {
+  content: ''; position: absolute; right: -5px; top: 50%;
+  width: 11px; height: 11px; border-radius: 50%; background: #fff;
+  transform: translateY(-50%); box-shadow: 0 0 10px rgba(16,185,129,.9);
+}
+/* chapter ticks — one per shot in the cut */
+.reel-tick {
+  position: absolute; top: -3px; width: 2px; height: 11px;
+  background: rgba(255,255,255,.4); border-radius: 1px;
+  transform: translateX(-1px);
+}
+.reel-time { font: 600 12px/1 'JetBrains Mono', monospace; color: #94A3B8; flex: none; min-width: 82px; text-align: right; }
+
+.reel-chapters {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  justify-content: center; margin-top: 22px;
+}
+.reel-chip {
+  font-size: 12px; font-weight: 600; padding: 7px 13px; border-radius: 999px;
+  color: #94A3B8; background: rgba(255,255,255,.045);
+  border: 1px solid rgba(255,255,255,.09);
+  transition: all .22s var(--mo-ease-out);
+}
+.reel-chip:hover { color: #fff; border-color: rgba(16,185,129,.55); transform: translateY(-2px); }
+.reel-chip.is-current { color: #05101A; background: var(--mo-accent); border-color: transparent; }
+
+/* ───────────────────────────────────────────────────────────
+   5. GALLERY  (real product photography + the column loop)
+─────────────────────────────────────────────────────────── */
+.gallery-grid {
+  display: grid; gap: 18px;
+  grid-template-columns: repeat(4, 1fr);
+}
+.gal-item {
+  position: relative; border-radius: 18px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,.08);
+  background: #0B1420; aspect-ratio: 3/4;
+  transition: transform .5s var(--mo-ease-out), box-shadow .5s, border-color .3s;
+}
+.gal-item:first-child { grid-row: span 1; }
+.gal-item img, .gal-item video {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform .8s var(--mo-ease-out), filter .5s;
+}
+.gal-item:hover { transform: translateY(-6px); border-color: rgba(16,185,129,.4); box-shadow: 0 26px 50px rgba(0,0,0,.55); }
+.gal-item:hover img, .gal-item:hover video { transform: scale(1.06); }
+.gal-cap {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 34px 16px 14px;
+  background: linear-gradient(180deg, transparent, rgba(3,10,16,.92));
+  font-size: 13px; font-weight: 600; color: #E2E8F0;
+}
+.gal-cap small { display: block; font-weight: 500; color: #7DD3FC; font-size: 11px; letter-spacing: .09em; text-transform: uppercase; margin-bottom: 3px; }
+.gal-live {
+  position: absolute; top: 12px; left: 12px; z-index: 2;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px; border-radius: 999px;
+  background: rgba(3,10,16,.72); border: 1px solid rgba(16,185,129,.5);
+  font-size: 10px; font-weight: 800; letter-spacing: .12em; color: #6EE7B7;
+}
+.gal-live::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: #10B981; animation: gal-blink 1.6s ease-in-out infinite;
+}
+@keyframes gal-blink { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+
+@media (max-width: 900px) { .gallery-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .gallery-grid { grid-template-columns: 1fr; } }
+
+/* ───────────────────────────────────────────────────────────
+   6. SVG DECOR LAYERS
+─────────────────────────────────────────────────────────── */
+.deco { position: absolute; pointer-events: none; z-index: 0; }
+.deco-top    { top: -1px;    left: 0; width: 100%; }
+.deco-bottom { bottom: -1px; left: 0; width: 100%; transform: scaleY(-1); }
+.deco svg { display: block; width: 100%; height: auto; }
+
+/* a slow drifting blueprint grid, drawn not tiled */
+.deco-grid { inset: 0; opacity: .5; }
+.deco-grid .bp-line { stroke: rgba(94,234,212,.10); stroke-width: 1; }
+.deco-grid .bp-node { fill: rgba(94,234,212,.32); animation: node-blink 4s ease-in-out infinite; }
+.deco-grid .bp-node:nth-child(3n)   { animation-delay: 1.1s; }
+.deco-grid .bp-node:nth-child(3n+1) { animation-delay: 2.3s; }
+@keyframes node-blink { 0%,100% { opacity: .18; } 50% { opacity: .9; } }
+
+/* the animated wave divider */
+.wave-div .wv { animation: wv-drift 18s linear infinite; }
+.wave-div .wv-2 { animation-duration: 26s; animation-direction: reverse; }
+.wave-div .wv-3 { animation-duration: 34s; }
+@keyframes wv-drift { to { transform: translateX(-50%); } }
+
+/* ───────────────────────────────────────────────────────────
+   7. ANIMATED SVG ICONS  (js/svg-icons.js)
+─────────────────────────────────────────────────────────── */
+.ai-icon { display: inline-block; width: 1em; height: 1em; vertical-align: -.135em; }
+.ai-icon svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.ai-icon svg [fill]:not([fill="none"])   { fill: currentColor; }
+.ai-icon svg [stroke]:not([stroke="none"]) { stroke: currentColor; }
+
+/* per-part motion, keyed by the class the sprite carries */
+.ai-spin      { transform-box: fill-box; transform-origin: center; animation: spin 3.4s linear infinite; }
+.ai-spin-slow { transform-box: fill-box; transform-origin: center; animation: spin 9s   linear infinite; }
+.ai-sway      { transform-box: fill-box; transform-origin: bottom center; animation: ai-sway 3.2s ease-in-out infinite; }
+.ai-rise      { animation: ai-rise 2.8s ease-in-out infinite; }
+.ai-rise-2    { animation-delay: -.9s; } .ai-rise-3 { animation-delay: -1.8s; }
+.ai-blink     { animation: ai-blink 2.2s ease-in-out infinite; }
+.ai-blink-2   { animation-delay: -.7s; } .ai-blink-3 { animation-delay: -1.4s; }
+.ai-draw      { stroke-dasharray: 90; animation: ai-draw 3s linear infinite; }
+.ai-fill-up   { transform-box: fill-box; transform-origin: bottom; animation: ai-fill 3.6s ease-in-out infinite; }
+.ai-pulse     { transform-box: fill-box; transform-origin: center; animation: ai-pulse 2.4s ease-in-out infinite; }
+.ai-track     { stroke-dasharray: 4 6; animation: ai-track 1.6s linear infinite; }
+
+@keyframes ai-sway  { 0%,100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+@keyframes ai-rise  { 0% { transform: translateY(3px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(-7px); opacity: 0; } }
+@keyframes ai-blink { 0%,100% { opacity: .25; } 50% { opacity: 1; } }
+@keyframes ai-draw  { to { stroke-dashoffset: -180; } }
+@keyframes ai-fill  { 0%,100% { transform: scaleY(.45); } 50% { transform: scaleY(1); } }
+@keyframes ai-pulse { 0%,100% { transform: scale(1); opacity: .9; } 50% { transform: scale(1.16); opacity: 1; } }
+@keyframes ai-track { to { stroke-dashoffset: -20; } }
+
+/* ───────────────────────────────────────────────────────────
+   8. SCROLL MOTION
+─────────────────────────────────────────────────────────── */
+[data-reveal] {
+  opacity: 0;
+  transition: opacity .75s var(--mo-ease-out), transform .75s var(--mo-ease-out), filter .75s;
+  transition-delay: var(--rd, 0s);
+}
+[data-reveal="up"]    { transform: translateY(34px); }
+[data-reveal="down"]  { transform: translateY(-28px); }
+[data-reveal="left"]  { transform: translateX(38px); }
+[data-reveal="right"] { transform: translateX(-38px); }
+[data-reveal="scale"] { transform: scale(.93); }
+[data-reveal="blur"]  { filter: blur(10px); transform: translateY(20px); }
+[data-reveal].revealed { opacity: 1; transform: none; filter: none; }
+
+/* parallax elements get their offset written by JS */
+[data-parallax] { will-change: transform; transform: translate3d(0, var(--py, 0px), 0); }
+
+/* ───────────────────────────────────────────────────────────
+   9. MICRO-INTERACTIONS
+─────────────────────────────────────────────────────────── */
+/* tilt cards — motion.js writes the inline transform so it never collides
+   with the transform a [data-reveal] on the same element is animating */
+[data-tilt] {
+  transition: transform .35s var(--mo-ease-out);
+  transform-style: preserve-3d;
+}
+[data-tilt].is-tilting { transition: transform .08s linear; }
+
+/* a sheen that crosses a button on hover */
+.sheen-btn { position: relative; overflow: hidden; }
+.sheen-btn::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 46%;
+  left: -60%; transform: skewX(-18deg);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.26), transparent);
+  transition: left .65s var(--mo-ease-out);
+}
+.sheen-btn:hover::after { left: 120%; }
+
+/* ───────────────────────────────────────────────────────────
+   10. REDUCED MOTION
+─────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+  #page-curtain { display: none !important; }
+  .hero-figure, .media-layer video { animation: none; }
+  [data-reveal] { opacity: 1 !important; transform: none !important; filter: none !important; }
+}
+
+/* ───────────────────────────────────────────────────────────
+   11. LANDING HERO — two-column layout with the apparatus
+─────────────────────────────────────────────────────────── */
+.hero-split {
+  max-width: 1180px !important;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
+  align-items: center;
+  gap: 48px;
+  text-align: left !important;
+}
+.hero-split .hero-copy { min-width: 0; }
+.hero-split .hero-title,
+.hero-split .hero-desc,
+.hero-split .hero-badge,
+.hero-split .hero-actions,
+.hero-split .hero-stats { text-align: left; justify-content: flex-start; }
+.hero-split .hero-desc { margin-left: 0; margin-right: 0; }
+
+.hero-figcap {
+  position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%);
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 14px; border-radius: 999px; white-space: nowrap;
+  background: rgba(6,17,26,.78); border: 1px solid rgba(16,185,129,.32);
+  backdrop-filter: blur(10px);
+  font-size: 11.5px; font-weight: 600; letter-spacing: .05em; color: #A7F3D0;
+}
+.hfc-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: #10B981;
+  box-shadow: 0 0 10px #10B981;
+  animation: gal-blink 1.6s ease-in-out infinite;
+}
+
+@media (max-width: 980px) {
+  .hero-split {
+    grid-template-columns: 1fr;
+    gap: 34px;
+    text-align: center !important;
+  }
+  .hero-split .hero-title,
+  .hero-split .hero-desc,
+  .hero-split .hero-badge,
+  .hero-split .hero-actions,
+  .hero-split .hero-stats { text-align: center; justify-content: center; }
+  .hero-split .hero-desc { margin-left: auto; margin-right: auto; }
+  .hero-figure img { width: min(74vw, 340px); }
+}
+
+/* ── hero-split corrections over landing.css ── */
+.hero-split .hero-stats {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  column-gap: 26px; row-gap: 14px;
+  padding: 20px 26px;
+}
+.hero-split .hs-divider:last-child { display: none; }
+/* The SVG apparatus now carries the hero, so the floating chips would only
+   crowd it — they stay for the single-column phone layout. */
+.hero-split ~ .floating-icons,
+#hero:has(.hero-split) .floating-icons { display: none; }
+
+/* The nav gained Showreel, Gallery and App Tour, so it has to work harder to
+   stay on one line without clipping the CTA at common laptop widths. */
+#navbar .nav-links { gap: 20px; }
+#navbar .nav-links a { white-space: nowrap; font-size: 13.5px; }
+#navbar .nav-actions { flex: none; }
+@media (max-width: 1500px) {
+  #navbar .nav-links { gap: 14px; }
+  #navbar .nav-links a { font-size: 12.8px; }
+}
+@media (max-width: 1280px) {
+  /* both live further down the page and in the footer */
+  #navbar .nav-links li:nth-child(7),
+  #navbar .nav-links li:nth-child(9) { display: none; }
+}
+
+/* four even columns beat wrapping when the hero is two-up */
+.hero-split .hero-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: center;
+  column-gap: 0; row-gap: 0;
+}
+.hero-split .hs-divider { display: none; }
+.hero-split .hs-item {
+  padding: 2px 14px;
+  border-left: 1px solid rgba(255,255,255,.08);
+}
+.hero-split .hs-item:first-child { border-left: 0; padding-left: 0; }
+.hero-split .hs-num { font-size: clamp(15px, 1.32vw, 20px); white-space: nowrap; }
+@media (max-width: 980px) {
+  .hero-split .hero-stats { grid-template-columns: repeat(2, 1fr); row-gap: 16px; }
+  .hero-split .hs-item:nth-child(odd) { border-left: 0; }
+}
+
+/* ───────────────────────────────────────────────────────────
+   12. DASHBOARD RIG PANEL
+─────────────────────────────────────────────────────────── */
+.rig-panel {
+  position: relative;
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr) 220px;
+  align-items: center;
+  gap: 26px;
+  margin: 0 0 22px;
+  padding: 22px 26px;
+  border-radius: 18px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 140% at 8% 0%, rgba(16,185,129,.10), transparent 62%),
+    var(--glass-bg, rgba(20,30,46,.62));
+  border: 1px solid var(--glass-border, rgba(255,255,255,.10));
+  backdrop-filter: blur(14px);
+  box-shadow: 0 10px 34px rgba(0,0,0,.28);
+}
+.rig-panel::before {          /* faint blueprint rule, drawn with a gradient */
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, rgba(94,234,212,.05) 0 1px, transparent 1px 46px),
+    repeating-linear-gradient(0deg,  rgba(94,234,212,.05) 0 1px, transparent 1px 46px);
+  mask-image: radial-gradient(120% 100% at 10% 50%, #000 10%, transparent 70%);
+}
+
+.rig-art { position: relative; margin: 0; display: grid; place-items: center; }
+.rig-art img {
+  width: 100%; height: auto; max-height: 250px; object-fit: contain;
+  filter: drop-shadow(0 14px 26px rgba(0,0,0,.45));
+  animation: hover-idle 11s ease-in-out infinite;
+}
+
+.rig-body { position: relative; min-width: 0; }
+.rig-eyebrow {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
+  color: #34D399; margin-bottom: 6px;
+}
+.rig-eyebrow .ai-icon { font-size: 14px; }
+.rig-title { font-size: 19px; font-weight: 800; margin: 0 0 6px; color: var(--text-primary, #E2E8F0); }
+.rig-desc  { font-size: 13px; line-height: 1.65; color: var(--text-secondary, #94A3B8); margin: 0 0 12px; max-width: 62ch; }
+
+.rig-legend {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px 18px;
+}
+.rig-legend li {
+  display: flex; align-items: center; gap: 9px;
+  font-size: 12.5px; font-weight: 600; color: var(--text-secondary, #94A3B8);
+}
+.rig-legend .ai-icon { font-size: 17px; color: #5EEAD4; flex: none; }
+
+.rig-clip { position: relative; margin: 0; border-radius: 14px; overflow: hidden; aspect-ratio: 3/4;
+            border: 1px solid rgba(255,255,255,.09); background: #0B1420; }
+.rig-clip video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.rig-clip figcaption {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 12px 10px;
+  display: flex; align-items: center; gap: 7px;
+  background: linear-gradient(180deg, transparent, rgba(3,10,16,.9));
+  font-size: 11.5px; font-weight: 600; color: #CBD5E1;
+}
+.rig-dot { width: 6px; height: 6px; border-radius: 50%; background: #10B981;
+           box-shadow: 0 0 8px #10B981; animation: gal-blink 1.6s ease-in-out infinite; }
+
+[data-theme="light"] .rig-panel { box-shadow: 0 10px 30px rgba(15,23,42,.08); }
+[data-theme="light"] .rig-clip figcaption { color: #E2E8F0; }
+
+@media (max-width: 1100px) {
+  .rig-panel { grid-template-columns: 150px minmax(0, 1fr); }
+  .rig-clip  { display: none; }
+}
+@media (max-width: 720px) {
+  .rig-panel { grid-template-columns: 1fr; text-align: center; padding: 18px; }
+  .rig-art img { max-height: 180px; }
+  .rig-legend { grid-template-columns: 1fr; justify-items: center; }
+  .rig-eyebrow { justify-content: center; }
+}
+
+/* Optical sizing: a 24-grid line icon reads smaller than a solid Font Awesome
+   glyph at the same font-size, so nudge it up inside the icon chips. */
+.si-icon .ai-icon,
+.fc-icon .ai-icon,
+.stat-icon .ai-icon,
+.sc-icon .ai-icon,
+.mb-kpi .ai-icon { width: 1.3em; height: 1.3em; }
+
+/* ───────────────────────────────────────────────────────────
+   13. SMALL-SCREEN CORRECTIONS
+─────────────────────────────────────────────────────────── */
+@media (max-width: 560px) {
+  /* On a phone-sized player the hint lands on top of the burned-in
+     lower third — the play button already says what to do. */
+  .reel-hint { display: none; }
+  .reel-play { width: 68px; height: 68px; font-size: 20px; }
+  .reel-play::before { width: 68px; height: 68px; }
+  .reel-time { min-width: 0; font-size: 11px; }
+  .reel-bar  { gap: 8px; padding: 26px 10px 10px; }
+}
+
+/* The nav CTA + language button + hamburger stopped fitting once the CTA
+   kept its full label; collapse it to its icon below 480px. */
+@media (max-width: 480px) {
+  #navbar .btn-nav-cta { padding: 9px 12px; font-size: 0; gap: 0; }
+  #navbar .btn-nav-cta i { font-size: 15px; }
+  #navbar .btn-lang span { display: none; }
+  #navbar .nav-actions { gap: 8px; }
+}
+
+/* The CTA card's moving texture. The card is already a dark, faintly tinted
+   panel, so the wash only needs to protect the centred copy — a heavy one
+   flattens the card's green tint entirely. */
+.cta-texture { border-radius: inherit; }
+.cta-texture video.is-ready { opacity: .2; }
+.cta-texture::after {
+  background: radial-gradient(78% 78% at 50% 50%, rgba(6,20,28,.62), rgba(6,20,28,.12) 88%);
+}
+.cta-texture::before { opacity: .25; }
+.cta-card .cta-content { position: relative; z-index: 1; }
+
+/* ───────────────────────────────────────────────────────────
+   14. APP TOUR SECTION
+─────────────────────────────────────────────────────────── */
+/* The tour is a screen capture, so it fills its frame edge to edge — no
+   letterboxing, and a slightly cooler border than the hardware reel. */
+.reel-shell-app { border-color: rgba(56,189,248,.18); }
+.reel-shell-app .reel-video { background: #070E16; }
+
+.tour-cta {
+  margin-top: 30px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.tour-note { font-size: 12.5px; color: var(--muted, #64748B); }

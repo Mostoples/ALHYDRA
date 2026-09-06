@@ -1,0 +1,60 @@
+{
+  "name": "ALHYDRA Social Cut",
+  "width": 1080,
+  "height": 1920,
+  "ratio": "9:16",
+  "fps": 30,
+  "tracks": [
+    {
+      "type": "video",
+      "name": "main",
+      "items": [
+        { "ref": "s01", "path": "../../public/vid/VID_20260825_124836223.mp4", "start": 0.0,  "sourceStart": 0.6, "duration": 3.8, "width": 1080, "height": 1920 },
+        { "ref": "s02", "path": "../../public/vid/VID_20260825_124914512.mp4", "start": 3.8,  "sourceStart": 1.4, "duration": 3.6, "width": 1080, "height": 1920 },
+        { "ref": "s03", "path": "../../public/vid/VID_20260825_125057591.mp4", "start": 7.4,  "sourceStart": 1.0, "duration": 3.6, "width": 1080, "height": 1920 },
+        { "ref": "s04", "path": "../../public/vid/VID_20260825_124849744.mp4", "start": 11.0, "sourceStart": 4.0, "duration": 3.8, "width": 1080, "height": 1920 },
+        { "ref": "s05", "path": "../../public/vid/VID_20260825_125017756.mp4", "start": 14.8, "sourceStart": 3.6, "duration": 3.8, "width": 1080, "height": 1920 },
+        { "ref": "s06", "path": "../../public/vid/VID_20260825_125114498.mp4", "start": 18.6, "sourceStart": 0.3, "duration": 3.4, "width": 1080, "height": 1920 },
+        { "ref": "s07", "path": "../../public/vid/VID_20260825_125151409.mp4", "start": 22.0, "sourceStart": 1.0, "duration": 3.6, "width": 1080, "height": 1920 },
+        { "ref": "s08", "path": "../../public/vid/VID_20260825_124944983.mp4", "start": 25.6, "sourceStart": 3.0, "duration": 3.8, "width": 1080, "height": 1920 },
+        { "ref": "s09", "path": "../../public/vid/VID_20260825_125133784.mp4", "start": 29.4, "sourceStart": 1.4, "duration": 3.4, "width": 1080, "height": 1920 },
+        { "ref": "s10", "path": "../../public/vid/VID_20260825_125009783.mp4", "start": 32.8, "sourceStart": 0.1, "duration": 1.9, "width": 1080, "height": 1920 },
+        { "ref": "s11", "path": "../../public/vid/VID_20260825_125201140.mp4", "start": 34.7, "sourceStart": 3.0, "duration": 3.8, "width": 1080, "height": 1920 },
+        { "ref": "s12", "path": "../../public/vid/VID_20260825_125217731.mp4", "start": 38.5, "sourceStart": 2.0, "duration": 3.8, "width": 1080, "height": 1920 }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "lower-thirds",
+      "items": [
+        { "ref": "t01", "text": "ALHYDRA\nHybrid Multi Tower Cultivation", "start": 0.4,  "duration": 3.0, "fontSize": 12, "color": "#FFFFFF", "x": 0, "y": -0.62 },
+        { "ref": "t02", "text": "Solar wings + vertical-axis wind turbine", "start": 4.2,  "duration": 2.9, "fontSize": 10, "color": "#A7F3D0", "x": 0, "y": -0.62 },
+        { "ref": "t03", "text": "ESP32 gateway, MPPT & battery bank",      "start": 7.8,  "duration": 2.9, "fontSize": 10, "color": "#A7F3D0", "x": 0, "y": -0.62 },
+        { "ref": "t04", "text": "Microalgae photobioreactor tubes",        "start": 11.4, "duration": 3.1, "fontSize": 10, "color": "#A7F3D0", "x": 0, "y": -0.62 },
+        { "ref": "t05", "text": "Continuous airlift circulation",          "start": 15.2, "duration": 3.1, "fontSize": 10, "color": "#A7F3D0", "x": 0, "y": -0.62 },
+        { "ref": "t06", "text": "Closed-loop nutrient reservoir",          "start": 19.0, "duration": 2.7, "fontSize": 10, "color": "#A7F3D0", "x": 0, "y": -0.62 },
+        { "ref": "t07", "text": "Net-pots on a helical pitch",             "start": 22.4, "duration": 2.9, "fontSize": 10, "color": "#A7F3D0", "x": 0, "y": -0.62 },
+        { "ref": "t08", "text": "Hydroponic lettuce canopy",               "start": 26.0, "duration": 3.1, "fontSize": 10, "color": "#A7F3D0", "x": 0, "y": -0.62 },
+        { "ref": "t09", "text": "Healthy turgor, no tip-burn",             "start": 29.8, "duration": 2.7, "fontSize": 10, "color": "#A7F3D0", "x": 0, "y": -0.62 },
+        { "ref": "t11", "text": "8 sensors streaming to the cloud",        "start": 35.1, "duration": 3.1, "fontSize": 10, "color": "#A7F3D0", "x": 0, "y": -0.62 },
+        { "ref": "t12", "text": "Watch it live\nalhydra-id.web.app",       "start": 38.9, "duration": 3.2, "fontSize": 13, "color": "#10B981", "x": 0, "y": -0.55 }
+      ]
+    }
+  ],
+  "operations": [
+    { "op": "transition", "target": "s01", "slug": "dissolve",         "duration": 0.7 },
+    { "op": "transition", "target": "s02", "slug": "light-sweep-ii",   "duration": 0.7 },
+    { "op": "transition", "target": "s03", "slug": "mix",              "duration": 0.7 },
+    { "op": "transition", "target": "s04", "slug": "dissolve-ii",      "duration": 0.7 },
+    { "op": "transition", "target": "s05", "slug": "horizontal-blur",  "duration": 0.7 },
+    { "op": "transition", "target": "s06", "slug": "pull-in",          "duration": 0.7 },
+    { "op": "transition", "target": "s07", "slug": "dissolve",         "duration": 0.7 },
+    { "op": "transition", "target": "s08", "slug": "vertical-blur",    "duration": 0.7 },
+    { "op": "transition", "target": "s09", "slug": "mix",              "duration": 0.7 },
+    { "op": "transition", "target": "s10", "slug": "camera-glow",      "duration": 0.6 },
+    { "op": "transition", "target": "s11", "slug": "dissolve-iii",     "duration": 0.7 },
+
+    { "op": "text-style", "target": "t01", "style": { "bold": true, "align": 1 } },
+    { "op": "text-style", "target": "t12", "style": { "bold": true, "align": 1 } }
+  ]
+}

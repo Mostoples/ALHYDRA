@@ -37,19 +37,80 @@ ALHYDRA.app = (() => {
     Chart.defaults.animation.duration     = 400;
   }
 
+  // ── Route progress bar ─────────────────
+  function routeProgress(done) {
+    const bar = document.getElementById('route-progress');
+    if (!bar) return;
+    if (done) {
+      bar.style.width = '100%';
+      setTimeout(() => {
+        bar.classList.remove('is-running');
+        setTimeout(() => { bar.style.width = '0'; }, 260);
+      }, 140);
+    } else {
+      bar.style.width = '0';
+      bar.classList.add('is-running');
+      requestAnimationFrame(() => { bar.style.width = '62%'; });
+    }
+  }
+
+  // ── View swapping ──────────────────────
+  /* Derives the DOM from `currentView` rather than from captured locals.
+     A View Transition runs its update callback asynchronously, so two quick
+     navigations can resolve out of order; reading the live `currentView`
+     means whichever callback lands last still leaves the right view shown. */
+  function applyView() {
+    document.querySelectorAll('.view').forEach(v => {
+      const on = v.id === 'view-' + currentView;
+      v.classList.toggle('active', on);
+      v.classList.toggle('hidden', !on);
+      if (!on) v.classList.remove('view-enter');
+    });
+  }
+
+  let pendingTransition = null;
+
   // ── Routing (hash-based) ───────────────
   function navigateTo(viewId) {
     if (!views.includes(viewId)) viewId = 'dashboard';
     if (currentView === viewId) return;
 
-    // Deactivate old
-    const old = document.getElementById('view-' + currentView);
-    if (old) { old.classList.remove('active'); old.classList.add('hidden'); }
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    routeProgress(false);
 
-    // Activate new
+    const prevView = currentView;
+    currentView = viewId;                       // set first — applyView reads it
     const next = document.getElementById('view-' + viewId);
-    if (next) { next.classList.remove('hidden'); next.classList.add('active'); }
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!reduced && typeof document.startViewTransition === 'function') {
+      // Chromium: cross-fades the two states natively. Abandon any transition
+      // still in flight so they cannot interleave.
+      pendingTransition?.skipTransition?.();
+      const vt = document.startViewTransition(applyView);
+      pendingTransition = vt;
+      // If the browser drops the update callback (a skipped or aborted
+      // transition), reconcile once it settles so the DOM can never be left
+      // showing a different view than `currentView` says.
+      vt.finished.catch(() => {}).finally(() => {
+        if (pendingTransition === vt) pendingTransition = null;
+        applyView();
+      });
+    } else {
+      applyView();
+      if (next && !reduced) {
+        // Everywhere else: replay the enter keyframes on the incoming view.
+        next.classList.remove('view-enter');
+        void next.offsetWidth;
+        next.classList.add('view-enter');
+        next.addEventListener('animationend', function off(e) {
+          if (e.target !== next) return;
+          next.classList.remove('view-enter');
+          next.removeEventListener('animationend', off);
+        });
+      }
+    }
+
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     const navLink = document.querySelector(`.nav-item[data-view="${viewId}"]`);
     if (navLink) navLink.classList.add('active');
 
@@ -79,10 +140,7 @@ ALHYDRA.app = (() => {
     closeMobileSidebar();
 
     // Lifecycle hooks
-    const prev = currentView;
-    currentView = viewId;
-
-    if (prev === 'monitoring' && ALHYDRA.monitoring) ALHYDRA.monitoring.pause();
+    if (prevView === 'monitoring' && ALHYDRA.monitoring) ALHYDRA.monitoring.pause();
     if (viewId === 'monitoring'  && ALHYDRA.monitoring) ALHYDRA.monitoring.resume();
     if (viewId === 'algae'        && ALHYDRA.algae)        ALHYDRA.algae.onEnter();
     if (viewId === 'analytics'    && ALHYDRA.analytics)    ALHYDRA.analytics.onEnter();
@@ -97,6 +155,10 @@ ALHYDRA.app = (() => {
     if (viewId === 'admin'        && ALHYDRA.admin)       ALHYDRA.admin.onEnter();
     if (viewId === 'settings'     && ALHYDRA.settings)    ALHYDRA.settings.onEnter();
     if (viewId === 'encyclopedia' && ALHYDRA.encyclopedia) ALHYDRA.encyclopedia.onEnter();
+
+    // Views that render markup on entry may have added new icons.
+    ALHYDRA.icons?.hydrate(next || document);
+    routeProgress(true);
   }
 
   function initRouter() {

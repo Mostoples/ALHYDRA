@@ -105,7 +105,10 @@
   opacity: .5; pointer-events: none;
 }
 .view-title {
-  background: linear-gradient(120deg, var(--text-primary), var(--text-primary));
+  /* This carried a `background: linear-gradient(...)` with no
+     `background-clip: text`, which painted a solid --text-primary block over
+     the (same-coloured) title in every view. Both gradient stops were
+     identical anyway, so the title just inherits its colour from style.css. */
   display: inline-block;
 }
 .view-title::after {

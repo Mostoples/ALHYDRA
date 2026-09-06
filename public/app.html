@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="css/onboarding.css" />
   <link rel="stylesheet" href="css/features.css" />
   <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/motion.css" />
   <!-- Apply saved theme before paint to avoid flash -->
   <script>
     (function () {
@@ -319,6 +320,8 @@
     </header>
 
     <!-- CONTENT AREA -->
+    <div id="route-progress" aria-hidden="true"></div>
+
     <main id="content">
 
       <!-- ─── DASHBOARD VIEW ─── -->
@@ -354,8 +357,37 @@
         <!-- Upcoming tasks widget (rendered by ops.js) -->
         <div id="ops-widget" style="display:none"></div>
 
+        <!-- Live rig panel: the drawn schematic beside footage of the real unit -->
+        <section class="rig-panel" aria-label="System schematic">
+          <figure class="rig-art">
+            <img src="img/alhydra-tower-compact.svg" width="480" height="774" alt="" aria-hidden="true" />
+          </figure>
+          <div class="rig-body">
+            <span class="rig-eyebrow"><i class="ai-icon" data-icon="signal"></i> Live schematic</span>
+            <h2 class="rig-title">Hybrid Multi Tower</h2>
+            <p class="rig-desc">
+              Every card below reads from this unit — the solar canopy and rotor feed the
+              controller, the reservoir recirculates through the column, and the algae
+              tubes run their own light cycle.
+            </p>
+            <ul class="rig-legend">
+              <li><i class="ai-icon" data-icon="solar"></i> Solar wings + VAWT rotor</li>
+              <li><i class="ai-icon" data-icon="algae"></i> Microalgae photobioreactors</li>
+              <li><i class="ai-icon" data-icon="sprout"></i> Hydroponic grow column</li>
+              <li><i class="ai-icon" data-icon="tank"></i> Closed-loop reservoir</li>
+            </ul>
+          </div>
+          <figure class="rig-clip">
+            <video data-ambient muted loop playsinline preload="none" poster="media/column-poster.jpg"
+                   aria-label="Looping footage of the ALHYDRA column">
+              <source data-src="media/alhydra-column.mp4" type="video/mp4" />
+            </video>
+            <figcaption><span class="rig-dot"></span> The unit, running</figcaption>
+          </figure>
+        </section>
+
         <!-- Sensor Cards Grid -->
-        <div class="sensor-grid" id="sensor-grid">
+        <div class="sensor-grid stagger" id="sensor-grid">
 
           <!-- pH -->
           <div class="sensor-card" id="card-ph" data-key="ph">
@@ -1615,6 +1647,8 @@ Content-Type: application/json
 ═══════════════════════════════════════════ -->
 <script src="js/firebase-config.js"></script>
 <script src="js/i18n.js"></script>
+<script src="js/svg-icons.js"></script>
+<script src="js/motion.js"></script>
 <script src="js/audit.js"></script>
 <script src="js/app.js"></script>
 <script src="js/auth.js"></script>

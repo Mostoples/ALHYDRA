@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="css/icon-anim.css" />
   <link rel="stylesheet" href="css/decor.css" />
   <link rel="stylesheet" href="css/landing-startup.css" />
+  <link rel="stylesheet" href="css/motion.css" />
   <style>
     .btn-lang {
       display: inline-flex; align-items: center; gap: 6px;
@@ -46,6 +47,9 @@
     </a>
     <ul class="nav-links" id="nav-links">
       <li><a href="#about">About</a></li>
+      <li><a href="#showreel">Showreel</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#app-tour">App Tour</a></li>
       <li><a href="#features">Features</a></li>
       <li><a href="#technology">Technology</a></li>
       <li><a href="#how-it-works">How It Works</a></li>
@@ -56,7 +60,7 @@
       <button class="btn-lang" id="lang-toggle" data-lang-toggle title="Language / Bahasa" aria-label="Language">
         <i class="fa-solid fa-language"></i> <span data-lang-label>EN</span>
       </button>
-      <a class="btn-nav-cta" href="/app">
+      <a class="btn-nav-cta sheen-btn" href="/app">
         <i class="fa-solid fa-gauge-high"></i> Launch Dashboard
       </a>
       <button class="nav-hamburger" id="hamburger" aria-label="Toggle menu">
@@ -69,6 +73,9 @@
 <!-- Mobile menu -->
 <div id="mobile-menu" class="mobile-menu hidden">
   <a href="#about"        onclick="closeMobileMenu()">About</a>
+  <a href="#showreel"     onclick="closeMobileMenu()">Showreel</a>
+  <a href="#gallery"      onclick="closeMobileMenu()">Gallery</a>
+  <a href="#app-tour"     onclick="closeMobileMenu()">App Tour</a>
   <a href="#features"     onclick="closeMobileMenu()">Features</a>
   <a href="#technology"   onclick="closeMobileMenu()">Technology</a>
   <a href="#how-it-works" onclick="closeMobileMenu()">How It Works</a>
@@ -84,6 +91,17 @@
      HERO
 ═══════════════════════════════════════════ -->
 <section id="hero">
+  <!-- Layer 0 — graded footage from the real rig (lazy, skipped on save-data) -->
+  <div class="media-layer" aria-hidden="true">
+    <video data-ambient muted loop playsinline preload="none" poster="media/ambient-poster.jpg">
+      <source data-src="media/alhydra-ambient.webm" type="video/webm" />
+      <source data-src="media/alhydra-ambient.mp4"  type="video/mp4" />
+    </video>
+  </div>
+
+  <!-- Layer 1 — generative WebGL field (js/three-bg.js) -->
+  <div id="three-hero" aria-hidden="true"></div>
+
   <!-- Animated background -->
   <div class="hero-bg">
     <div class="hero-orb orb-1"></div>
@@ -102,7 +120,8 @@
     <div class="fi fi-6"><i class="fa-solid fa-microchip"></i></div>
   </div>
 
-  <div class="hero-content">
+  <div class="hero-content hero-split">
+   <div class="hero-copy">
     <div class="hero-badge">
       <span class="badge-dot"></span>
       AIoT-Based Smart Monitoring
@@ -117,7 +136,7 @@
       AIoT cloud platform.
     </p>
     <div class="hero-actions">
-      <a class="btn-hero-primary" href="/app">
+      <a class="btn-hero-primary sheen-btn" href="/app">
         <i class="fa-solid fa-gauge-high"></i>
         Launch Dashboard
       </a>
@@ -149,6 +168,20 @@
         <span class="hs-label">Platform</span>
       </div>
     </div>
+   </div><!-- /hero-copy -->
+
+   <!-- The apparatus, drawn from the build photographs (img/alhydra-tower.svg) -->
+   <figure class="hero-figure" data-parallax="0.05">
+     <svg class="figure-orbit" viewBox="0 0 100 100" aria-hidden="true">
+       <circle class="fo-1" cx="50" cy="50" r="47"/>
+       <circle class="fo-2" cx="50" cy="50" r="39"/>
+     </svg>
+     <img src="img/alhydra-tower.svg" width="560" height="820"
+          alt="Illustration of the ALHYDRA tower: wind turbine and solar wings above a hydroponic grow column flanked by microalgae tubes on a nutrient reservoir." />
+     <figcaption class="hero-figcap">
+       <span class="hfc-dot"></span> Live schematic &middot; 8 sensor channels
+     </figcaption>
+   </figure>
   </div>
 
   <!-- Scroll hint -->
@@ -271,6 +304,80 @@
     </div>
   </div>
 </div>
+
+<!-- ═══════════════════════════════════════════
+     SHOWREEL — cut from footage of the built rig
+     (assembled by tools/video/build_reel.sh)
+═══════════════════════════════════════════ -->
+<section id="showreel" class="section reel-section">
+  <!-- drawn blueprint grid, not a tiled image -->
+  <svg class="deco deco-grid" viewBox="0 0 1200 600" preserveAspectRatio="none" aria-hidden="true">
+    <g class="bp-line">
+      <path d="M0 120h1200M0 240h1200M0 360h1200M0 480h1200"/>
+      <path d="M150 0v600M400 0v600M650 0v600M900 0v600M1150 0v600"/>
+    </g>
+    <g>
+      <circle class="bp-node" cx="400" cy="240" r="3"/>
+      <circle class="bp-node" cx="650" cy="120" r="3"/>
+      <circle class="bp-node" cx="900" cy="360" r="3"/>
+      <circle class="bp-node" cx="150" cy="480" r="3"/>
+      <circle class="bp-node" cx="1150" cy="240" r="3"/>
+      <circle class="bp-node" cx="650" cy="480" r="3"/>
+    </g>
+  </svg>
+
+  <div class="container" style="position:relative;z-index:1">
+    <div class="section-header" data-reveal="up">
+      <div class="section-eyebrow">The Build</div>
+      <h2 class="section-title">See It <span class="gradient-text">Actually Running</span></h2>
+      <p class="section-desc">
+        Thirty-nine seconds inside the assembled tower — solar canopy, wind rotor,
+        algae photobioreactors and the hydroponic column, shot on the working prototype.
+      </p>
+    </div>
+
+    <div class="reel-shell" data-reel data-reveal="scale" data-tilt="2">
+      <video class="reel-video" preload="metadata" playsinline
+             poster="media/showreel-poster.jpg"
+             aria-label="ALHYDRA system showreel">
+        <source src="media/alhydra-showreel.webm" type="video/webm" />
+        <source src="media/alhydra-showreel.mp4"  type="video/mp4" />
+      </video>
+
+      <div class="reel-overlay">
+        <button class="reel-play" data-reel-toggle aria-label="Play the showreel">
+          <i class="fa-solid fa-play"></i>
+        </button>
+        <div class="reel-hint">39 seconds &middot; no sound needed</div>
+      </div>
+
+      <div class="reel-bar">
+        <button class="reel-btn" data-reel-toggle aria-label="Play or pause">
+          <i class="fa-solid fa-play"></i>
+        </button>
+        <div class="reel-track"><div class="reel-fill"></div></div>
+        <span class="reel-time">0:00 / 0:39</span>
+        <button class="reel-btn" data-reel-mute aria-label="Mute or unmute">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
+        <button class="reel-btn" data-reel-full aria-label="Fullscreen">
+          <i class="fa-solid fa-expand"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="reel-chapters" data-reveal="up">
+      <button class="reel-chip" data-reel-time="2.6">The tower</button>
+      <button class="reel-chip" data-reel-time="5.7">Solar &amp; wind</button>
+      <button class="reel-chip" data-reel-time="8.6">Control box</button>
+      <button class="reel-chip" data-reel-time="11.5">Algae tubes</button>
+      <button class="reel-chip" data-reel-time="17.7">Reservoir</button>
+      <button class="reel-chip" data-reel-time="20.4">Grow column</button>
+      <button class="reel-chip" data-reel-time="23.3">The greens</button>
+      <button class="reel-chip" data-reel-time="30.3">In operation</button>
+    </div>
+  </div>
+</section>
 
 <!-- ═══════════════════════════════════════════
      ABOUT
@@ -420,6 +527,76 @@
 </section>
 
 <!-- ═══════════════════════════════════════════
+     APP TOUR — a scrolling capture of the live dashboard
+     (assembled by tools/video/build_apptour.sh)
+═══════════════════════════════════════════ -->
+<section id="app-tour" class="section reel-section">
+  <div class="deco deco-top wave-div" aria-hidden="true">
+    <svg viewBox="0 0 2400 90" preserveAspectRatio="none">
+      <path class="wv wv-1" fill="rgba(6,182,212,.05)"
+            d="M0 44c150-26 300 26 450 26s300-52 450-52 300 52 450 52 300-52 450-52 300 26 450 26v-90H0Z"/>
+      <path class="wv wv-2" fill="rgba(16,185,129,.04)"
+            d="M0 56c200-30 400 22 600 22s400-46 600-46 400 46 600 46 400-46 600-46v-90H0Z"/>
+    </svg>
+  </div>
+
+  <div class="container" style="position:relative;z-index:1">
+    <div class="section-header" data-reveal="up">
+      <div class="section-eyebrow">The Software</div>
+      <h2 class="section-title">Take the <span class="gradient-text">Dashboard Tour</span></h2>
+      <p class="section-desc">
+        A screen capture of the running platform — live sensor cards, pump control,
+        AI health scoring, impact accounting and the crop encyclopedia.
+      </p>
+    </div>
+
+    <div class="reel-shell reel-shell-app" data-reel data-reveal="scale">
+      <video class="reel-video" preload="metadata" playsinline muted
+             poster="media/apptour-poster.jpg"
+             aria-label="Screen recording tour of the ALHYDRA dashboard">
+        <source src="media/alhydra-apptour.webm" type="video/webm" />
+        <source src="media/alhydra-apptour.mp4"  type="video/mp4" />
+      </video>
+
+      <div class="reel-overlay">
+        <button class="reel-play" data-reel-toggle aria-label="Play the dashboard tour">
+          <i class="fa-solid fa-play"></i>
+        </button>
+        <div class="reel-hint">28 seconds &middot; seven views</div>
+      </div>
+
+      <div class="reel-bar">
+        <button class="reel-btn" data-reel-toggle aria-label="Play or pause">
+          <i class="fa-solid fa-play"></i>
+        </button>
+        <div class="reel-track"><div class="reel-fill"></div></div>
+        <span class="reel-time">0:00 / 0:28</span>
+        <button class="reel-btn" data-reel-full aria-label="Fullscreen">
+          <i class="fa-solid fa-expand"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="reel-chapters" data-reveal="up">
+      <button class="reel-chip" data-reel-time="2.2">Dashboard</button>
+      <button class="reel-chip" data-reel-time="6.2">Control</button>
+      <button class="reel-chip" data-reel-time="8.8">AI Insights</button>
+      <button class="reel-chip" data-reel-time="12.8">Impact</button>
+      <button class="reel-chip" data-reel-time="15.6">Encyclopedia</button>
+      <button class="reel-chip" data-reel-time="18.4">Alerts</button>
+      <button class="reel-chip" data-reel-time="20.8">Settings</button>
+    </div>
+
+    <div class="tour-cta" data-reveal="up">
+      <a class="btn-hero-primary sheen-btn" href="/app">
+        <i class="fa-solid fa-gauge-high"></i> Open the dashboard
+      </a>
+      <span class="tour-note">Free account &middot; works on phone, tablet and desktop</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
      TECHNOLOGY / SENSORS
 ═══════════════════════════════════════════ -->
 <section id="technology" class="section">
@@ -434,7 +611,7 @@
 
       <div class="sensor-item reveal" style="--delay:0s">
         <div class="si-num">01</div>
-        <div class="si-icon" style="--c:#10B981"><i class="fa-solid fa-flask-vial"></i></div>
+        <div class="si-icon" style="--c:#10B981"><i class="ai-icon" data-icon="ph"></i></div>
         <div class="si-info">
           <h4>pH Sensor</h4>
           <p>Monitors water acidity/alkalinity. Optimal range 6.5–8.5 pH for healthy plant growth and microalgae cultivation.</p>
@@ -444,7 +621,7 @@
 
       <div class="sensor-item reveal" style="--delay:0.05s">
         <div class="si-num">02</div>
-        <div class="si-icon" style="--c:#F59E0B"><i class="fa-solid fa-sun"></i></div>
+        <div class="si-icon" style="--c:#F59E0B"><i class="ai-icon" data-icon="solar"></i></div>
         <div class="si-info">
           <h4>Light Intensity</h4>
           <p>BH1750 or LDR-based lux measurement for photosynthesis optimization and solar tracking analysis.</p>
@@ -454,7 +631,7 @@
 
       <div class="sensor-item reveal" style="--delay:0.1s">
         <div class="si-num">03</div>
-        <div class="si-icon" style="--c:#06B6D4"><i class="fa-solid fa-droplet"></i></div>
+        <div class="si-icon" style="--c:#06B6D4"><i class="ai-icon" data-icon="drop"></i></div>
         <div class="si-info">
           <h4>Turbidity Sensor</h4>
           <p>Measures water clarity in NTU. Low turbidity (&lt;20 NTU) indicates clean, well-oxygenated water for optimal growth.</p>
@@ -464,7 +641,7 @@
 
       <div class="sensor-item reveal" style="--delay:0.15s">
         <div class="si-num">04</div>
-        <div class="si-icon" style="--c:#EF4444"><i class="fa-solid fa-temperature-half"></i></div>
+        <div class="si-icon" style="--c:#EF4444"><i class="ai-icon" data-icon="temp"></i></div>
         <div class="si-info">
           <h4>DHT11 — Temp & Humidity</h4>
           <p>Ambient temperature and relative humidity inside the tower structure. Critical for preventing mold and maintaining transpiration rates.</p>
@@ -474,7 +651,7 @@
 
       <div class="sensor-item reveal" style="--delay:0.2s">
         <div class="si-num">05</div>
-        <div class="si-icon" style="--c:#06B6D4"><i class="fa-solid fa-water"></i></div>
+        <div class="si-icon" style="--c:#06B6D4"><i class="ai-icon" data-icon="tank"></i></div>
         <div class="si-info">
           <h4>Water Temperature</h4>
           <p>DS18B20 waterproof probe monitors nutrient solution temperature. Ideal range 18–28°C for maximum root activity.</p>
@@ -484,7 +661,7 @@
 
       <div class="sensor-item reveal" style="--delay:0.25s">
         <div class="si-num">06</div>
-        <div class="si-icon" style="--c:#8B5CF6"><i class="fa-solid fa-bolt"></i></div>
+        <div class="si-icon" style="--c:#8B5CF6"><i class="ai-icon" data-icon="bolt"></i></div>
         <div class="si-info">
           <h4>ACS712 — Consumption</h4>
           <p>Current sensor measuring total electrical consumption of pumps, lights, and controllers in amperes and watts.</p>
@@ -494,7 +671,7 @@
 
       <div class="sensor-item reveal" style="--delay:0.3s">
         <div class="si-num">07</div>
-        <div class="si-icon" style="--c:#10B981"><i class="fa-solid fa-solar-panel"></i></div>
+        <div class="si-icon" style="--c:#10B981"><i class="ai-icon" data-icon="solar"></i></div>
         <div class="si-info">
           <h4>ACS712 — Generation</h4>
           <p>Current sensor on the renewable energy input line (solar + wind), reporting total generated power for energy balance analysis.</p>
@@ -598,6 +775,73 @@
 </section>
 
 <!-- ═══════════════════════════════════════════
+     GALLERY — the physical build
+═══════════════════════════════════════════ -->
+<section id="gallery" class="section">
+  <!-- animated wave divider (hand-authored, three offset bands) -->
+  <div class="deco deco-top wave-div" aria-hidden="true">
+    <svg viewBox="0 0 2400 90" preserveAspectRatio="none">
+      <path class="wv wv-1" fill="rgba(16,185,129,.055)"
+            d="M0 44c150-26 300 26 450 26s300-52 450-52 300 52 450 52 300-52 450-52 300 26 450 26v-90H0Z"/>
+      <path class="wv wv-2" fill="rgba(6,182,212,.045)"
+            d="M0 56c200-30 400 22 600 22s400-46 600-46 400 46 600 46 400-46 600-46v-90H0Z"/>
+      <path class="wv wv-3" fill="rgba(255,255,255,.022)"
+            d="M0 66c120-18 240 18 360 18s240-34 360-34 240 34 360 34 240-34 360-34 240 18 360 18 240-18 360-18v-90H0Z"/>
+    </svg>
+  </div>
+
+  <div class="container">
+    <div class="section-header" data-reveal="up">
+      <div class="section-eyebrow">Documentation</div>
+      <h2 class="section-title">The Prototype,<br /><span class="gradient-text">As Built</span></h2>
+      <p class="section-desc">
+        Unretouched photographs and a live loop from the working unit — the same
+        rig every number on the dashboard comes from.
+      </p>
+    </div>
+
+    <div class="gallery-grid">
+      <figure class="gal-item" data-reveal="up">
+        <picture>
+          <source srcset="img/photos/alhydra-02.webp" type="image/webp" />
+          <img src="img/photos/alhydra-02.jpg" loading="lazy" decoding="async"
+               width="1200" height="1600" alt="The full ALHYDRA tower with solar panels, control enclosure and wind rotor." />
+        </picture>
+        <figcaption class="gal-cap"><small>Full assembly</small>Solar canopy, rotor &amp; column</figcaption>
+      </figure>
+
+      <figure class="gal-item" data-reveal="up" style="--rd:.08s">
+        <picture>
+          <source srcset="img/photos/alhydra-03.webp" type="image/webp" />
+          <img src="img/photos/alhydra-03.jpg" loading="lazy" decoding="async"
+               width="1200" height="1600" alt="Close view of the illuminated algae tubes beside the hydroponic column." />
+        </picture>
+        <figcaption class="gal-cap"><small>Photobioreactors</small>Algae tubes under grow light</figcaption>
+      </figure>
+
+      <figure class="gal-item" data-reveal="up" style="--rd:.16s">
+        <span class="gal-live">LIVE LOOP</span>
+        <video data-ambient muted loop playsinline preload="none"
+               poster="media/column-poster.jpg"
+               aria-label="Looping footage of the growing column">
+          <source data-src="media/alhydra-column.mp4" type="video/mp4" />
+        </video>
+        <figcaption class="gal-cap"><small>In motion</small>The column, running</figcaption>
+      </figure>
+
+      <figure class="gal-item" data-reveal="up" style="--rd:.24s">
+        <picture>
+          <source srcset="img/photos/alhydra-01.webp" type="image/webp" />
+          <img src="img/photos/alhydra-01.jpg" loading="lazy" decoding="async"
+               width="1200" height="1600" alt="The tower photographed at night, LEDs and algae tubes lit." />
+        </picture>
+        <figcaption class="gal-cap"><small>After dark</small>LED spectrum &amp; night run</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
      STATS
 ═══════════════════════════════════════════ -->
 <section class="section stats-section">
@@ -690,6 +934,12 @@
 <section id="contact" class="section cta-section">
   <div class="container">
     <div class="cta-card reveal">
+      <!-- defocused algae bokeh, used purely as a moving texture -->
+      <div class="media-layer cta-texture" aria-hidden="true">
+        <video data-ambient muted loop playsinline preload="none">
+          <source data-src="media/alhydra-texture.mp4" type="video/mp4" />
+        </video>
+      </div>
       <div class="cta-bg-orb o1"></div>
       <div class="cta-bg-orb o2"></div>
       <div class="cta-content">
@@ -697,7 +947,7 @@
         <h2>Ready to Monitor<br /><span class="gradient-text">Your System?</span></h2>
         <p>Access the ALHYDRA dashboard to view real-time sensor data, control irrigation pumps, and analyze historical trends — from any device, anywhere.</p>
         <div class="cta-actions">
-          <a class="btn-cta-primary" href="/app">
+          <a class="btn-cta-primary sheen-btn" href="/app">
             <i class="fa-solid fa-gauge-high"></i> Open Dashboard
           </a>
           <a class="btn-cta-secondary" href="https://github.com/Mostoples/ALHYDRA" target="_blank" rel="noopener">
@@ -840,5 +1090,8 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 });
 </script>
 <script src="js/i18n.js"></script>
+<script src="js/svg-icons.js"></script>
+<script src="js/three-bg.js"></script>
+<script src="js/motion.js"></script>
 </body>
 </html>

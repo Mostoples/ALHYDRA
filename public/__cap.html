@@ -1,0 +1,73 @@
+<!doctype html><meta charset="utf-8">
+<style>html,body{margin:0;background:#0A0F1E;overflow:hidden}iframe{border:0;display:block}</style>
+<pre id="o" style="position:fixed;left:-9999px"></pre>
+<iframe id="f" src="/app.html"></iframe>
+<script>
+const q   = new URLSearchParams(location.search);
+const view= q.get('v') || 'dashboard';
+const H   = +(q.get('h') || 900);
+const MODE= q.get('mode') || 'view';      // 'view' | 'chrome' | 'measure'
+const f = document.getElementById('f');
+f.style.width = '1440px';
+f.style.height = H + 'px';
+
+f.addEventListener('load', () => {
+  const w = f.contentWindow, d = f.contentDocument;
+
+  const setup = () => {
+    // past the auth gate — this is a local render of the shipped UI
+    d.getElementById('auth-screen')?.classList.add('hidden');
+    d.getElementById('app')?.classList.remove('hidden');
+
+    // let the content column grow to its natural height so a tall window
+    // captures the whole view instead of an inner scrollbar
+    if (MODE !== 'chrome' && !d.getElementById('__capcss')) {
+      const st = d.createElement('style');
+      st.id = '__capcss';
+      st.textContent = `
+        html,body,#app{height:auto!important;min-height:0!important;overflow:visible!important}
+        #content{overflow:visible!important;height:auto!important}
+        .view{animation:none!important}
+        *{transition:none!important}
+        #chat-fab,#help-fab,#chat-panel,#to-top,#onboarding-overlay,#toast-container,#aura-layer{display:none!important}
+      `;
+      d.head.appendChild(st);
+    }
+    if (MODE === 'chrome' && !d.getElementById('__capcss2')) {
+      const st = d.createElement('style');
+      st.id = '__capcss2';
+      st.textContent = `*{transition:none!important}.view{animation:none!important}
+        #chat-fab,#help-fab,#chat-panel,#toast-container,#onboarding-overlay,#aura-layer{display:none!important}`;
+      d.head.appendChild(st);
+    }
+
+    // set the hash too: app.js reads it on init, so navigateTo alone can be
+    // undone by the router's own first route
+    try { if (w.location.hash !== '#' + view) w.location.hash = view; } catch (e) {}
+    try { w.ALHYDRA?.app?.navigateTo(view); } catch (e) {}
+    try {
+      if (!w.__demo) { w.ALHYDRA?.dashboard?.toggleSimulate(); w.__demo = 1; }
+    } catch (e) {}
+  };
+
+  let n = 0;
+  const t = setInterval(() => {
+    setup();
+    n++;
+    if (n > 45) {
+      clearInterval(t);
+      const c = d.getElementById('content');
+      const active = d.querySelector('.view.active');
+      document.getElementById('o').textContent = JSON.stringify({
+        view,
+        activeId: active?.id,
+        contentH: c ? Math.ceil(c.scrollHeight) : 0,
+        colH: active ? Math.ceil(active.getBoundingClientRect().height) + 48 : 0,
+        viewH:    active ? Math.ceil(active.getBoundingClientRect().height) : 0,
+        docH:     Math.ceil(d.documentElement.scrollHeight)
+      });
+      document.title = 'READY';
+    }
+  }, 60);
+});
+</script>
